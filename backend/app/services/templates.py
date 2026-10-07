@@ -36,6 +36,17 @@ def provider_intro(state: LeadState, provider: Provider) -> str:
 
 def render(action: NextAction, state: LeadState, provider: Provider | None) -> str:
     t = action.type
+    if t == "clarify_outage":
+        return action.note or "Is it only your home, or are nearby homes affected too?"
+    if t == "utility_redirect":
+        if action.note == "power":
+            return ("Since nearby homes are out too, this sounds like a power outage rather than a problem an "
+                    "electrician can fix. Contact your electric utility (the company on your electric bill) or check "
+                    "its outage map. If it turns out only your home is affected, tell me and I'll find you an electrician.")
+        return ("Since nearby homes are affected too, this sounds like a water-service outage rather than a plumbing "
+                "problem, so a plumber can't fix it. Contact your water provider (the utility on your water bill) to "
+                "report it or check for planned work. If it turns out only your home is affected, tell me and I'll "
+                "find you a plumber.")
     if t == "ask_category" and action.note:
         return action.note
     if t == "ask_category":

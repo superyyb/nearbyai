@@ -59,6 +59,12 @@ Rules:
   uses what the user already told you and best resolves that open decision (e.g. "Does it get worse when it
   rains, or is there a bathroom above that spot?"). Never list the service categories back to the user, and
   never ask for contact details or a ZIP here. Otherwise "".
+- utility_signal: "possible_water_outage" if the WHOLE home has no water (or pressure dropped everywhere);
+  "possible_power_outage" if the WHOLE home lost power. Not for one fixture, one circuit, or half the house.
+  outage_scope: "neighbors_affected" if the user says nearby homes/street/area are affected too, "home_only" if
+  they say neighbors are fine or it's only their home, "unknown" if they don't know; else "not_mentioned".
+  When utility_signal is set and outage_scope is unknown, suggested_question should ask whether it's only their
+  home or nearby homes too.
 - If the user mentions several unrelated problems, pick the most urgent as service_category and put the others in secondary_issues.
 - corrections: list a field only if the user explicitly changes an earlier answer ("actually it's 95051").
 - consent_to_share: "yes"/"no" when the user answers the question about sharing their contact details with the
@@ -127,6 +133,8 @@ class LLMExtraction(BaseModel):
     needs_clarification: bool
     clarification_reason: str
     suggested_question: str
+    utility_signal: Literal["possible_water_outage", "possible_power_outage", "none"]
+    outage_scope: Literal["home_only", "neighbors_affected", "unknown", "not_mentioned"]
     unsupported_service: str
     issue_summary: str
     secondary_issues: list[str]
@@ -178,6 +186,8 @@ class LLMExtraction(BaseModel):
                 data[name] = None if value.strip().lower() in none_values else value.strip()
             else:
                 data[name] = value
+        data["utility_signal"] = {"possible_water_outage": "water", "possible_power_outage": "power"}.get(
+            self.utility_signal)
         return ExtractionResult(updates=ExtractedFields(**data), corrections=list(self.corrections))
 
 

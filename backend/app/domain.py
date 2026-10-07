@@ -30,6 +30,7 @@ class Outcome(StrEnum):
     NO_MATCH = "no_match"
     UNSUPPORTED_CATEGORY = "unsupported_category"
     SAFETY_REDIRECT = "safety_redirect"
+    UTILITY_REDIRECT = "utility_redirect"
     ABANDONED = "abandoned"
 
 
@@ -39,6 +40,7 @@ TERMINAL_OUTCOMES = {
     Outcome.NO_MATCH,
     Outcome.UNSUPPORTED_CATEGORY,
     Outcome.SAFETY_REDIRECT,
+    Outcome.UTILITY_REDIRECT,
 }
 
 # Pilot geography. Provider coverage in the dataset is recorded per area,
@@ -131,6 +133,10 @@ class LeadState(BaseModel):
 
     # Enrichment
     insurance_intent: str | None = None
+
+    # Possible utility outage (water / power): a contractor can't fix an area-wide outage
+    utility_signal: Literal["water", "power"] | None = None
+    outage_scope: Literal["home_only", "neighbors_affected", "unknown"] | None = None
 
     # Safety
     safety_flags: list[str] = Field(default_factory=list)
@@ -226,6 +232,10 @@ class ExtractedFields(BaseModel):
     requested_action: RequestedAction | None = Field(
         default=None, description="Something the user asked the system to do that it cannot (call, book, ...)."
     )
+    utility_signal: Literal["water", "power"] | None = Field(
+        default=None, description="The whole home has no water / no power, which could be a utility outage."
+    )
+    outage_scope: Literal["home_only", "neighbors_affected", "unknown"] | None = None
     unknown_facts: list[str] = Field(
         default_factory=list, description="Qualification facts the user said they cannot confirm."
     )
@@ -249,6 +259,8 @@ ActionType = Literal[
     "ask_category",
     "clarify_category",
     "unsupported_category",
+    "clarify_outage",
+    "utility_redirect",
     "ask_location",
     "out_of_area",
     "ask_qualification",

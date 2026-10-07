@@ -31,6 +31,7 @@ log = logging.getLogger(__name__)
 ASKED_KEY = {
     "ask_category": "service_category",
     "clarify_category": "category_clarification",
+    "clarify_outage": "outage_scope",
     "ask_location": "zip_code",
     "ask_timing": "timing",
     "ask_address": "street_address",
@@ -40,6 +41,7 @@ ASKED_KEY = {
 OUTCOME_FOR_ACTION = {
     "safety_redirect": Outcome.SAFETY_REDIRECT,
     "unsupported_category": Outcome.UNSUPPORTED_CATEGORY,
+    "utility_redirect": Outcome.UTILITY_REDIRECT,
     "out_of_area": Outcome.NO_MATCH,
     "no_match": Outcome.NO_MATCH,
     "self_serve": Outcome.SELF_SERVE,
@@ -76,7 +78,7 @@ def _trim(message: str) -> str:
 MATERIAL_FIELDS = {
     "service_category", "unsupported_service", "zip_code", "city", "street_address", "pilot_area", "urgency",
     "preferred_time", "customer_name", "contact_value", "consent_to_share", "selected_provider_id",
-    "excluded_provider_ids", "service_details",
+    "excluded_provider_ids", "service_details", "utility_signal", "outage_scope",
 }
 
 
@@ -197,9 +199,10 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         )
     # Clarifying question: the LLM proposes one in the user's terms; code validates it, then falls back to a
     # curated rule question, and only then to the generic category template.
-    if action.type in ("ask_category", "clarify_category"):
+    if action.type in ("ask_category", "clarify_category", "clarify_outage"):
+        rule_question = None if action.type == "clarify_outage" else (action.note or (rule.question if rule else None))
         question, source, rejected = clarification.choose_question(
-            state, up.suggested_question if up else None, action.note or (rule.question if rule else None)
+            state, up.suggested_question if up else None, rule_question
         )
         action.note = question
         events.append(f"clarification_source:{source}")

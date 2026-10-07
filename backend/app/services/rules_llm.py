@@ -34,6 +34,11 @@ NO_RE = re.compile(r"^\s*(n|no|nope|nah|not really|don'?t|do not)\b", re.I)
 DONT_KNOW_RE = re.compile(r"\b(not sure|don'?t know|no idea|unsure|idk|dunno)\b", re.I)
 SHOW_OPTIONS_RE = re.compile(r"\b(show me (all |my |the )?options|what are (my|the) options|list (them|the options)|let me (choose|pick))\b", re.I)
 CHOOSE_RE = re.compile(r"\b(use|go with|prefer|pick|choose|is fine|are fine|works)\b", re.I)
+WHOLE_HOME_NO_WATER = re.compile(r"\b(no water|water (is )?(off|out)|lost water|no running water)\b", re.I)
+WHOLE_HOME_NO_POWER = re.compile(r"\b(no power|power(?:'s| is)? out|lost power|no electricity|power outage|blackout)\b", re.I)
+PARTIAL = re.compile(r"\b(half|some|one|part of|outside faucet|kitchen only|in the (kitchen|bathroom|shower))\b", re.I)
+NEIGHBORS_AFFECTED = re.compile(r"\bneighbou?rs?\b.{0,30}\b(too|also|as well|same|out|dark|no (water|power))\b|\bwhole (street|block|neighborhood)\b|\b(street|block|neighborhood) (is|went|lost)\b", re.I)
+HOME_ONLY = re.compile(r"\bneighbou?rs?\b.{0,30}\b(fine|ok|okay|have (water|power)|lights (are )?on)\b|\b(only|just) (my|our) (house|home|place)\b|\bonly (us|me)\b", re.I)
 QUESTION_TOPICS = [
     ("sponsorship", re.compile(r"\b(sponsor\w*|paid (placement|ads?)|affiliat\w*|get paid|kickback)\b", re.I)),
     ("is_this_a_person", re.compile(r"\b(real person|human|a bot|are you (an? )?(ai|robot))\b", re.I)),
@@ -198,6 +203,18 @@ class RulesLLM:
             up.likely_source = "storm_exterior"
         if re.search(r"\b(spark\w*|burning smell|smoke|hot to the touch)\b", msg, re.I):
             up.hazard_present = True
+
+        # Possible utility outage
+        if WHOLE_HOME_NO_WATER.search(msg) and not PARTIAL.search(msg):
+            up.utility_signal = "water"
+        elif WHOLE_HOME_NO_POWER.search(msg) and not PARTIAL.search(msg):
+            up.utility_signal = "power"
+        if NEIGHBORS_AFFECTED.search(msg):
+            up.outage_scope = "neighbors_affected"
+        elif HOME_ONLY.search(msg):
+            up.outage_scope = "home_only"
+        elif last_question_field == "outage_scope" and DONT_KNOW_RE.search(msg):
+            up.outage_scope = "unknown"
 
         # Feedback about providers
         named = find_by_name(msg) if state.service_category else None

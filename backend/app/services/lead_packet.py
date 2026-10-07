@@ -33,6 +33,9 @@ def build_packet(state: LeadState, provider: Provider, quality_score: float) -> 
             details[label] = values.get(value, str(value))
         elif field in state.asked_fields:
             details[label] = "Unknown — customer could not confirm"
+    if state.utility_signal:
+        details["Nearby homes also affected"] = {"home_only": "No — only this home", "unknown": "Customer unsure"}.get(
+            state.outage_scope, "Not asked")
     coverage = (
         f"Verified — {area} listed on provider's official site"
         if state.selected_provider_coverage == "verified"

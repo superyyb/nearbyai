@@ -131,6 +131,12 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
                 location_changed = True
             setattr(state, field, new)
 
+    # Utility outage: the signal sticks once seen; the scope is latest-wins ("actually it's only my house").
+    if up.utility_signal and state.utility_signal is None:
+        state.utility_signal = up.utility_signal
+    if up.outage_scope is not None:
+        state.outage_scope = up.outage_scope
+
     # Consent is always latest-wins: a revocation must apply even after a lead is prepared,
     # and a user who changes their mind can grant it later.
     if up.consent_to_share is not None:

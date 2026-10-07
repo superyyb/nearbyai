@@ -11,6 +11,7 @@ The function is pure: it reads state and returns a NextAction. Side effects
 
 from app.domain import (
     BLOCKING_QUALIFICATION,
+    Category,
     TERMINAL_OUTCOMES,
     LeadState,
     NextAction,
@@ -39,6 +40,17 @@ def decide(
 
     if redirect:
         return NextAction(type="safety_redirect")
+
+    # --- possible utility outage: a contractor can't fix an area-wide outage, so check scope first ---
+    if state.utility_signal:
+        if state.outage_scope == "neighbors_affected":
+            return NextAction(type="utility_redirect", note=state.utility_signal)
+        if state.outage_scope is None and asked(state, "outage_scope") == 0:
+            return NextAction(type="clarify_outage", field="outage_scope")
+        if state.service_category is None:
+            # Only this home (or unknown after asking): it's a job for the matching trade.
+            state.service_category = Category.PLUMBING if state.utility_signal == "water" else Category.ELECTRICAL
+            state.category_confirmed = True
 
     # --- what is the job? ---
     if state.service_category is None:

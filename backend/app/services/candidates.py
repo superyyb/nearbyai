@@ -19,6 +19,8 @@ def candidate_reasons(state: LeadState, writer_rejections: int = 0) -> list[str]
         reasons.append("extraction_failed")
     if state.outcome == Outcome.NO_MATCH:
         reasons.append("provider_not_found")
+    if state.outcome == Outcome.UTILITY_REDIRECT:
+        reasons.append("utility_redirect")
     if state.outcome == Outcome.UNSUPPORTED_CATEGORY:
         reasons.append("unsupported_category")
     if state.user_turns > TOO_MANY_TURNS:

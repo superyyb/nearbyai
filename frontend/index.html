@@ -62,6 +62,7 @@ const OUTCOME_LABELS = {
   ready_to_dispatch: ["Ready to dispatch", "b-ok"], self_serve: ["Self-serve (contact not shared)", "b-warn"],
   no_match: ["No verified match", "b-muted"], unsupported_category: ["Outside supported services", "b-muted"],
   safety_redirect: ["Safety redirect", "b-warn"],
+  utility_redirect: ["Likely utility outage", "b-muted"],
 };
 
 function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
