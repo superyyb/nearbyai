@@ -15,7 +15,7 @@ import logging
 from dataclasses import dataclass, field
 
 from app.domain import CATEGORY_LABELS, TERMINAL_OUTCOMES, LeadState, NextAction, Outcome, Provider
-from app.services import ambiguity, answers, next_action, provider_intents, safety, templates
+from app.services import ambiguity, answers, clarification, next_action, provider_intents, safety, templates
 from app.services.lead_packet import build_packet
 from app.services.lead_validator import validate_lead
 from app.services.llm import ExtractionFailed, guardrail_violations
@@ -195,6 +195,18 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         action = next_action.decide(
             state, redirect=screen.is_redirect, ambiguity=rule, llm_needs_clarification=llm_needs_clarification
         )
+    # Clarifying question: the LLM proposes one in the user's terms; code validates it, then falls back to a
+    # curated rule question, and only then to the generic category template.
+    if action.type in ("ask_category", "clarify_category"):
+        question, source, rejected = clarification.choose_question(
+            state, up.suggested_question if up else None, action.note or (rule.question if rule else None)
+        )
+        action.note = question
+        events.append(f"clarification_source:{source}")
+        if rejected:
+            TELEMETRY.fallback("clarification_question_rejected")
+            events.append(f"clarification_rejected:{rejected}")
+
     if all_rejected and action.type == "no_match":
         action.note = "all_rejected"
     newly_matched = False
@@ -258,6 +270,8 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             violations = guardrail_violations(
                 candidate, allowed_phones, allowed_urls, state.selected_provider_coverage == "provisional"
             )
+            if clarification.is_category_menu(candidate) and not clarification.is_category_menu(reference):
+                violations.append("rewrote a targeted question into a category menu")
             if violations:
                 TELEMETRY.fallback("writer_guardrail_rejected")
                 events.append(f"writer_rejected:{violations}")

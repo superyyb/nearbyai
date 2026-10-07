@@ -36,6 +36,8 @@ def provider_intro(state: LeadState, provider: Provider) -> str:
 
 def render(action: NextAction, state: LeadState, provider: Provider | None) -> str:
     t = action.type
+    if t == "ask_category" and action.note:
+        return action.note
     if t == "ask_category":
         return (
             "I can help with that. Can you tell me a bit about what's going on — for example a leak, "

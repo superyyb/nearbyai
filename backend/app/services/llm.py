@@ -52,7 +52,13 @@ Rules:
   "none" / "not_mentioned" / "not_answered" for choices, and [] for lists.
 - Never invent addresses, names, phone numbers, or timing.
 - issue_summary: one or two provider-facing sentences combining the current summary with any new problem facts. Keep it factual.
-- If the cause is genuinely ambiguous between categories (e.g. a ceiling stain could be roof or plumbing), set needs_clarification=true and list candidate_categories.
+- service_category is your best guess even when unsure; list every plausible category in candidate_categories.
+- If the right trade can't be decided yet (e.g. a ceiling stain could be roof or plumbing), set
+  needs_clarification=true and say why in clarification_reason.
+- suggested_question: when needs_clarification is true, or the trade is unknown, write ONE short question that
+  uses what the user already told you and best resolves that open decision (e.g. "Does it get worse when it
+  rains, or is there a bathroom above that spot?"). Never list the service categories back to the user, and
+  never ask for contact details or a ZIP here. Otherwise "".
 - If the user mentions several unrelated problems, pick the most urgent as service_category and put the others in secondary_issues.
 - corrections: list a field only if the user explicitly changes an earlier answer ("actually it's 95051").
 - consent_to_share: "yes"/"no" when the user answers the question about sharing their contact details with the
@@ -119,6 +125,8 @@ class LLMExtraction(BaseModel):
     service_category: CategoryOrNone
     candidate_categories: list[Literal["water_damage_restoration", "plumbing", "roofing", "hvac", "electrical"]]
     needs_clarification: bool
+    clarification_reason: str
+    suggested_question: str
     unsupported_service: str
     issue_summary: str
     secondary_issues: list[str]

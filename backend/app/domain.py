@@ -184,6 +184,9 @@ class ExtractedFields(BaseModel):
         default=False, description="True if the category cannot be chosen without asking the user."
     )
     clarification_reason: str | None = None
+    suggested_question: str | None = Field(
+        default=None, description="One targeted question, in the user's terms, that resolves the open decision."
+    )
     unsupported_service: str | None = Field(
         default=None, description="Set (e.g. 'pest control') only when the job is outside all five categories."
     )
