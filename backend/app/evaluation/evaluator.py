@@ -97,8 +97,8 @@ def check_expectations(run: CaseRun) -> list[str]:
             fails.append("no provider-rejection event")
     if exp.get("answers_without_inventing"):
         replies = [t["content"] for t in run.transcript if t["role"] == "assistant"]
-        if not any("verified" in r and ("pricing" in r or "review" in r) for r in replies):
-            fails.append("provider question was not answered honestly")
+        if not any("verified review" in r for r in replies) or not any("verified pricing" in r for r in replies):
+            fails.append("not every provider question was answered honestly")
     if exp.get("final_zip_code") and s.zip_code != exp["final_zip_code"]:
         fails.append(f"zip {s.zip_code} != expected {exp['final_zip_code']}")
     return fails

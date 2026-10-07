@@ -217,11 +217,8 @@ class RulesLLM:
 
         # Questions and requests the system can't fulfil
         if QUESTION_RE.search(msg):
-            for topic, rx in QUESTION_TOPICS:
-                if rx.search(msg):
-                    up.question_topic = topic
-                    break
-            if up.question_topic == "why_need_info":
+            up.question_topics = [topic for topic, rx in QUESTION_TOPICS if rx.search(msg)]
+            if "why_need_info" in up.question_topics:
                 up.question_info_field = next((f for f, rx in INFO_FIELDS if rx.search(msg)), "other")
         for action, rx in REQUESTED_ACTIONS:
             if rx.search(msg):

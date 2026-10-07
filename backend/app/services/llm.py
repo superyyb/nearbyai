@@ -74,9 +74,9 @@ Rules:
   "accept_offer" / "decline_offer" — answers yes/no to an offered provider (see assistant_last_question_field);
   else "none". named_provider: the provider name the user mentioned (for reject or choose_named), else "".
   provider_feedback_reason: their stated reason, or "".
-- question_topic: if the user asks the assistant a question, classify it (why this provider, price, reviews,
+- question_topics: classify EVERY question the user asks the assistant, in order (why this provider, price, reviews,
   availability, hours/24-7, distance, license/insurance, why do you need some info, data privacy, are you a person,
-  are recommendations sponsored/paid, has my request been sent); "other" for any other question; else "none".
+  are recommendations sponsored/paid, has my request been sent; "other" for any other question); [] if none.
   For why_need_info also set question_info_field to the info they asked about; otherwise "none".
 - requested_action: if the user asks the assistant to call/text the provider, book or schedule an appointment,
   send the request right now, or guarantee timing, classify it; else "none".
@@ -144,10 +144,10 @@ class LLMExtraction(BaseModel):
     ]
     provider_feedback_reason: str
     named_provider: str
-    question_topic: Literal[
+    question_topics: list[Literal[
         "why_this_provider", "price", "reviews", "availability", "hours_or_24_7", "distance", "license_or_insurance",
-        "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other", "none",
-    ]
+        "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other",
+    ]]
     question_info_field: Literal[
         "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present",
         "consent", "other", "none",

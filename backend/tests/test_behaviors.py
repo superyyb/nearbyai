@@ -26,7 +26,7 @@ MATCHED = [("My AC blows warm air", AC_ISSUE), ("Santa Clara", SANTA_CLARA)]
     ("request_status", "Nothing has been sent"),
 ])
 def test_provider_question_is_answered_then_funnel_resumes(topic, expected):
-    state, results = converse(MATCHED + [("question", {"question_topic": topic})])
+    state, results = converse(MATCHED + [("question", {"question_topics": [topic]})])
     r = results[-1]
     assert expected in r.message
     assert r.action.type == "ask_timing"  # resumes the question we were on
@@ -34,14 +34,14 @@ def test_provider_question_is_answered_then_funnel_resumes(topic, expected):
 
 
 def test_question_before_any_match_does_not_invent_a_provider():
-    state, results = converse([("How much does it cost?", {"question_topic": "price", **AC_ISSUE})])
+    state, results = converse([("How much does it cost?", {"question_topics": ["price"], **AC_ISSUE})])
     assert "haven't matched a provider yet" in results[-1].message
     assert results[-1].action.type == "ask_location"
 
 
 def test_why_do_you_need_my_phone_explains_and_reasks():
     turns = MATCHED + [("today", {"urgency": "same_day"}),
-                       ("why do you need my number?", {"question_topic": "why_need_info", "question_info_field": "phone"})]
+                       ("why do you need my number?", {"question_topics": ["why_need_info"], "question_info_field": "phone"})]
     state, results = converse(turns)
     assert "only to the one provider you choose" in results[-1].message
     assert results[-1].action.type == "ask_contact"
@@ -61,7 +61,7 @@ def test_impossible_requests_are_declined_honestly(action, expected):
 
 def test_question_and_answer_in_same_message_are_both_used():
     state, results = converse(MATCHED + [("Today please — are they licensed?",
-                                          {"urgency": "same_day", "question_topic": "license_or_insurance"})])
+                                          {"urgency": "same_day", "question_topics": ["license_or_insurance"]})])
     assert state.urgency == "same_day"
     assert "don't have verified license" in results[-1].message
     assert results[-1].action.type == "ask_contact"
@@ -122,7 +122,7 @@ def test_thanks_after_lead_does_not_duplicate_it():
 
 
 def test_question_after_lead_is_answered_without_reopening():
-    state, results = converse(TO_LEAD + [("did you send it already?", {"question_topic": "request_status"})])
+    state, results = converse(TO_LEAD + [("did you send it already?", {"question_topics": ["request_status"]})])
     r = results[-1]
     assert "hasn't been sent" in r.message and state.outcome == "ready_to_dispatch" and not r.lead_withdrawn
 
@@ -344,3 +344,12 @@ def test_withholding_a_given_address_removes_it_from_the_lead():
     assert lead and "10 Main St" not in str(lead)
     assert "prefers to share the street address directly" in lead["property"]["address"]
     assert lead["customer"]["contact_preferences"] == "calls only"
+
+
+def test_every_question_in_one_message_is_answered():
+    # Found by the Claude eval: "Are they any good? How much do they charge?" only got the reviews answer.
+    state, results = converse(MATCHED + [("Are they any good? How much do they charge?",
+                                          {"question_topics": ["reviews", "price"]})])
+    msg = results[-1].message
+    assert "don't have verified review" in msg and "don't have verified pricing" in msg
+    assert results[-1].action.type == "ask_timing"

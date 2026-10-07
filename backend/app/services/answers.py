@@ -1,6 +1,6 @@
 """Deterministic answers to user questions and to requests the system can't fulfil.
 
-The LLM only classifies *which* question was asked (question_topic). The answer
+The LLM only classifies *which* questions were asked (question_topics). The answer
 content comes from here, built from the provider record and fixed product
 facts, so price, ratings, licensing, or availability can never be invented.
 Anything not in the record is answered with "I don't have verified ...".

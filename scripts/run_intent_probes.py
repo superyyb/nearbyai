@@ -67,6 +67,9 @@ def check(updates, expect: dict) -> list[str]:
         elif key.endswith("_nonempty"):
             got = getattr(updates, key.removesuffix("_nonempty"))
             ok = bool(got) == want
+        elif key.endswith("_any"):
+            got = getattr(updates, key.removesuffix("_any"))
+            ok = any(w in got for w in want)
         elif key.endswith("_in"):
             got = _plain(getattr(updates, key.removesuffix("_in")))
             ok = got in want

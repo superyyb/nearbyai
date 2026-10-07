@@ -61,6 +61,7 @@ class TurnResult:
 
 
 MAX_MESSAGE_CHARS = 2000
+MAX_ANSWERS_PER_TURN = 3
 
 
 def _trim(message: str) -> str:
@@ -155,12 +156,13 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             prefixes.append(intent.prefix)
 
     # Questions and requests the system can't fulfil: answer first, then resume the funnel.
-    if up and (up.question_topic or up.requested_action) and not screen.is_redirect:
+    if up and (up.question_topics or up.requested_action) and not screen.is_redirect:
         intent_turn = True
         current = get_provider(state.selected_provider_id) if state.selected_provider_id else None
-        if up.question_topic:
-            prefixes.append(answers.answer_question(up.question_topic, up.question_info_field, state, current))
-            events.append(f"user_question:{up.question_topic}")
+        # Answer every question in the message (a user asking "are they good? how much?" expects both).
+        for topic in list(dict.fromkeys(up.question_topics))[:MAX_ANSWERS_PER_TURN]:
+            prefixes.append(answers.answer_question(topic, up.question_info_field, state, current))
+            events.append(f"user_question:{topic}")
         if up.requested_action:
             prefixes.append(answers.answer_request(up.requested_action, current))
             events.append(f"requested_action:{up.requested_action}")

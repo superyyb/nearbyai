@@ -216,7 +216,9 @@ class ExtractedFields(BaseModel):
     )
     named_provider: str | None = Field(default=None, description="Provider the user named, if any.")
     provider_feedback_reason: str | None = None
-    question_topic: QuestionTopic | None = Field(default=None, description="What the user asked about, if anything.")
+    question_topics: list[QuestionTopic] = Field(
+        default_factory=list, description="Every question the user asked in this message, in order."
+    )
     question_info_field: InfoField | None = None
     requested_action: RequestedAction | None = Field(
         default=None, description="Something the user asked the system to do that it cannot (call, book, ...)."
