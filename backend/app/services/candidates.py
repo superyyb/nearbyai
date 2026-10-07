@@ -23,6 +23,8 @@ def candidate_reasons(state: LeadState, writer_rejections: int = 0) -> list[str]
         reasons.append("unsupported_category")
     if state.user_turns > TOO_MANY_TURNS:
         reasons.append("too_many_turns")
+    if state.excluded_provider_ids or state.shown_provider_ids:
+        reasons.append("provider_rejected_or_alternative_requested")
     if writer_rejections:
         reasons.append("writer_guardrail_rejected")
     if state.outcome is None and state.user_turns >= 3:

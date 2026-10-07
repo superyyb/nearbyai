@@ -259,6 +259,63 @@ def test_wire_schema_maps_unknown():
                 preferred_time="", customer_name="", property_relationship="none", contact_method="none",
                 contact_value="", consent_to_share="not_answered", insurance_intent="", water_still_active="unknown",
                 active_leak="not_mentioned", hazard_present="yes", likely_source="not_mentioned", declined_fields=[],
-                corrections=[])
+                provider_feedback="none", provider_feedback_reason="", corrections=[])
     up = LLMExtraction(**base).to_result().updates
     assert up.water_still_active is None and up.unknown_facts == ["water_still_active"] and up.hazard_present is True
+
+
+# ---------- provider rejection / alternatives (found by manual testing) ----------
+
+def matched_hvac_state() -> LeadState:
+    """Mirrors the manual-test failure: AC in Santa Clara, provider presented, timing not yet asked."""
+    state, results = run(["My home AC doesn't work", "I am in Santa Clara. I don't know the ZIP code"])
+    assert results[-1].action.type == "ask_timing" and state.selected_provider_id
+    return state
+
+
+def test_rejected_provider_is_replaced_and_funnel_continues():
+    state = matched_hvac_state()
+    rejected = state.selected_provider_id
+    r = handle_turn(state, "Any other options? I don't like them, bad experience last time.", RulesLLM(), [])
+    assert rejected in state.excluded_provider_ids
+    assert state.selected_provider_id not in (None, rejected)
+    assert get_provider(state.selected_provider_id).coverage["santa_clara"] == "verified"
+    assert r.action.type == "ask_timing"  # conversation continues, not reset
+    assert r.message.startswith("Understood — I won't use")
+
+
+def test_rejected_provider_never_reselected_after_new_search():
+    state = matched_hvac_state()
+    rejected = state.selected_provider_id
+    handle_turn(state, "I don't want them", RulesLLM(), [])
+    # A location change triggers a fresh search; the rejected provider must stay out.
+    merge(state, ExtractionResult(updates=ExtractedFields(zip_code="95134"), corrections=["zip_code"]))
+    from app.services.matching import select_provider
+    select_provider(state)
+    assert rejected not in state.candidate_provider_ids and state.selected_provider_id != rejected
+
+
+def test_switching_provider_clears_consent():
+    from app.services.matching import switch_provider
+
+    s = ready_state(candidate_provider_ids=["911-restoration-of-san-jose", "roto-rooter-plumbing-water-cleanup-santa-clara"])
+    s.asked_fields.append("consent")
+    switch_provider(s, "reject", "bad reviews")
+    assert s.consent_to_share is None and "consent" not in s.asked_fields
+    assert not validate_lead(s, get_provider(s.selected_provider_id)).valid
+
+
+def test_rejecting_every_verified_provider_is_honest_no_match():
+    state = matched_hvac_state()
+    for _ in range(len(state.candidate_provider_ids)):
+        r = handle_turn(state, "I don't like that one either", RulesLLM(), [])
+    assert state.outcome == Outcome.NO_MATCH and r.action.note == "all_rejected"
+    assert state.selected_provider_id is None
+
+
+def test_request_for_alternative_without_rejection_keeps_provider_eligible():
+    state = matched_hvac_state()
+    first = state.selected_provider_id
+    handle_turn(state, "Are there any other options?", RulesLLM(), [])
+    assert first in state.shown_provider_ids and first not in state.excluded_provider_ids
+    assert state.selected_provider_id != first

@@ -13,6 +13,13 @@ QUALIFICATION_QUESTIONS = {
 }
 SUPPORTED_SCOPE = "plumbing, water damage, roofing, heating/cooling, and electrical"
 PILOT_SCOPE = "Santa Clara, Sunnyvale, and North San Jose (95131, 95134)"
+def get_provider_name(provider_id: str) -> str:
+    from app.services.provider_search import get_provider
+
+    provider = get_provider(provider_id)
+    return provider.name if provider else "that provider"
+
+
 DEMO_DISCLAIMER = "This demo prepares the lead but does not contact the provider automatically."
 
 
@@ -25,6 +32,19 @@ def provider_intro(state: LeadState, provider: Provider) -> str:
         f"I found {provider.name}, which handles {label} and is located near you. "
         f"Their exact service coverage for {area} still needs to be confirmed."
     )
+
+
+def provider_switched(state: LeadState, previous: Provider, new: Provider, feedback: str) -> str:
+    area = PILOT_AREAS.get(state.pilot_area or "", "your area")
+    opener = f"Understood — I won't use {previous.name}." if feedback == "reject" else "Sure."
+    if state.selected_provider_coverage == "verified":
+        return f"{opener} Another option is {new.name}, which also lists {area} in its service area."
+    return f"{opener} Another option is {new.name}, located near you; its coverage for {area} still needs to be confirmed."
+
+
+def no_other_option(state: LeadState, current: Provider) -> str:
+    label = CATEGORY_LABELS[state.service_category].lower()
+    return f"I don't have another verified {label} provider for your area, so {current.name} is still my best match."
 
 
 def render(action: NextAction, state: LeadState, provider: Provider | None) -> str:
@@ -57,6 +77,13 @@ def render(action: NextAction, state: LeadState, provider: Provider | None) -> s
         )
     if t == "ask_qualification":
         return QUALIFICATION_QUESTIONS[action.field]
+    if t == "no_match" and action.note == "all_rejected":
+        rejected = get_provider_name(state.excluded_provider_ids[-1]) if state.excluded_provider_ids else "that provider"
+        return (
+            f"Understood — I won't use {rejected}. I don't have another verified "
+            f"{CATEGORY_LABELS[state.service_category].lower()} provider for your area right now, "
+            "so I can't make a match this time."
+        )
     if t == "no_match":
         return (
             f"I couldn't find a provider in my verified list for {CATEGORY_LABELS[state.service_category].lower()} "

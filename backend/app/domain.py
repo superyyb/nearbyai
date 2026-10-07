@@ -126,8 +126,11 @@ class LeadState(BaseModel):
     safety_flags: list[str] = Field(default_factory=list)
     safety_guidance_given: bool = False
 
-    # Matching
+    # Matching (candidate_provider_ids is kept in ranked order)
     candidate_provider_ids: list[str] = Field(default_factory=list)
+    excluded_provider_ids: list[str] = Field(default_factory=list)  # rejected by the user; never re-offered
+    shown_provider_ids: list[str] = Field(default_factory=list)  # offered, then user asked for another
+    provider_feedback: dict[str, str] = Field(default_factory=dict)
     selected_provider_id: str | None = None
     selected_provider_coverage: str | None = None
     alternative_provider_id: str | None = None
@@ -194,6 +197,10 @@ class ExtractedFields(BaseModel):
     likely_source: LikelySource | None = None
     active_leak: bool | None = None
     hazard_present: bool | None = None
+    provider_feedback: Literal["reject", "want_alternative"] | None = Field(
+        default=None, description="User rejects the recommended provider, or asks for other options."
+    )
+    provider_feedback_reason: str | None = None
     unknown_facts: list[str] = Field(
         default_factory=list, description="Qualification facts the user said they cannot confirm."
     )

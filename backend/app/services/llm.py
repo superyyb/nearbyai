@@ -51,7 +51,10 @@ Rules:
 - If the user answers yes/no, interpret it against the assistant's last question field.
 - water_still_active / active_leak / hazard_present: "yes"/"no" only when the user states the current situation
   directly. Second-hand or ambiguous reports (e.g. "my neighbor says water is pooling") are "not_mentioned".
-  Use "unknown" when the user says they don't know or can't check."""
+  Use "unknown" when the user says they don't know or can't check.
+- provider_feedback: "reject" if the user turns down the currently recommended provider (dislikes them, bad past
+  experience, doesn't want them); "want_alternative" if they ask for other options without rejecting it; else "none".
+  provider_feedback_reason: their stated reason, or ""."""
 
 WRITER_SYSTEM = """You write the next assistant message for a home-service intake chat.
 
@@ -66,10 +69,10 @@ Rules:
 - Do not repeat sentences or provider descriptions from previous_assistant_message.
 - Never mention internal state, fields, tools, or validation."""
 
-RERANK_SYSTEM = """Pick the single best-fit provider for a home-service job from the candidate list.
-Every candidate already passed category and service-area checks. Choose only by specialty fit to the described job
-(and 24/7 availability if the job is urgent and the record says so). Return one candidate id exactly as given
-and a short reason grounded only in the candidate's record."""
+RERANK_SYSTEM = """Rank the candidate providers for a home-service job, best fit first.
+Every candidate already passed category and service-area checks. Rank only by specialty fit to the described job
+(and 24/7 availability if the job is urgent and the record says so). Return every candidate id exactly as given,
+and a short reason for the top choice grounded only in its record."""
 
 
 CategoryOrNone = Literal["water_damage_restoration", "plumbing", "roofing", "hvac", "electrical", "none"]
@@ -107,6 +110,8 @@ class LLMExtraction(BaseModel):
     hazard_present: YesNo
     likely_source: Literal["storm_exterior", "plumbing", "unknown", "not_mentioned"]
     declined_fields: list[Literal["street_address", "contact"]]
+    provider_feedback: Literal["reject", "want_alternative", "none"]
+    provider_feedback_reason: str
     corrections: list[CorrectableField]
 
     def to_result(self) -> ExtractionResult:
@@ -127,8 +132,8 @@ class LLMExtraction(BaseModel):
         return ExtractionResult(updates=ExtractedFields(**data), corrections=list(self.corrections))
 
 
-class RerankChoice(BaseModel):
-    selected_provider_id: str
+class RerankResult(BaseModel):
+    ranked_provider_ids: list[str]
     reason: str
 
 
@@ -157,6 +162,7 @@ class ClaudeLLM:
                 mode="json",
             ),
             "assistant_last_question_field": last_question_field,
+            "currently_recommended_provider": _provider_name(state.selected_provider_id),
         }
         feedback = ""
         last_error: Exception | None = None
@@ -209,7 +215,7 @@ class ClaudeLLM:
             return None
         return "".join(b.text for b in resp.content if b.type == "text").strip() or None
 
-    def rerank(self, job: dict, candidates: list[Provider]) -> RerankChoice | None:
+    def rerank(self, job: dict, candidates: list[Provider]) -> RerankResult | None:
         records = [c.model_dump(include={"id", "name", "coverage_evidence", "emergency_service"}) for c in candidates]
         try:
             resp = TELEMETRY.track(
@@ -217,13 +223,20 @@ class ClaudeLLM:
                 max_tokens=1500,
                 system=RERANK_SYSTEM,
                 messages=[{"role": "user", "content": json.dumps({"job": job, "candidates": records})}],
-                output_format=RerankChoice,
+                output_format=RerankResult,
                 **self._kwargs(),
             )
         except (self._anthropic.APIError, ValueError) as e:
             log.warning("rerank failed: %s", e)
             return None
         return resp.parsed_output
+
+
+def _provider_name(provider_id: str | None) -> str | None:
+    from app.services.provider_search import get_provider
+
+    provider = get_provider(provider_id) if provider_id else None
+    return provider.name if provider else None
 
 
 class ExtractionFailed(Exception):

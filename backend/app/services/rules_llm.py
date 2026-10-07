@@ -29,6 +29,10 @@ NAME_RE = re.compile(r"\b(?:my name is|i am|i'm|this is|name'?s)\s+([A-Z][a-z]+(
 YES_RE = re.compile(r"^\s*(y|ya|yes|yeah|yep|yup|sure|ok|okay|of course|please do|go ahead|that'?s fine|fine)\b", re.I)
 NO_RE = re.compile(r"^\s*(n|no|nope|nah|not really|don'?t|do not)\b", re.I)
 DONT_KNOW_RE = re.compile(r"\b(not sure|don'?t know|no idea|unsure|idk|dunno)\b", re.I)
+REJECT_PROVIDER_RE = re.compile(
+    r"\b(don'?t (like|want|trust)|bad experience|terrible|awful|not (them|that one|happy with)|never again|avoid)\b", re.I
+)
+ALTERNATIVE_RE = re.compile(r"\b(other options?|another (one|company|provider|option)|someone else|anyone else|alternatives?)\b", re.I)
 DECLINE_RE = re.compile(r"\b(rather not|prefer not|no thanks|don'?t want to (share|give)|not comfortable|i'?ll call them myself|i will call)\b", re.I)
 
 
@@ -153,6 +157,14 @@ class RulesLLM:
             up.likely_source = "storm_exterior"
         if re.search(r"\b(spark\w*|burning smell|smoke|hot to the touch)\b", msg, re.I):
             up.hazard_present = True
+
+        # Feedback about the recommended provider
+        if state.selected_provider_id:
+            if REJECT_PROVIDER_RE.search(msg):
+                up.provider_feedback = "reject"
+                up.provider_feedback_reason = msg[:120]
+            elif ALTERNATIVE_RE.search(msg):
+                up.provider_feedback = "want_alternative"
 
         # Address / contact refusals
         if DECLINE_RE.search(msg) or (yn is False and last_question_field in ("street_address",)):
