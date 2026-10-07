@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home Service Assistant</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#6b7280; --accent:#2563eb; --ok:#15803d; --warn:#b45309; --line:#e5e7eb; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; display:grid; gap:16px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { main { grid-template-columns: 1.3fr 1fr; } }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  #chat { height: 60vh; min-height: 360px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px; }
+  .msg { max-width: 85%; padding:8px 12px; border-radius:12px; white-space:pre-wrap; }
+  .agent { background:#eef2ff; align-self:flex-start; }
+  .user { background:var(--accent); color:#fff; align-self:flex-end; }
+  form { display:flex; gap:8px; margin-top:10px; }
+  input { flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+  button { padding:10px 16px; border:0; border-radius:8px; background:var(--accent); color:#fff; font:inherit; cursor:pointer; }
+  button.secondary { background:#e5e7eb; color:var(--ink); }
+  button:disabled { opacity:.5; cursor:default; }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  .row span:first-child { color:var(--muted); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:600; }
+  .b-ok { background:#dcfce7; color:var(--ok); } .b-warn { background:#fef3c7; color:var(--warn); } .b-muted { background:#f3f4f6; color:var(--muted); }
+  pre { white-space:pre-wrap; font:13px/1.45 ui-monospace, Menlo, monospace; background:#f9fafb; border:1px solid var(--line); border-radius:8px; padding:12px; margin:8px 0 0; }
+  a { color: var(--accent); word-break: break-all; }
+  .note { color:var(--muted); font-size:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>Home Service Assistant</h1>
+    <p class="sub">Pilot area: Santa Clara, Sunnyvale, North San Jose (95131, 95134). Please use test contact info.</p>
+    <div id="chat" aria-live="polite"></div>
+    <form id="form">
+      <input id="input" autocomplete="off" placeholder="Describe the problem in your home…" aria-label="Message">
+      <button id="send">Send</button>
+    </form>
+    <div style="margin-top:8px"><button class="secondary" id="reset" type="button">New conversation</button></div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h1>Request progress</h1>
+      <div id="progress"></div>
+    </div>
+    <div class="card" id="providerCard" style="margin-top:16px; display:none"></div>
+    <div class="card" id="leadCard" style="margin-top:16px; display:none"></div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let conversationId = null;
+const demoCode = new URLSearchParams(location.search).get("code");
+const headers = { "Content-Type": "application/json", ...(demoCode ? { "X-Demo-Code": demoCode } : {}) };
+const OUTCOME_LABELS = {
+  ready_to_dispatch: ["Ready to dispatch", "b-ok"], self_serve: ["Self-serve (contact not shared)", "b-warn"],
+  no_match: ["No verified match", "b-muted"], unsupported_category: ["Outside supported services", "b-muted"],
+  safety_redirect: ["Safety redirect", "b-warn"],
+};
+
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+function addMsg(role, text) {
+  const div = document.createElement("div");
+  div.className = `msg ${role}`; div.textContent = text;
+  $("chat").appendChild(div); $("chat").scrollTop = $("chat").scrollHeight;
+}
+function row(label, value) { return `<div class="row"><span>${esc(label)}</span><span>${value}</span></div>`; }
+const yes = (v) => v ? "✓" : "—";
+
+function renderProgress(p, outcome) {
+  const [label, cls] = OUTCOME_LABELS[outcome] || ["In progress", "b-muted"];
+  $("progress").innerHTML =
+    row("Status", `<span class="badge ${cls}">${label}</span>`) +
+    row("Service", esc(p.service_category || "—")) +
+    row("ZIP", esc(p.zip_code || "—")) +
+    row("Street address", p.address_status === "complete" ? "✓" : "pending (optional)") +
+    row("Timing", esc(p.urgency || "—")) +
+    row("Name & contact", yes(p.has_contact)) +
+    row("Consent to share", p.consent === true ? "✓" : p.consent === false ? "declined" : "—") +
+    row("Your messages", p.user_turns);
+}
+
+function renderProvider(p, alt) {
+  if (!p) { $("providerCard").style.display = "none"; return; }
+  const badge = p.coverage === "verified"
+    ? `<span class="badge b-ok">Coverage verified</span>`
+    : `<span class="badge b-warn">Located nearby — coverage unconfirmed</span>`;
+  let html = `<h1>Matched provider</h1>` + row("Name", esc(p.name)) + row("Phone", esc(p.phone)) +
+    row("Website", `<a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website)}</a>`) +
+    row("Coverage", badge) + row("Source", `<a href="${esc(p.source_url)}" target="_blank" rel="noopener">official site</a>`);
+  if (alt) html += `<p class="note">Alternative nearby option: ${esc(alt.name)} · ${esc(alt.phone)}</p>`;
+  html += `<p class="note">Availability is not confirmed. This demo does not contact providers automatically.</p>`;
+  $("providerCard").innerHTML = html; $("providerCard").style.display = "";
+}
+
+function renderLead(text, score) {
+  if (!text) { $("leadCard").style.display = "none"; return; }
+  $("leadCard").innerHTML = `<h1>Lead packet <span class="badge b-ok">quality ${score}/100</span></h1>` +
+    `<p class="sub">What the provider would receive.</p><pre>${esc(text)}</pre>`;
+  $("leadCard").style.display = "";
+}
+
+async function start() {
+  $("chat").innerHTML = ""; renderLead(null); renderProvider(null);
+  renderProgress({ user_turns: 0 }, null);
+  const r = await fetch("/api/conversations", { method: "POST", headers });
+  if (!r.ok) { addMsg("agent", r.status === 401 ? "This demo needs an access code (add ?code=… to the URL)." : "Couldn't start a conversation."); return; }
+  const data = await r.json();
+  conversationId = data.conversation_id; addMsg("agent", data.message);
+  $("input").disabled = false; $("send").disabled = false; $("input").focus();
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = $("input").value.trim();
+  if (!text || !conversationId) return;
+  $("input").value = ""; addMsg("user", text); $("send").disabled = true;
+  try {
+    const r = await fetch(`/api/conversations/${conversationId}/messages`, { method: "POST", headers, body: JSON.stringify({ content: text }) });
+    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+    const d = await r.json();
+    addMsg("agent", d.message);
+    renderProgress(d.progress, d.outcome);
+    renderProvider(d.provider, d.alternative_provider);
+    if (d.lead_text) renderLead(d.lead_text, d.lead.quality_score);
+    if (d.outcome) { $("input").disabled = true; $("input").placeholder = "Conversation complete — start a new one to continue."; }
+  } catch (err) {
+    addMsg("agent", `Sorry, something went wrong (${err.message}). Please try again.`);
+  } finally { $("send").disabled = $("input").disabled; }
+});
+$("reset").addEventListener("click", start);
+start();
+</script>
+</body>
+</html>
