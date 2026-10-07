@@ -8,6 +8,7 @@ intentionally simple; it is not meant to match Claude on messy language.
 import re
 
 from app.domain import Category, ExtractedFields, ExtractionResult, LeadState
+from app.services.provider_search import find_by_name
 
 CATEGORY_KEYWORDS: list[tuple[Category, re.Pattern]] = [
     (Category.WATER_DAMAGE, re.compile(r"\b(flood(ed|ing)?|basement.*water|water.*basement|water damage|standing water|soaked|mold)\b", re.I)),
@@ -29,6 +30,8 @@ NAME_RE = re.compile(r"\b(?:my name is|i am|i'm|this is|name'?s)\s+([A-Z][a-z]+(
 YES_RE = re.compile(r"^\s*(y|ya|yes|yeah|yep|yup|sure|ok|okay|of course|please do|go ahead|that'?s fine|fine)\b", re.I)
 NO_RE = re.compile(r"^\s*(n|no|nope|nah|not really|don'?t|do not)\b", re.I)
 DONT_KNOW_RE = re.compile(r"\b(not sure|don'?t know|no idea|unsure|idk|dunno)\b", re.I)
+SHOW_OPTIONS_RE = re.compile(r"\b(show me (all |my |the )?options|what are (my|the) options|list (them|the options)|let me (choose|pick))\b", re.I)
+CHOOSE_RE = re.compile(r"\b(use|go with|prefer|pick|choose|is fine|are fine|works)\b", re.I)
 QUESTION_TOPICS = [
     ("sponsorship", re.compile(r"\b(sponsor\w*|paid (placement|ads?)|affiliat\w*|get paid|kickback)\b", re.I)),
     ("is_this_a_person", re.compile(r"\b(real person|human|a bot|are you (an? )?(ai|robot))\b", re.I)),
@@ -184,11 +187,19 @@ class RulesLLM:
         if re.search(r"\b(spark\w*|burning smell|smoke|hot to the touch)\b", msg, re.I):
             up.hazard_present = True
 
-        # Feedback about the recommended provider
-        if state.selected_provider_id:
+        # Feedback about providers
+        named = find_by_name(msg) if state.service_category else None
+        if last_question_field == "provisional_offer" and yn is not None:
+            up.provider_feedback = "accept_offer" if yn else "decline_offer"
+        elif state.selected_provider_id or last_question_field == "named_provider":
             if REJECT_PROVIDER_RE.search(msg):
                 up.provider_feedback = "reject"
                 up.provider_feedback_reason = msg[:120]
+                up.named_provider = named.name if named else None
+            elif SHOW_OPTIONS_RE.search(msg):
+                up.provider_feedback = "show_options"
+            elif named and (last_question_field == "named_provider" or CHOOSE_RE.search(msg)):
+                up.provider_feedback, up.named_provider = "choose_named", named.name
             elif ALTERNATIVE_RE.search(msg):
                 up.provider_feedback = "want_alternative"
 

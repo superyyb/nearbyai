@@ -141,3 +141,84 @@ def test_unsupported_then_supported_issue_continues():
     state, results = converse(turns)
     assert results[0].action.type == "unsupported_category"
     assert state.service_category == "hvac" and results[-1].action.type == "ask_location"
+
+
+# ---------- user control over the provider ----------
+
+ELECTRICAL_SUNNYVALE = [
+    ("my kitchen outlets stopped working", {"service_category": "electrical", "issue_summary": "Kitchen outlets dead"}),
+    ("Sunnyvale", {"city": "Sunnyvale"}),
+    ("no sparks", {"hazard_present": False}),
+]  # Sunnyvale electrical: 3 verified + 2 provisional providers in the dataset
+
+
+def test_show_options_then_choose_by_name():
+    state, results = converse(MATCHED + [("show me my options", {"provider_feedback": "show_options"})])
+    r = results[-1]
+    assert r.action.type == "present_options" and r.message.count("(408)") + r.message.count("(669)") <= 3
+    state, results = converse([("EVS please", {"provider_feedback": "choose_named", "named_provider": "EVS"})], state)
+    assert state.selected_provider_id == "evs-mechanical" and results[-1].action.type == "ask_timing"
+
+
+def test_explicit_choice_restores_a_rejected_provider():
+    state, _ = converse(MATCHED + [("not DG", {"provider_feedback": "reject"})])
+    assert "dg-heating-air-conditioning" in state.excluded_provider_ids
+    state, results = converse([("actually DG is fine", {"provider_feedback": "choose_named", "named_provider": "DG"})], state)
+    assert state.selected_provider_id == "dg-heating-air-conditioning"
+    assert "dg-heating-air-conditioning" not in state.excluded_provider_ids
+
+
+def test_choosing_an_ineligible_provider_is_refused_with_reason():
+    state, results = converse(MATCHED + [("use Wooding Electric", {"provider_feedback": "choose_named",
+                                                                   "named_provider": "Wooding Electric"})])
+    assert "can't confirm that Wooding Electric handles hvac" in results[-1].message
+    assert state.selected_provider_id == "dg-heating-air-conditioning"
+
+
+def test_choosing_an_unknown_provider_is_refused():
+    state, results = converse(MATCHED + [("use ABC Plumbing", {"provider_feedback": "choose_named",
+                                                               "named_provider": "ABC Plumbing"})])
+    assert "don't have ABC Plumbing in my verified list" in results[-1].message
+
+
+def test_rejecting_a_named_non_current_provider_excludes_it_without_switching():
+    state, _ = converse(MATCHED)
+    current = state.selected_provider_id
+    state, results = converse([("and never EVS", {"provider_feedback": "reject", "named_provider": "EVS"})], state)
+    assert "evs-mechanical" in state.excluded_provider_ids and state.selected_provider_id == current
+
+
+def exhaust_verified(state):
+    while state.selected_provider_coverage == "verified" and state.selected_provider_id:
+        state, results = converse([("not them", {"provider_feedback": "reject"})], state)
+    return state, results
+
+
+def test_verified_exhausted_offers_provisional_and_accepting_uses_it():
+    state, _ = converse(ELECTRICAL_SUNNYVALE)
+    state, results = exhaust_verified(state)
+    assert results[-1].action.type == "offer_provisional" and "haven't confirmed they serve Sunnyvale" in results[-1].message
+    state, results = converse([("yes", {"provider_feedback": "accept_offer"})], state)
+    assert state.selected_provider_coverage == "provisional" and state.selected_provider_id
+    provider = results[-1].provider
+    assert provider.coverage["sunnyvale"] == "provisional"
+
+
+def test_declining_provisional_offer_is_honest_no_match():
+    state, _ = converse(ELECTRICAL_SUNNYVALE)
+    state, _ = exhaust_verified(state)
+    state, results = converse([("no", {"provider_feedback": "decline_offer"})], state)
+    assert state.outcome == "no_match" and results[-1].action.note == "all_rejected"
+
+
+def test_unanswered_provisional_offer_is_repeated_once():
+    state, _ = converse(ELECTRICAL_SUNNYVALE)
+    state, _ = exhaust_verified(state)
+    state, results = converse([("hmm", {})], state)
+    assert results[-1].action.type == "offer_provisional"
+
+
+def test_hvac_has_no_provisional_so_exhausting_verified_is_no_match():
+    state, _ = converse(MATCHED)
+    state, results = exhaust_verified(state)
+    assert state.outcome == "no_match" and results[-1].action.note == "all_rejected"

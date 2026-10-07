@@ -42,6 +42,45 @@ def search(category: Category, pilot_area: str, providers: dict[str, Provider] |
     return SearchResult(tier=None, candidates=[])
 
 
+def search_tier(category: Category, pilot_area: str, tier: str) -> list[Provider]:
+    return sorted(
+        (p for p in load_providers().values() if category in p.service_categories and p.coverage.get(pilot_area) == tier),
+        key=lambda p: p.id,
+    )
+
+
+# Trade words appear in many provider names, so they can't identify one provider on their own.
+_GENERIC_TOKENS = {
+    "the", "and", "of", "inc", "llc", "co", "company", "services", "service", "group", "guys",
+    "heating", "air", "conditioning", "plumbing", "plumbers", "plumber", "rooter", "rooters", "roofing", "roof",
+    "electric", "electrical", "electrician", "restoration", "hvac", "mechanical", "construction", "exterior",
+    "water", "damage", "cleanup", "home", "refrigeration", "waterproofing", "san", "jose", "santa", "clara",
+}
+
+
+def _tokens(text: str) -> set[str]:
+    import re
+
+    return {t for t in re.findall(r"[a-z0-9]+", text.lower()) if t not in _GENERIC_TOKENS}
+
+
+def find_by_name(name: str) -> Provider | None:
+    """Best provider whose distinctive name tokens overlap the user's wording ("DG", "the EVS guys")."""
+    wanted = _tokens(name)
+    best, best_score = None, 0.0
+    for p in load_providers().values():
+        name_tokens = _tokens(p.name)
+        overlap = wanted & name_tokens
+        if not overlap:
+            continue
+        # The first distinctive token ("dg", "evs", "promax") is the strongest signal.
+        first = next((t for t in _tokens(p.name.split()[0])), None)
+        score = len(overlap) / len(name_tokens) + (1.0 if first in overlap else 0.0)
+        if score > best_score:
+            best, best_score = p, score
+    return best if best_score >= 0.5 else None
+
+
 def coverage_matrix(providers: dict[str, Provider] | None = None) -> dict[tuple[str, str], dict[str, int]]:
     """(category, area) -> counts per coverage status. Used as a data-quality acceptance check."""
     from app.domain import PILOT_AREAS

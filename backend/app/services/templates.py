@@ -34,19 +34,6 @@ def provider_intro(state: LeadState, provider: Provider) -> str:
     )
 
 
-def provider_switched(state: LeadState, previous: Provider, new: Provider, feedback: str) -> str:
-    area = PILOT_AREAS.get(state.pilot_area or "", "your area")
-    opener = f"Understood — I won't use {previous.name}." if feedback == "reject" else "Sure."
-    if state.selected_provider_coverage == "verified":
-        return f"{opener} Another option is {new.name}, which also lists {area} in its service area."
-    return f"{opener} Another option is {new.name}, located near you; its coverage for {area} still needs to be confirmed."
-
-
-def no_other_option(state: LeadState, current: Provider) -> str:
-    label = CATEGORY_LABELS[state.service_category].lower()
-    return f"I don't have another verified {label} provider for your area, so {current.name} is still my best match."
-
-
 def render(action: NextAction, state: LeadState, provider: Provider | None) -> str:
     t = action.type
     if t == "ask_category":
@@ -128,6 +115,8 @@ def render(action: NextAction, state: LeadState, provider: Provider | None) -> s
         )
     if t == "safety_redirect":
         return "Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs."
+    if t in ("present_options", "offer_provisional"):
+        return action.note
     if t == "already_closed":
         if state.outcome == "ready_to_dispatch" and provider:
             return f"Your request for {provider.name} is ready. If anything changes, tell me and I'll update it."

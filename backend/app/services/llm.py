@@ -54,8 +54,13 @@ Rules:
 - water_still_active / active_leak / hazard_present: "yes"/"no" only when the user states the current situation
   directly. Second-hand or ambiguous reports (e.g. "my neighbor says water is pooling") are "not_mentioned".
   Use "unknown" when the user says they don't know or can't check.
-- provider_feedback: "reject" if the user turns down the currently recommended provider (dislikes them, bad past
-  experience, doesn't want them); "want_alternative" if they ask for other options without rejecting it; else "none".
+- provider_feedback (about providers the assistant recommended or offered):
+  "reject" — turns down a provider (dislikes them, bad past experience, doesn't want them);
+  "want_alternative" — asks for someone else without rejecting ("anyone else?", "is that my only option?");
+  "show_options" — wants to see the list of options or choose themselves;
+  "choose_named" — asks for a specific provider by name, including changing their mind ("actually DG is fine");
+  "accept_offer" / "decline_offer" — answers yes/no to an offered provider (see assistant_last_question_field);
+  else "none". named_provider: the provider name the user mentioned (for reject or choose_named), else "".
   provider_feedback_reason: their stated reason, or "".
 - question_topic: if the user asks the assistant a question, classify it (why this provider, price, reviews,
   availability, hours/24-7, distance, license/insurance, why do you need some info, data privacy, are you a person,
@@ -121,8 +126,11 @@ class LLMExtraction(BaseModel):
     hazard_present: YesNo
     likely_source: Literal["storm_exterior", "plumbing", "unknown", "not_mentioned"]
     declined_fields: list[Literal["street_address", "contact"]]
-    provider_feedback: Literal["reject", "want_alternative", "none"]
+    provider_feedback: Literal[
+        "reject", "want_alternative", "show_options", "choose_named", "accept_offer", "decline_offer", "none"
+    ]
     provider_feedback_reason: str
+    named_provider: str
     question_topic: Literal[
         "why_this_provider", "price", "reviews", "availability", "hours_or_24_7", "distance", "license_or_insurance",
         "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other", "none",

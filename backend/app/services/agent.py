@@ -15,11 +15,11 @@ import logging
 from dataclasses import dataclass, field
 
 from app.domain import CATEGORY_LABELS, TERMINAL_OUTCOMES, LeadState, NextAction, Outcome, Provider
-from app.services import ambiguity, answers, next_action, safety, templates
+from app.services import ambiguity, answers, next_action, provider_intents, safety, templates
 from app.services.lead_packet import build_packet
 from app.services.lead_validator import validate_lead
 from app.services.llm import ExtractionFailed, guardrail_violations
-from app.services.matching import select_provider, switch_provider
+from app.services.matching import select_provider
 from app.services.provider_search import get_provider
 from app.services.rules_llm import CATEGORY_LABELS_SHORT
 from app.services.state_manager import merge
@@ -125,24 +125,20 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             f"{CATEGORY_LABELS_SHORT[state.service_category]} problem handled first."
         )
 
-    # Explicit intent about the recommended provider outranks the next funnel question.
-    all_rejected = False
-    intent_turn = False  # user spent this turn on provider feedback, not on our last question
-    feedback = extraction.updates.provider_feedback if extraction else None
-    if feedback and state.selected_provider_id and not screen.is_redirect:
+    # Explicit intent about providers outranks the next funnel question.
+    intent_turn = False  # user spent this turn on something other than our last question
+    up = extraction.updates if extraction else None
+    intent = provider_intents.handle(state, up) if up and not screen.is_redirect else None
+    if intent is None and state.offered_provider_id and not screen.is_redirect:
+        intent = provider_intents.reoffer(state)  # the offer wasn't answered; ask once more
+    all_rejected = bool(intent and intent.all_rejected)
+    if intent:
         intent_turn = True
-        previous_id = switch_provider(state, feedback, extraction.updates.provider_feedback_reason)
-        previous = get_provider(previous_id)
-        events.append(f"provider_feedback:{feedback}:{previous_id}->{state.selected_provider_id}")
-        if state.selected_provider_id is None:
-            all_rejected = True
-        elif state.selected_provider_id == previous_id:
-            prefixes.append(templates.no_other_option(state, previous))
-        else:
-            prefixes.append(templates.provider_switched(state, previous, get_provider(state.selected_provider_id), feedback))
+        events += intent.events
+        if intent.prefix:
+            prefixes.append(intent.prefix)
 
     # Questions and requests the system can't fulfil: answer first, then resume the funnel.
-    up = extraction.updates if extraction else None
     if up and (up.question_topic or up.requested_action) and not screen.is_redirect:
         intent_turn = True
         current = get_provider(state.selected_provider_id) if state.selected_provider_id else None
@@ -175,9 +171,12 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         state.service_category = rule.candidates[0]
         if state.issue_summary is None:
             state.issue_summary = message[:240]
-    action = next_action.decide(
-        state, redirect=screen.is_redirect, ambiguity=rule, llm_needs_clarification=llm_needs_clarification
-    )
+    if intent and intent.action:
+        action = intent.action  # e.g. list options or a provisional offer; the funnel resumes next turn
+    else:
+        action = next_action.decide(
+            state, redirect=screen.is_redirect, ambiguity=rule, llm_needs_clarification=llm_needs_clarification
+        )
     if all_rejected and action.type == "no_match":
         action.note = "all_rejected"
     newly_matched = False

@@ -86,6 +86,7 @@ QuestionTopic = Literal[
 InfoField = Literal[
     "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present", "consent", "other",
 ]
+ProviderFeedback = Literal["reject", "want_alternative", "show_options", "choose_named", "accept_offer", "decline_offer"]
 RequestedAction = Literal["call_provider", "book_appointment", "send_now", "guarantee", "other"]
 
 
@@ -139,6 +140,7 @@ class LeadState(BaseModel):
     excluded_provider_ids: list[str] = Field(default_factory=list)  # rejected by the user; never re-offered
     shown_provider_ids: list[str] = Field(default_factory=list)  # offered, then user asked for another
     provider_feedback: dict[str, str] = Field(default_factory=dict)
+    offered_provider_id: str | None = None  # provisional provider offered after verified ones were exhausted
     selected_provider_id: str | None = None
     selected_provider_coverage: str | None = None
     alternative_provider_id: str | None = None
@@ -205,9 +207,10 @@ class ExtractedFields(BaseModel):
     likely_source: LikelySource | None = None
     active_leak: bool | None = None
     hazard_present: bool | None = None
-    provider_feedback: Literal["reject", "want_alternative"] | None = Field(
-        default=None, description="User rejects the recommended provider, or asks for other options."
+    provider_feedback: ProviderFeedback | None = Field(
+        default=None, description="What the user wants regarding the recommended provider."
     )
+    named_provider: str | None = Field(default=None, description="Provider the user named, if any.")
     provider_feedback_reason: str | None = None
     question_topic: QuestionTopic | None = Field(default=None, description="What the user asked about, if anything.")
     question_info_field: InfoField | None = None
@@ -241,6 +244,8 @@ ActionType = Literal[
     "out_of_area",
     "ask_qualification",
     "match_provider",
+    "present_options",
+    "offer_provisional",
     "no_match",
     "present_provider_ask_timing",
     "ask_timing",
