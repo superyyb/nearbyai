@@ -35,6 +35,7 @@ SIMPLE_FIELDS = [
     "property_relationship",
     "contact_method",
     "contact_value",
+    "contact_preferences",
     "insurance_intent",
 ]
 LOCATION_FIELDS = {"street_address", "city", "zip_code"}
@@ -159,6 +160,10 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
     for field in up.declined_fields:
         if field not in state.declined_fields:
             state.declined_fields.append(field)
+        if field == "street_address" and state.street_address:
+            # The user withheld an address they gave earlier: it must not go into the lead.
+            # (ZIP/area are unchanged, so the provider match stays valid.)
+            state.street_address = None
 
     # --- derived location ---
     if up.zip_code or up.city or location_changed:

@@ -22,7 +22,10 @@ def build_packet(state: LeadState, provider: Provider, quality_score: float) -> 
         address = f"{state.street_address}, {state.city or area}, CA {state.zip_code or ''}".strip()
     else:
         location = f"ZIP {state.zip_code}" if state.zip_code else area
-        address = f"Pending — customer provided {location}; exact address to be confirmed by provider."
+        withheld = "street_address" in state.declined_fields
+        address = (f"Pending — customer provided {location}; "
+                   + ("prefers to share the street address directly." if withheld
+                      else "exact address to be confirmed by provider."))
     details = {}
     for field, (label, values) in DETAIL_LABELS.items():
         value = getattr(state.service_details, field)
@@ -41,6 +44,7 @@ def build_packet(state: LeadState, provider: Provider, quality_score: float) -> 
             "contact_method": state.contact_method,
             "contact": state.contact_value,
             "contact_permission": "Yes — explicit consent to share with this provider" if state.consent_to_share else "No",
+            "contact_preferences": state.contact_preferences,
             "relationship_to_property": state.property_relationship or "Not stated",
         },
         "property": {"address": address, "address_status": state.address_status, "area": area},
@@ -79,6 +83,7 @@ def render_text(packet: dict) -> str:
         f"Customer: {c['name']}",
         f"Contact: {c['contact']} ({c['contact_method']})",
         f"Contact permission: {c['contact_permission']}",
+        *([f"Contact preferences: {c['contact_preferences']}"] if c.get("contact_preferences") else []),
         f"Relationship: {c['relationship_to_property']}",
         "",
         f"Property: {p['address']}",

@@ -281,3 +281,66 @@ def test_scope_policy_for_borderline_jobs(message, expected):
 def test_new_ambiguity_rules(text, rule):
     found = ambiguity.detect(text)
     assert (found.name if found else None) == rule
+
+
+# ---------- corrections, partial answers, many facts at once, sharing preferences ----------
+
+def test_everything_in_one_message_skips_straight_to_consent():
+    state, results = converse([("AC broken in 95050, today please, I'm Alex 408-555-0123",
+                                {**AC_ISSUE, "zip_code": "95050", "urgency": "same_day", "customer_name": "Alex",
+                                 "contact_value": "408-555-0123", "street_address": "1450 Lafayette St"})])
+    assert results[-1].action.type == "ask_consent" and state.user_turns == 1
+
+
+def test_timing_correction_updates_state():
+    state, _ = converse(MATCHED + [("today", {"urgency": "same_day"}),
+                                   ("actually tomorrow is better", {"urgency": "within_week", "corrections": ["urgency"]})])
+    assert state.urgency == "within_week"
+
+
+def test_job_address_correction_replaces_billing_address():
+    state, _ = converse([("AC broken at 10 Main St, Santa Clara", {**AC_ISSUE, "street_address": "10 Main St", **SANTA_CLARA}),
+                         ("that's my billing address, the job is at 22 Oak Ave",
+                          {"street_address": "22 Oak Ave", "corrections": ["street_address"]})])
+    assert state.street_address == "22 Oak Ave"
+
+
+def test_water_started_again_updates_qualification():
+    state, _ = converse([("basement flooded", {"service_category": "water_damage_restoration",
+                                               "issue_summary": "Basement flooded after storm"}),
+                         ("95050", {"zip_code": "95050"}),
+                         ("no it stopped", {"water_still_active": False}),
+                         ("oh no, it started coming in again", {"water_still_active": True,
+                                                                 "corrections": ["water_still_active"]})])
+    assert state.service_details.water_still_active is True
+
+
+def test_refusing_contact_is_self_serve_not_a_loop():
+    state, results = converse(MATCHED + [("today", {"urgency": "same_day"}),
+                                         ("I'd rather not give my number", {"declined_fields": ["contact"]})])
+    assert state.outcome == "self_serve" and results[-1].provider.phone in results[-1].message
+
+
+def test_unknown_zip_with_pilot_city_still_matches():
+    state, results = converse([("My AC doesn't work", AC_ISSUE),
+                               ("I am in Santa Clara. I don't know the ZIP code", SANTA_CLARA)])
+    assert state.pilot_area == "santa_clara" and state.selected_provider_id
+
+
+def test_vague_category_does_not_loop_forever():
+    state, results = converse([("help", {}), ("not sure", {}), ("idk", {}), ("dunno", {})])
+    assert state.outcome == "unsupported_category" and state.user_turns <= 4
+
+
+def test_withholding_a_given_address_removes_it_from_the_lead():
+    turns = [("AC broken at 10 Main St, Santa Clara", {**AC_ISSUE, "street_address": "10 Main St", **SANTA_CLARA}),
+             ("today", {"urgency": "same_day"}),
+             ("Sam 408-555-0100, but don't share my address until they call",
+              {"customer_name": "Sam", "contact_value": "408-555-0100", "declined_fields": ["street_address"],
+               "contact_preferences": "calls only"}),
+             ("yes", {"consent_to_share": True})]
+    state, results = converse(turns)
+    lead = results[-1].lead
+    assert lead and "10 Main St" not in str(lead)
+    assert "prefers to share the street address directly" in lead["property"]["address"]
+    assert lead["customer"]["contact_preferences"] == "calls only"

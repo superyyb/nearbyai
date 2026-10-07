@@ -126,6 +126,7 @@ class LeadState(BaseModel):
     property_relationship: PropertyRelationship | None = None
     contact_method: ContactMethod | None = None
     contact_value: str | None = None
+    contact_preferences: str | None = None  # e.g. "calls only, after 5pm", "wife's number"
     consent_to_share: bool | None = None
 
     # Enrichment
@@ -199,6 +200,9 @@ class ExtractedFields(BaseModel):
     property_relationship: PropertyRelationship | None = None
     contact_method: ContactMethod | None = None
     contact_value: str | None = None
+    contact_preferences: str | None = Field(
+        default=None, description="How/when to contact, or whose number it is (e.g. 'calls only', 'wife's number')."
+    )
     consent_to_share: bool | None = Field(
         default=None, description="Only true/false when the user answered the explicit sharing-consent question."
     )

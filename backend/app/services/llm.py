@@ -57,7 +57,10 @@ Rules:
 - corrections: list a field only if the user explicitly changes an earlier answer ("actually it's 95051").
 - consent_to_share: "yes"/"no" when the user answers the question about sharing their contact details with the
   provider, or later explicitly withdraws ("don't share my number") or grants that permission; else "not_answered".
-- declined_fields: "street_address" or "contact" when the user refuses to give them.
+- declined_fields: "street_address" or "contact" when the user refuses to give them — including withdrawing an
+  address they gave earlier ("don't share my address until they call").
+- contact_preferences: how or when the provider should contact them, or whose number it is ("calls only, no texts",
+  "after 5pm", "this is my wife's number"); else "".
 - urgency: emergency (needs help immediately), same_day (today), within_week, flexible.
 - If the user answers yes/no, interpret it against the assistant's last question field.
 - water_still_active / active_leak / hazard_present: "yes"/"no" only when the user states the current situation
@@ -128,6 +131,7 @@ class LLMExtraction(BaseModel):
     property_relationship: Literal["homeowner", "tenant", "property_manager", "other", "none"]
     contact_method: Literal["phone", "email", "none"]
     contact_value: str
+    contact_preferences: str
     consent_to_share: Literal["yes", "no", "not_answered"]
     insurance_intent: str
     water_still_active: YesNo
