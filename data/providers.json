@@ -1,0 +1,577 @@
+[
+  {
+    "id": "servpro-of-santa-clara",
+    "name": "SERVPRO of Santa Clara",
+    "service_categories": [
+      "water_damage_restoration"
+    ],
+    "address": "4701 Patrick Henry Drive, Bldg 16, Suite 116A, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(408) 392-9700",
+    "website": "https://www.servpro.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "unknown",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official SERVPRO page explicitly lists service area: Santa Clara, CA | San Jose, CA; water damage/flood cleanup; 24/7.",
+    "emergency_service": true,
+    "source_url": "https://www.servpro.com/locations/ca/servpro-of-santa-clara/services/water-damage",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "911-restoration-of-san-jose",
+    "name": "911 Restoration of San Jose",
+    "service_categories": [
+      "water_damage_restoration"
+    ],
+    "address": "803 Salt Lake Dr, San Jose, CA 95133",
+    "city": "San Jose",
+    "zip_code": "95133",
+    "phone": "(408) 449-4904",
+    "website": "https://www.911restorationsanjose.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official San Jose page explicitly lists San Jose, Santa Clara, Sunnyvale and other South Bay communities; water damage restoration; open 24 hours.",
+    "emergency_service": true,
+    "source_url": "https://www.911restorationsanjose.com/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "roto-rooter-plumbing-water-cleanup-santa-clara",
+    "name": "Roto-Rooter Plumbing & Water Cleanup \u2013 Santa Clara",
+    "service_categories": [
+      "water_damage_restoration"
+    ],
+    "address": "2078 Walsh Ave C1, Santa Clara, CA 95050",
+    "city": "Santa Clara",
+    "zip_code": "95050",
+    "phone": "(408) 987-0464",
+    "website": "https://www.rotorooter.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official Santa Clara water-restoration page; separate Sunnyvale page; states service across the San Jose metro area and 24/7 water cleanup.",
+    "emergency_service": true,
+    "source_url": "https://www.rotorooter.com/santaclaraca/water-damage-restoration/",
+    "source_type": "Official site",
+    "implementation_note": "Use separate Sunnyvale page if needed in evidence bundle",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "dry-kings-restoration-san-jose",
+    "name": "Dry Kings Restoration \u2013 San Jose",
+    "service_categories": [
+      "water_damage_restoration"
+    ],
+    "address": "1185 Campbell Ave #D15, San Jose, CA 95126",
+    "city": "San Jose",
+    "zip_code": "95126",
+    "phone": "(415) 993-1298",
+    "website": "https://drykings.com",
+    "coverage": {
+      "santa_clara": "provisional",
+      "sunnyvale": "provisional",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official San Jose location provides water/fire/mold restoration and 24/7 response; company describes broader Bay Area service, but Santa Clara/Sunnyvale coverage is not explicitly enumerated.",
+    "emergency_service": true,
+    "source_url": "https://drykings.com/locations/san-jose-ca",
+    "source_type": "Official site",
+    "implementation_note": "Mark SC/Sunnyvale coverage unconfirmed",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "servpro-of-sunnyvale-north",
+    "name": "SERVPRO of Sunnyvale North",
+    "service_categories": [
+      "water_damage_restoration"
+    ],
+    "address": "2150 N First St, 4th Floor Ste 400, San Jose, CA 95131",
+    "city": "San Jose",
+    "zip_code": "95131",
+    "phone": "(408) 890-7777",
+    "website": "https://www.servpro.com",
+    "coverage": {
+      "santa_clara": "unknown",
+      "sunnyvale": "provisional",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official franchise page lists service area as North San Jose and says team has helped property owners in Sunnyvale; water damage restoration; 24/7.",
+    "emergency_service": true,
+    "source_url": "https://www.servpro.com/locations/ca/servpro-of-sunnyvale-north/contact",
+    "source_type": "Official site",
+    "implementation_note": "Sunnyvale narrative evidence, but formal service area shown as North San Jose",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "smart-plumbers-rooters",
+    "name": "Smart Plumbers & Rooters",
+    "service_categories": [
+      "plumbing"
+    ],
+    "address": "2175 Ronald St, Santa Clara, CA 95050",
+    "city": "Santa Clara",
+    "zip_code": "95050",
+    "phone": "(408) 247-2400",
+    "website": "https://smartplumber.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official booking/service pages explicitly list San Jose, Santa Clara and Sunnyvale among 30+ Bay Area cities.",
+    "emergency_service": null,
+    "source_url": "https://smartplumber.com/products/book-online-plumber-bay-area",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "ej-home-services",
+    "name": "EJ Home Services",
+    "service_categories": [
+      "plumbing"
+    ],
+    "address": "985 Parker Ct, Santa Clara, CA 95050",
+    "city": "Santa Clara",
+    "zip_code": "95050",
+    "phone": "(650) 434-4432",
+    "website": "https://www.ejplumbing.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official Areas We Serve page explicitly lists Santa Clara, Sunnyvale, San Jose and many Silicon Valley cities; plumbing and electrical.",
+    "emergency_service": null,
+    "source_url": "https://www.ejplumbing.com/areas-we-serve/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "plumbing-point-inc",
+    "name": "Plumbing Point Inc.",
+    "service_categories": [
+      "plumbing"
+    ],
+    "address": "4701 Patrick Henry Dr, Building 25 Suite 107, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(408) 831-8950",
+    "website": "https://caplumbingpointinc.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site explicitly lists Santa Clara, Sunnyvale, San Jose and other South Bay cities; full-service plumbing and 24/7 emergency service.",
+    "emergency_service": true,
+    "source_url": "https://caplumbingpointinc.com/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "the-tankless-guys-plumbing-rooter",
+    "name": "The Tankless Guys Plumbing & Rooter",
+    "service_categories": [
+      "plumbing"
+    ],
+    "address": "473 Sapena Ct #24, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(408) 580-0031",
+    "website": "https://thetanklessguys.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official Areas We Serve page explicitly lists Santa Clara, San Jose and Sunnyvale; residential/commercial plumbing.",
+    "emergency_service": null,
+    "source_url": "https://thetanklessguys.com/areas-we-serve/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "fuse-hvac-refrigeration-electrical-plumbing",
+    "name": "Fuse HVAC, Refrigeration, Electrical & Plumbing",
+    "service_categories": [
+      "plumbing"
+    ],
+    "address": "2222 Ronald St, Santa Clara, CA 95050",
+    "city": "Santa Clara",
+    "zip_code": "95050",
+    "phone": "(408) 898-1576",
+    "website": "https://fuseservice.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site lists plumbing services and serving locations including San Jose, Santa Clara and Sunnyvale.",
+    "emergency_service": null,
+    "source_url": "https://fuseservice.com/our-serving-locations/",
+    "source_type": "Official site",
+    "implementation_note": "Multi-trade provider; keep one provider record with multiple categories",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "evs-mechanical",
+    "name": "EVS Mechanical",
+    "service_categories": [
+      "hvac"
+    ],
+    "address": "3674 Bassett St, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(408) 300-8254",
+    "website": "https://www.evsmechanicalcorp.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site: Santa Clara based; primary cities include San Jose and Sunnyvale; also explicitly lists Santa Clara and nearby cities.",
+    "emergency_service": null,
+    "source_url": "https://www.evsmechanicalcorp.com/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "dg-heating-air-conditioning",
+    "name": "DG Heating & Air Conditioning",
+    "service_categories": [
+      "hvac"
+    ],
+    "address": null,
+    "city": null,
+    "zip_code": null,
+    "phone": "(408) 201-9411",
+    "website": "https://www.dgheatingandair.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site states residential/new construction/light commercial service in Santa Clara County (which includes Santa Clara, Sunnyvale and San Jose).",
+    "emergency_service": null,
+    "source_url": "https://www.dgheatingandair.com/",
+    "source_type": "Official site",
+    "implementation_note": "County-level explicit coverage",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "supreme-comfort-hvac-inc",
+    "name": "Supreme Comfort HVAC, Inc.",
+    "service_categories": [
+      "hvac"
+    ],
+    "address": "San Jose, CA",
+    "city": "San Jose",
+    "zip_code": null,
+    "phone": "(408) 222-6463",
+    "website": "https://www.supremecomfortca.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site states based in San Jose and serving all of Santa Clara County; residential and commercial HVAC.",
+    "emergency_service": null,
+    "source_url": "https://www.supremecomfortca.com/",
+    "source_type": "Official site",
+    "implementation_note": "County-level explicit coverage",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "r-b-heating-air-conditioning",
+    "name": "R&B Heating & Air Conditioning",
+    "service_categories": [
+      "hvac"
+    ],
+    "address": "2883 Aiello Dr Ste 3, San Jose, CA 95111",
+    "city": "San Jose",
+    "zip_code": "95111",
+    "phone": "(408) 977-1401",
+    "website": "https://www.randbhvac.net",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site states it serves the Santa Clara County area and provides heating/cooling services.",
+    "emergency_service": null,
+    "source_url": "https://www.randbhvac.net/",
+    "source_type": "Official site",
+    "implementation_note": "County-level explicit coverage",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "promax-service-group",
+    "name": "Promax Service Group",
+    "service_categories": [
+      "hvac"
+    ],
+    "address": "3033 Kaiser Dr Unit D, Santa Clara, CA 95051",
+    "city": "Santa Clara",
+    "zip_code": "95051",
+    "phone": "(669) 777-1997",
+    "website": "https://promax-service.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official HVAC page explicitly states service in San Jose, Santa Clara and Sunnyvale; official site also lists Sunnyvale service page.",
+    "emergency_service": null,
+    "source_url": "https://promax-service.com/services/hvac/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "wooding-electric",
+    "name": "Wooding Electric",
+    "service_categories": [
+      "electrical"
+    ],
+    "address": "3390 De La Cruz Blvd, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(408) 748-9663",
+    "website": "https://www.woodingelectric.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "provisional",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site explicitly says service area Santa Clara, San Jose and surrounding Bay Area cities; Sunnyvale is nearby but not explicitly named on the cited page.",
+    "emergency_service": null,
+    "source_url": "https://www.woodingelectric.com/",
+    "source_type": "Official site",
+    "implementation_note": "Sunnyvale should be coverage_unconfirmed unless separately verified",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "flores-electric",
+    "name": "Flores Electric",
+    "service_categories": [
+      "electrical"
+    ],
+    "address": "3687 Enochs St, Santa Clara, CA 95051",
+    "city": "Santa Clara",
+    "zip_code": "95051",
+    "phone": "(408) 899-8450",
+    "website": "https://www.floreselectric.net",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "provisional"
+    },
+    "coverage_evidence": "Official contact page explicitly says service areas include Santa Clara, Sunnyvale and neighboring regions; San Jose not explicitly named on the cited official page.",
+    "emergency_service": null,
+    "source_url": "https://www.floreselectric.net/contact",
+    "source_type": "Official site",
+    "implementation_note": "North San Jose provisional unless separately verified",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "ca-electrical-group-24-7",
+    "name": "CA Electrical Group 24/7",
+    "service_categories": [
+      "electrical"
+    ],
+    "address": "780 Montague Expy Suite 203, San Jose, CA 95131",
+    "city": "San Jose",
+    "zip_code": "95131",
+    "phone": "(669) 260-0712",
+    "website": "https://caelectricalgroup.com",
+    "coverage": {
+      "santa_clara": "provisional",
+      "sunnyvale": "provisional",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site describes a San Jose-based full-service electrical contractor serving customers throughout the Bay Area; North San Jose is explicit by location, Santa Clara/Sunnyvale are broader-area only.",
+    "emergency_service": null,
+    "source_url": "https://caelectricalgroup.com/",
+    "source_type": "Official site",
+    "implementation_note": "SC/Sunnyvale mark unconfirmed",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "wci-electric",
+    "name": "WCI Electric",
+    "service_categories": [
+      "electrical"
+    ],
+    "address": "3088 El Camino Real Unit 2, Santa Clara, CA 95051",
+    "city": "Santa Clara",
+    "zip_code": "95051",
+    "phone": "(408) 242-2069",
+    "website": "https://www.wcielectric.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official Areas We Serve list includes Santa Clara, Sunnyvale and San Jose; residential/commercial/emergency electrical services.",
+    "emergency_service": true,
+    "source_url": "https://www.wcielectric.com/about-us-electricians/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "california-power-light",
+    "name": "California Power & Light",
+    "service_categories": [
+      "electrical"
+    ],
+    "address": "9 N Peter Dr, Campbell, CA 95008",
+    "city": "Campbell",
+    "zip_code": "95008",
+    "phone": "(408) 406-5832",
+    "website": "https://www.cplelectric.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official about page says it services all Santa Clara County and explicitly names San Jose, Sunnyvale and Santa Clara.",
+    "emergency_service": null,
+    "source_url": "https://www.cplelectric.com/about-us/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "first-tier-exterior",
+    "name": "First Tier Exterior",
+    "service_categories": [
+      "roofing"
+    ],
+    "address": "4701 Patrick Henry Dr Bldg 15, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(669) 249-1684",
+    "website": "https://www.firsttierexterior.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official roofing page explicitly states service in Santa Clara and lists San Jose and Sunnyvale among Bay Area cities served; roof repair/replacement/storm damage.",
+    "emergency_service": null,
+    "source_url": "https://www.firsttierexterior.com/services/roofing/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "eastman-roofing-waterproofing",
+    "name": "Eastman Roofing & Waterproofing",
+    "service_categories": [
+      "roofing"
+    ],
+    "address": "1418 Douglas St, San Jose, CA 95126",
+    "city": "San Jose",
+    "zip_code": "95126",
+    "phone": "(408) 971-9000",
+    "website": "https://www.eastmanroofing.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "provisional",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site explicitly lists San Jose and Santa Clara in service coverage; broader Silicon Valley/Bay Area coverage is stated, but Sunnyvale is not explicitly named on the cited coverage page.",
+    "emergency_service": null,
+    "source_url": "https://www.eastmanroofing.com/contact/service-areas-directions/",
+    "source_type": "Official site",
+    "implementation_note": "Sunnyvale coverage unconfirmed",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "r-e-roofing-construction-inc",
+    "name": "R E Roofing & Construction, Inc.",
+    "service_categories": [
+      "roofing"
+    ],
+    "address": "941 S McGlincy Ln, Campbell, CA 95008",
+    "city": "Campbell",
+    "zip_code": "95008",
+    "phone": "(408) 626-9320",
+    "website": "https://reroofingshowroom.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official site says it has maintained roofs in Santa Clara and San Mateo Counties for decades and shows projects across San Jose and surrounding Bay Area cities.",
+    "emergency_service": null,
+    "source_url": "https://reroofingshowroom.com/roofing-solutions/",
+    "source_type": "Official site",
+    "implementation_note": "County-level coverage supports all three pilot areas",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "conrad-roofing-service",
+    "name": "Conrad Roofing Service",
+    "service_categories": [
+      "roofing"
+    ],
+    "address": "663 Walnut St, San Jose, CA 95110",
+    "city": "San Jose",
+    "zip_code": "95110",
+    "phone": "(408) 294-7615",
+    "website": "https://conradroofingservice.com",
+    "coverage": {
+      "santa_clara": "verified",
+      "sunnyvale": "verified",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official contact page explicitly says 'Proudly Roofing San Jose and Santa Clara County' and lists Santa Clara and Sunnyvale.",
+    "emergency_service": null,
+    "source_url": "https://conradroofingservice.com/contact/",
+    "source_type": "Official site",
+    "implementation_note": "Strong seed candidate",
+    "verified_at": "2026-10-07"
+  },
+  {
+    "id": "north-city-roofing-inc",
+    "name": "North City Roofing Inc.",
+    "service_categories": [
+      "roofing"
+    ],
+    "address": "3350 Scott Blvd, Santa Clara, CA 95054",
+    "city": "Santa Clara",
+    "zip_code": "95054",
+    "phone": "(408) 540-3870",
+    "website": "https://northcityroofing.com",
+    "coverage": {
+      "santa_clara": "provisional",
+      "sunnyvale": "provisional",
+      "north_san_jose": "verified"
+    },
+    "coverage_evidence": "Official service-area page explicitly lists San Jose and says it serves the entire Bay Area; Santa Clara/Sunnyvale are not individually named on that page.",
+    "emergency_service": null,
+    "source_url": "https://northcityroofing.com/where-we-serve",
+    "source_type": "Official site",
+    "implementation_note": "SC/Sunnyvale mark unconfirmed",
+    "verified_at": "2026-10-07"
+  }
+]
