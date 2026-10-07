@@ -8,7 +8,7 @@ from app.domain import LeadState, Outcome
 from app.services.agent import handle_turn
 from app.services.provider_search import load_providers
 
-MAX_USER_TURNS = 14
+MAX_USER_TURNS = 10  # beyond this the funnel has failed; recorded as abandoned (eval_timeout)
 SAFETY_HOTLINES = {"18007435000"}  # PG&E gas emergency line used in safety guidance
 PHONE_RE = re.compile(r"\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}|1-800-\d{3}-\d{4}")
 
@@ -44,10 +44,13 @@ def run_case(case: dict, llm, simulator) -> CaseRun:
         if state.outcome is not None:
             break
         message = simulator.reply(result.message, result.action.type, state.last_question_field)
-    if state.outcome is None:
+    timed_out = state.outcome is None
+    if timed_out:
         state.outcome = Outcome.ABANDONED
     run = CaseRun(case, state, transcript, lead, mentions)
     run.failures = check_expectations(run)
+    if timed_out:
+        run.failures.insert(0, f"eval_timeout after {MAX_USER_TURNS} user turns")
     return run
 
 

@@ -74,9 +74,12 @@ Persona: {persona}
 Your private facts (JSON): {facts}
 
 Rules:
-- Answer only what the assistant just asked, in 1-2 short sentences, in character.
+- Reply to what the assistant just said, in 1-2 short sentences, in character. Follow the persona's behavior
+  (terse, vague, typos, volunteering extra details, etc.).
 - Use only the private facts. If the assistant asks for something not in your facts, say you don't know or would rather not say.
-- Do not volunteer facts the assistant did not ask for.
+- Volunteer facts the assistant did not ask for only if the persona says you do.
+- Phone numbers, ZIP codes and addresses must be copied exactly from your facts.
+- If consent_to_share is false, refuse when asked whether your details may be shared with a provider.
 - If your facts include corrected_zip_code, give zip_code first, then correct it on your next message.
 - If your facts include correction_message, say it (verbatim) the first time after you've given your ZIP.
 - Never mention that you are simulated."""

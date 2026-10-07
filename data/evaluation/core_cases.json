@@ -1,146 +1,355 @@
 [
   {
     "id": "water_damage_basement_storm",
-    "persona": "Anxious homeowner, answers briefly, only answers what is asked.",
+    "persona": "Normal and concise; only answers what is asked.",
     "opening": "Water started coming into my basement last night after the storm. I don't know who to call.",
-    "hidden_facts": {"street_address": "1450 Lafayette St", "city": "Santa Clara", "zip_code": "95050", "water_still_active": false, "preferred_time": "today if possible", "customer_name": "Test User", "phone": "408-555-0142", "consent_to_share": true},
-    "expected": {"service_category": "water_damage_restoration", "outcome": "ready_to_dispatch"},
-    "tags": ["happy_path", "storm"]
+    "hidden_facts": {
+      "street_address": "1450 Lafayette St",
+      "city": "Santa Clara",
+      "zip_code": "95050",
+      "water_still_active": false,
+      "preferred_time": "today if possible",
+      "customer_name": "Test User",
+      "phone": "408-555-0142",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "water_damage_restoration",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "happy_path",
+      "storm"
+    ]
   },
   {
     "id": "plumbing_burst_pipe",
-    "persona": "Stressed, terse.",
+    "persona": "Stressed and terse; volunteers extra information (mentions they need someone right now and their ZIP) without being asked.",
     "opening": "A pipe under my kitchen sink burst and it's spraying everywhere",
-    "hidden_facts": {"zip_code": "95051", "preferred_time": "right now, asap", "customer_name": "Jordan Kim", "phone": "408-555-0101", "consent_to_share": true},
-    "expected": {"service_category": "plumbing", "outcome": "ready_to_dispatch"},
-    "tags": ["happy_path", "urgent"]
+    "hidden_facts": {
+      "zip_code": "95051",
+      "preferred_time": "right now, asap",
+      "customer_name": "Jordan Kim",
+      "phone": "408-555-0101",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "plumbing",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "happy_path",
+      "urgent"
+    ]
   },
   {
     "id": "plumbing_toilet_overflow",
-    "persona": "Calm, gives full address when asked for location.",
+    "persona": "Calm; volunteers extra information: gives the full street address when asked for location.",
     "opening": "My toilet keeps overflowing every time we flush",
-    "hidden_facts": {"street_address": "820 E El Camino Real", "city": "Sunnyvale", "zip_code": "94087", "preferred_time": "tomorrow works", "customer_name": "Alex Rivera", "phone": "650-555-0123", "consent_to_share": true},
-    "expected": {"service_category": "plumbing", "outcome": "ready_to_dispatch"},
-    "tags": ["happy_path"]
+    "hidden_facts": {
+      "street_address": "820 E El Camino Real",
+      "city": "Sunnyvale",
+      "zip_code": "94087",
+      "preferred_time": "tomorrow works",
+      "customer_name": "Alex Rivera",
+      "phone": "650-555-0123",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "plumbing",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "happy_path"
+    ]
   },
   {
     "id": "hvac_ac_warm_air",
-    "persona": "Polite, brief.",
+    "persona": "Vague: answers questions loosely at first (e.g. 'sometime soon') before giving specifics if asked again.",
     "opening": "My AC is running but only blowing warm air",
-    "hidden_facts": {"zip_code": "95134", "preferred_time": "this week is fine", "customer_name": "Morgan Lee", "phone": "408-555-0177", "consent_to_share": true},
-    "expected": {"service_category": "hvac", "outcome": "ready_to_dispatch"},
-    "tags": ["happy_path"]
+    "hidden_facts": {
+      "zip_code": "95134",
+      "preferred_time": "this week is fine",
+      "customer_name": "Morgan Lee",
+      "phone": "408-555-0177",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "hvac",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "happy_path"
+    ]
   },
   {
     "id": "hvac_furnace_dead",
-    "persona": "Cold and frustrated.",
+    "persona": "Normal and concise; only answers what is asked.",
     "opening": "The furnace won't turn on at all and the house is freezing",
-    "hidden_facts": {"zip_code": "94086", "preferred_time": "today if possible", "customer_name": "Chris Patel", "phone": "408-555-0190", "consent_to_share": true},
-    "expected": {"service_category": "hvac", "outcome": "ready_to_dispatch"},
-    "tags": ["happy_path"]
+    "hidden_facts": {
+      "zip_code": "94086",
+      "preferred_time": "today if possible",
+      "customer_name": "Chris Patel",
+      "phone": "408-555-0190",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "hvac",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "happy_path"
+    ]
   },
   {
     "id": "electrical_sparking_outlet",
-    "persona": "Worried, short answers.",
+    "persona": "Worried, short answers; only answers what is asked.",
     "opening": "One of my outlets sparked when I plugged in the vacuum",
-    "hidden_facts": {"zip_code": "95054", "hazard_present": true, "customer_name": "Taylor Nguyen", "phone": "408-555-0133", "consent_to_share": true},
-    "expected": {"service_category": "electrical", "outcome": "ready_to_dispatch", "safety_guidance": true},
-    "tags": ["safety_urgent"]
+    "hidden_facts": {
+      "zip_code": "95054",
+      "hazard_present": true,
+      "customer_name": "Taylor Nguyen",
+      "phone": "408-555-0133",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "electrical",
+      "outcome": "ready_to_dispatch",
+      "safety_guidance": true
+    },
+    "tags": [
+      "safety_urgent"
+    ]
   },
   {
     "id": "roofing_leak_after_rain",
-    "persona": "Matter-of-fact.",
+    "persona": "Normal and concise; only answers what is asked.",
     "opening": "Our roof started leaking into the upstairs bedroom during the rain",
-    "hidden_facts": {"zip_code": "95131", "active_leak": true, "preferred_time": "asap", "customer_name": "Dana Brooks", "phone": "669-555-0144", "consent_to_share": true},
-    "expected": {"service_category": "roofing", "outcome": "ready_to_dispatch"},
-    "tags": ["happy_path", "storm"]
+    "hidden_facts": {
+      "zip_code": "95131",
+      "active_leak": true,
+      "preferred_time": "asap",
+      "customer_name": "Dana Brooks",
+      "phone": "669-555-0144",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "roofing",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "happy_path",
+      "storm"
+    ]
   },
   {
     "id": "ceiling_stain_ambiguous",
-    "persona": "Unsure what is causing it.",
+    "persona": "Unsure what is causing it; vague at first, gives the rain detail only when asked about the cause.",
     "opening": "There's a brown stain on my ceiling that keeps getting bigger",
-    "hidden_facts": {"clarification_answer": "It seems to get worse when it rains", "zip_code": "94085", "active_leak": false, "preferred_time": "no rush", "customer_name": "Riley Chen", "phone": "408-555-0155", "consent_to_share": true},
-    "expected": {"service_category": "roofing", "outcome": "ready_to_dispatch", "should_clarify": true},
-    "tags": ["ambiguous"]
+    "hidden_facts": {
+      "clarification_answer": "It seems to get worse when it rains",
+      "zip_code": "94085",
+      "active_leak": false,
+      "preferred_time": "no rush",
+      "customer_name": "Riley Chen",
+      "phone": "408-555-0155",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "roofing",
+      "outcome": "ready_to_dispatch",
+      "should_clarify": true
+    },
+    "tags": [
+      "ambiguous"
+    ]
   },
   {
     "id": "vague_request",
-    "persona": "Vague at first, explains when asked.",
+    "persona": "Vague: describes the problem only in general terms at first, explains specifics when asked.",
     "opening": "Something is wrong in my house and I need help",
-    "hidden_facts": {"clarification_answer": "The lights in the kitchen keep flickering and the breaker trips", "zip_code": "95050", "hazard_present": false, "preferred_time": "this week", "customer_name": "Sam Ortiz", "phone": "408-555-0166", "consent_to_share": true},
-    "expected": {"service_category": "electrical", "outcome": "ready_to_dispatch"},
-    "tags": ["vague"]
+    "hidden_facts": {
+      "clarification_answer": "The lights in the kitchen keep flickering and the breaker trips",
+      "zip_code": "95050",
+      "hazard_present": false,
+      "preferred_time": "this week",
+      "customer_name": "Sam Ortiz",
+      "phone": "408-555-0166",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "electrical",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "vague"
+    ]
   },
   {
     "id": "unsupported_pest_control",
-    "persona": "Direct.",
+    "persona": "Direct and concise.",
     "opening": "We have termites in the garage, can you send someone?",
-    "hidden_facts": {"zip_code": "95050"},
-    "expected": {"service_category": null, "outcome": "unsupported_category"},
-    "tags": ["unsupported"]
+    "hidden_facts": {
+      "zip_code": "95050"
+    },
+    "expected": {
+      "service_category": null,
+      "outcome": "unsupported_category"
+    },
+    "tags": [
+      "unsupported"
+    ]
   },
   {
     "id": "user_changes_zip",
-    "persona": "Gives the wrong ZIP first, corrects it on the next turn.",
+    "persona": "Changes a prior answer: gives the wrong ZIP first, then corrects it on the next message.",
     "opening": "My water heater is leaking all over the garage floor",
-    "hidden_facts": {"zip_code": "95050", "corrected_zip_code": "95134", "preferred_time": "today if possible", "customer_name": "Jamie Fox", "phone": "408-555-0188", "consent_to_share": true},
-    "expected": {"service_category": "plumbing", "outcome": "ready_to_dispatch", "final_zip_code": "95134"},
-    "tags": ["correction"]
+    "hidden_facts": {
+      "zip_code": "95050",
+      "corrected_zip_code": "95134",
+      "preferred_time": "today if possible",
+      "customer_name": "Jamie Fox",
+      "phone": "408-555-0188",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "plumbing",
+      "outcome": "ready_to_dispatch",
+      "final_zip_code": "95134"
+    },
+    "tags": [
+      "correction"
+    ]
   },
   {
     "id": "user_changes_category",
-    "persona": "First thinks it is plumbing, then realizes it is the roof.",
+    "persona": "Changes a prior answer: first thinks it is plumbing, then realizes it is the roof after checking the attic.",
     "opening": "I think a pipe is leaking, there's water dripping in the hallway",
-    "hidden_facts": {"zip_code": "94086", "correction_message": "Actually I just checked the attic, it's the roof leaking, not a pipe", "active_leak": true, "preferred_time": "asap", "customer_name": "Casey Wu", "phone": "408-555-0199", "consent_to_share": true},
-    "expected": {"service_category": "roofing", "outcome": "ready_to_dispatch"},
-    "tags": ["correction"]
+    "hidden_facts": {
+      "zip_code": "94086",
+      "correction_message": "Actually I just checked the attic, it's the roof leaking, not a pipe",
+      "active_leak": true,
+      "preferred_time": "asap",
+      "customer_name": "Casey Wu",
+      "phone": "408-555-0199",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "roofing",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "correction"
+    ]
   },
   {
     "id": "refuses_contact_sharing",
-    "persona": "Privacy-conscious; will not let contact details be shared.",
+    "persona": "Privacy-conscious: gives name and phone when asked but refuses to let them be shared with any provider.",
     "opening": "The AC in my condo stopped working",
-    "hidden_facts": {"zip_code": "95051", "preferred_time": "whenever", "customer_name": "Pat Doe", "phone": "408-555-0111", "consent_to_share": false},
-    "expected": {"service_category": "hvac", "outcome": "self_serve"},
-    "tags": ["self_serve"]
+    "hidden_facts": {
+      "zip_code": "95051",
+      "preferred_time": "whenever",
+      "customer_name": "Pat Doe",
+      "phone": "408-555-0111",
+      "consent_to_share": false
+    },
+    "expected": {
+      "service_category": "hvac",
+      "outcome": "self_serve"
+    },
+    "tags": [
+      "self_serve"
+    ]
   },
   {
     "id": "safety_gas_leak",
     "persona": "Panicked.",
     "opening": "I smell gas in the kitchen, what should I do?",
-    "hidden_facts": {"zip_code": "95050"},
-    "expected": {"service_category": null, "outcome": "safety_redirect"},
-    "tags": ["safety_redirect"]
+    "hidden_facts": {
+      "zip_code": "95050"
+    },
+    "expected": {
+      "service_category": null,
+      "outcome": "safety_redirect"
+    },
+    "tags": [
+      "safety_redirect"
+    ]
   },
   {
     "id": "out_of_pilot_area",
-    "persona": "Brief.",
+    "persona": "Normal and concise.",
     "opening": "Our AC is blowing warm air",
-    "hidden_facts": {"zip_code": "94301", "city": "Palo Alto"},
-    "expected": {"service_category": "hvac", "outcome": "no_match"},
-    "tags": ["no_match"]
+    "hidden_facts": {
+      "zip_code": "94301",
+      "city": "Palo Alto"
+    },
+    "expected": {
+      "service_category": "hvac",
+      "outcome": "no_match"
+    },
+    "tags": [
+      "no_match"
+    ]
   },
   {
     "id": "multiple_issues",
-    "persona": "Mentions two problems at once.",
+    "persona": "Mentions two problems at once; otherwise concise.",
     "opening": "My roof is leaking after the rain and also my AC stopped working",
-    "hidden_facts": {"zip_code": "95054", "active_leak": true, "preferred_time": "today if possible", "customer_name": "Avery Park", "phone": "408-555-0122", "consent_to_share": true},
-    "expected": {"service_category": "roofing", "outcome": "ready_to_dispatch", "secondary_issue": true},
-    "tags": ["multi_issue"]
+    "hidden_facts": {
+      "zip_code": "95054",
+      "active_leak": true,
+      "preferred_time": "today if possible",
+      "customer_name": "Avery Park",
+      "phone": "408-555-0122",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "roofing",
+      "outcome": "ready_to_dispatch",
+      "secondary_issue": true
+    },
+    "tags": [
+      "multi_issue"
+    ]
   },
   {
     "id": "typo_heavy",
-    "persona": "Types fast with many typos and no punctuation.",
+    "persona": "Typo-heavy: types fast with many spelling mistakes and no punctuation in every message (digits stay correct).",
     "opening": "wter coming in my basment aftr the big strom last nite",
-    "hidden_facts": {"zip_code": "95050", "water_still_active": true, "preferred_time": "today pls", "customer_name": "Lee Adams", "phone": "4085550114", "consent_to_share": true},
-    "expected": {"service_category": "water_damage_restoration", "outcome": "ready_to_dispatch"},
-    "tags": ["typos"]
+    "hidden_facts": {
+      "zip_code": "95050",
+      "water_still_active": true,
+      "preferred_time": "today pls",
+      "customer_name": "Lee Adams",
+      "phone": "4085550114",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "water_damage_restoration",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "typos"
+    ]
   },
   {
     "id": "unknown_qualification_fact",
-    "persona": "Is away from home and does not know whether water is still coming in.",
+    "persona": "Doesn't know one fact: is away from home and cannot say whether water is still coming in.",
     "opening": "My neighbor says water is pooling in my basement after the storm",
-    "hidden_facts": {"zip_code": "94089", "preferred_time": "today if possible", "customer_name": "Robin Hale", "phone": "408-555-0109", "consent_to_share": true},
-    "expected": {"service_category": "water_damage_restoration", "outcome": "ready_to_dispatch"},
-    "tags": ["unknown_fact"]
+    "hidden_facts": {
+      "zip_code": "94089",
+      "preferred_time": "today if possible",
+      "customer_name": "Robin Hale",
+      "phone": "408-555-0109",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "water_damage_restoration",
+      "outcome": "ready_to_dispatch"
+    },
+    "tags": [
+      "unknown_fact"
+    ]
   }
 ]
