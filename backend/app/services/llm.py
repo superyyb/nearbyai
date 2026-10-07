@@ -46,7 +46,8 @@ Rules:
 - If the cause is genuinely ambiguous between categories (e.g. a ceiling stain could be roof or plumbing), set needs_clarification=true and list candidate_categories.
 - If the user mentions several unrelated problems, pick the most urgent as service_category and put the others in secondary_issues.
 - corrections: list a field only if the user explicitly changes an earlier answer ("actually it's 95051").
-- consent_to_share: only set when the user is answering the explicit question about sharing contact details with the provider.
+- consent_to_share: "yes"/"no" when the user answers the question about sharing their contact details with the
+  provider, or later explicitly withdraws ("don't share my number") or grants that permission; else "not_answered".
 - declined_fields: "street_address" or "contact" when the user refuses to give them.
 - urgency: emergency (needs help immediately), same_day (today), within_week, flexible.
 - If the user answers yes/no, interpret it against the assistant's last question field.

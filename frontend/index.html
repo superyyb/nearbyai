@@ -35,7 +35,7 @@
 <main>
   <section class="card">
     <h1>Home Service Assistant</h1>
-    <p class="sub">Pilot area: Santa Clara, Sunnyvale, North San Jose (95131, 95134). Please use test contact info.</p>
+    <p class="sub">Pilot area: Santa Clara, Sunnyvale, North San Jose (95131, 95134). Please use test contact info and don't enter sensitive personal information.</p>
     <div id="chat" aria-live="polite"></div>
     <form id="form">
       <input id="input" autocomplete="off" placeholder="Describe the problem in your home…" aria-label="Message">
@@ -129,7 +129,9 @@ $("form").addEventListener("submit", async (e) => {
     renderProgress(d.progress, d.outcome);
     renderProvider(d.provider, d.alternative_provider);
     if (d.lead_text) renderLead(d.lead_text, d.lead.quality_score);
-    if (d.outcome) { $("input").disabled = true; $("input").placeholder = "Conversation complete — start a new one to continue."; }
+    else if (d.lead_withdrawn) renderLead(null);
+    // The conversation stays open after an outcome: the user can still change details or ask questions.
+    $("input").placeholder = d.outcome ? "Anything else? You can still change details or ask a question." : "Describe the problem in your home…";
   } catch (err) {
     addMsg("agent", `Sorry, something went wrong (${err.message}). Please try again.`);
   } finally { $("send").disabled = $("input").disabled; }

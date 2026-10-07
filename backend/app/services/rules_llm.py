@@ -214,9 +214,13 @@ class RulesLLM:
             elif last_question_field == "consent_to_share":
                 up.consent_to_share = False
 
-        # Consent
+        # Consent: answered when asked, or withdrawn/granted at any later point
         if last_question_field == "consent_to_share" and up.consent_to_share is None and yn is not None:
             up.consent_to_share = yn
+        if re.search(r"\b(don'?t|do not) share\b|\bwithdraw\b|\bcancel (the|my) request\b", msg, re.I):
+            up.consent_to_share = False
+        elif re.search(r"\b(you can|ok to|okay to|go ahead and) share\b", msg, re.I):
+            up.consent_to_share = True
 
         if re.search(r"\b(rent|renting|tenant|landlord)\b", msg, re.I):
             up.property_relationship = "tenant"

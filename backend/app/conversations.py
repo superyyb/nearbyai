@@ -49,6 +49,9 @@ def send_message(conversation_id: str, text: str, llm) -> tuple[TurnResult, str 
             )
         )
         lead_id = None
+        if result.lead_withdrawn:
+            for old in db.scalars(select(Lead).where(Lead.conversation_id == conv.id, Lead.status == "ready_to_dispatch")):
+                old.status = "withdrawn"
         if result.lead:
             lead = Lead(
                 conversation_id=conv.id,

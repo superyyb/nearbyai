@@ -33,3 +33,20 @@ def test_full_conversation_creates_persisted_lead():
 
 def test_unknown_conversation_404():
     assert client.post("/api/conversations/nope/messages", json={"content": "hi"}).status_code == 404
+
+
+def test_withdrawing_consent_marks_persisted_lead_withdrawn():
+    from sqlalchemy import select
+
+    from app.db import Lead, SessionLocal
+
+    cid = client.post("/api/conversations").json()["conversation_id"]
+    for msg in ["Water came into my basement after the storm", "95050", "no it stopped", "today please",
+                "Test User, 408-555-0142", "yes"]:
+        last = client.post(f"/api/conversations/{cid}/messages", json={"content": msg}).json()
+    assert last["dispatchable"]
+    after = client.post(f"/api/conversations/{cid}/messages", json={"content": "Actually don't share my number"}).json()
+    assert after["lead_withdrawn"] and after["outcome"] == "self_serve" and not after["dispatchable"]
+    with SessionLocal() as db:
+        statuses = list(db.scalars(select(Lead.status).where(Lead.conversation_id == cid)))
+    assert statuses == ["withdrawn"]

@@ -61,6 +61,7 @@ def post_message(conversation_id: str, body: MessageIn):
         "action": result.action.type,
         "outcome": s.outcome,
         "dispatchable": lead_id is not None,
+        "lead_withdrawn": result.lead_withdrawn,
         "lead_id": lead_id,
         "lead": result.lead,
         "lead_text": render_text(result.lead) if result.lead else None,

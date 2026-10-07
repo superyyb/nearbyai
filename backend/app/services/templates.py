@@ -129,5 +129,10 @@ def render(action: NextAction, state: LeadState, provider: Provider | None) -> s
     if t == "safety_redirect":
         return "Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs."
     if t == "already_closed":
-        return "This request is wrapped up. Start a new conversation if you have another issue."
+        if state.outcome == "ready_to_dispatch" and provider:
+            return f"Your request for {provider.name} is ready. If anything changes, tell me and I'll update it."
+        if state.outcome == "self_serve" and provider:
+            return (f"You can contact {provider.name} directly at {provider.phone}. If you change your mind about "
+                    "sharing your details, just tell me.")
+        return "If anything changes — a different ZIP code or another issue — just tell me and I'll pick it back up."
     raise ValueError(f"no template for {t}")

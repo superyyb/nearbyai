@@ -78,3 +78,66 @@ def test_guardrail_allows_honest_negations_of_forbidden_claims():
     for text in ("I can't guarantee timing.", "Nothing has been booked or scheduled.", "They haven't been contacted."):
         assert guardrail_violations(text, set(), set(), False) == [], text
     assert guardrail_violations("Your appointment is booked for 3pm.", set(), set(), False)
+
+
+# ---------- outcomes are recoverable; consent can change after a lead is prepared ----------
+
+TO_LEAD = MATCHED + [
+    ("today", {"urgency": "same_day"}),
+    ("Sam, 408-555-0100", {"customer_name": "Sam", "contact_method": "phone", "contact_value": "408-555-0100"}),
+    ("yes", {"consent_to_share": True}),
+]
+
+
+def test_revoking_consent_after_lead_withdraws_it():
+    state, results = converse(TO_LEAD + [("Actually don't share my number", {"consent_to_share": False})])
+    assert results[-2].lead is not None  # a lead had been prepared
+    r = results[-1]
+    assert r.lead_withdrawn and r.lead is None
+    assert state.outcome == "self_serve"
+    assert "withdrawn" in r.message and r.provider.phone in r.message
+
+
+def test_granting_consent_after_self_serve_prepares_lead():
+    turns = TO_LEAD[:-1] + [("no", {"consent_to_share": False}), ("ok fine, you can share it", {"consent_to_share": True})]
+    state, results = converse(turns)
+    assert results[-2].action.type == "self_serve"
+    assert state.outcome == "ready_to_dispatch" and results[-1].lead is not None
+
+
+def test_changing_phone_after_lead_updates_it():
+    state, results = converse(TO_LEAD + [("use 408-555-0199 instead",
+                                          {"contact_value": "408-555-0199", "corrections": ["contact_value"]})])
+    r = results[-1]
+    assert r.lead_withdrawn and r.lead is not None  # old lead superseded by an updated one
+    assert r.lead["customer"]["contact"] == "(408) 555-0199"
+    assert r.message.startswith("I've updated your request.")
+
+
+def test_thanks_after_lead_does_not_duplicate_it():
+    state, results = converse(TO_LEAD + [("thanks!", {})])
+    r = results[-1]
+    assert r.action.type == "already_closed" and r.lead is None and not r.lead_withdrawn
+    assert state.outcome == "ready_to_dispatch"
+
+
+def test_question_after_lead_is_answered_without_reopening():
+    state, results = converse(TO_LEAD + [("did you send it already?", {"question_topic": "request_status"})])
+    r = results[-1]
+    assert "hasn't been sent" in r.message and state.outcome == "ready_to_dispatch" and not r.lead_withdrawn
+
+
+def test_out_of_area_then_pilot_zip_continues():
+    turns = [("My AC blows warm air", AC_ISSUE), ("94301", {"zip_code": "94301"}),
+             ("oh it's actually 95050", {"zip_code": "95050", "corrections": ["zip_code"]})]
+    state, results = converse(turns)
+    assert results[1].action.type == "out_of_area"
+    assert state.outcome is None and state.selected_provider_id and results[-1].action.type == "ask_timing"
+
+
+def test_unsupported_then_supported_issue_continues():
+    turns = [("termites", {"unsupported_service": "pest control"}),
+             ("my AC is also broken", AC_ISSUE)]
+    state, results = converse(turns)
+    assert results[0].action.type == "unsupported_category"
+    assert state.service_category == "hvac" and results[-1].action.type == "ask_location"

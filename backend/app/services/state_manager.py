@@ -35,7 +35,6 @@ SIMPLE_FIELDS = [
     "property_relationship",
     "contact_method",
     "contact_value",
-    "consent_to_share",
     "insurance_intent",
 ]
 LOCATION_FIELDS = {"street_address", "city", "zip_code"}
@@ -130,6 +129,11 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
             if old is not None and old != new and field in LOCATION_FIELDS:
                 location_changed = True
             setattr(state, field, new)
+
+    # Consent is always latest-wins: a revocation must apply even after a lead is prepared,
+    # and a user who changes their mind can grant it later.
+    if up.consent_to_share is not None:
+        state.consent_to_share = up.consent_to_share
 
     if up.secondary_issues:
         for issue in up.secondary_issues:

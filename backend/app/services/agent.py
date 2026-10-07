@@ -14,7 +14,7 @@
 import logging
 from dataclasses import dataclass, field
 
-from app.domain import CATEGORY_LABELS, LeadState, NextAction, Outcome, Provider
+from app.domain import CATEGORY_LABELS, TERMINAL_OUTCOMES, LeadState, NextAction, Outcome, Provider
 from app.services import ambiguity, answers, next_action, safety, templates
 from app.services.lead_packet import build_packet
 from app.services.lead_validator import validate_lead
@@ -57,6 +57,19 @@ class TurnResult:
     alternative: Provider | None = None
     events: list[str] = field(default_factory=list)
     wording_source: str = "template"
+    lead_withdrawn: bool = False
+
+
+# Fields whose change makes a finished conversation worth reopening.
+MATERIAL_FIELDS = {
+    "service_category", "unsupported_service", "zip_code", "city", "street_address", "pilot_area", "urgency",
+    "preferred_time", "customer_name", "contact_value", "consent_to_share", "selected_provider_id",
+    "excluded_provider_ids", "service_details",
+}
+
+
+def _fingerprint(state: LeadState) -> dict:
+    return state.model_dump(include=MATERIAL_FIELDS, mode="json")
 
 
 def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) -> TurnResult:
@@ -64,9 +77,11 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     safety_text = ""  # deterministic; never rewritten by the LLM
     prefixes: list[str] = []
 
-    if state.outcome is not None and state.outcome != Outcome.ABANDONED:
-        action = NextAction(type="already_closed")
-        return TurnResult(templates.render(action, state, None), action, state)
+    # Outcomes are not dead ends: a later message can change the request (new ZIP, another issue,
+    # withdrawn consent, a different provider). Reopen only when something material changed.
+    prior_outcome = state.outcome if state.outcome in TERMINAL_OUTCOMES else None
+    before = _fingerprint(state)
+    lead_withdrawn = False
 
     state.user_turns += 1
     conversation_text = " ".join(user_history + [message])
@@ -138,6 +153,19 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             prefixes.append(answers.answer_request(up.requested_action, current))
             events.append(f"requested_action:{up.requested_action}")
 
+    if prior_outcome is not None:
+        changed = _fingerprint(state) != before
+        if not changed and not screen.is_redirect:
+            action = NextAction(type="already_closed")
+            provider = get_provider(state.selected_provider_id) if state.selected_provider_id else None
+            message_out = " ".join(prefixes + [templates.render(action, state, provider)])
+            state.last_agent_message = message_out
+            return TurnResult(message_out, action, state, None, provider, None, events)
+        state.outcome = None
+        events.append(f"reopened_from:{prior_outcome}")
+        if prior_outcome == Outcome.READY_TO_DISPATCH:
+            lead_withdrawn = True  # superseded; the wording depends on whether a new lead is prepared below
+
     # 4-5. funnel
     rule = ambiguity.detect(conversation_text) if not state.category_confirmed else None
     if rule and state.service_category is None and not state.unsupported_service:
@@ -173,6 +201,9 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             # Should not happen if the funnel is correct; never dispatch an invalid lead.
             events.append(f"validation_failed:{result.missing_fields + result.errors}")
             action = NextAction(type="ask_contact", field="customer_name,contact_value")
+
+    if lead_withdrawn:
+        prefixes.insert(0, "I've updated your request." if lead else "I've withdrawn the request I prepared earlier.")
 
     if action.type in OUTCOME_FOR_ACTION:
         state.outcome = OUTCOME_FOR_ACTION[action.type]
@@ -218,4 +249,4 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     message_out = f"{safety_text} {body}".strip()
     state.last_agent_message = message_out
 
-    return TurnResult(message_out, action, state, lead, provider, alternative, events, source)
+    return TurnResult(message_out, action, state, lead, provider, alternative, events, source, lead_withdrawn)
