@@ -27,6 +27,7 @@ class CallRecord:
     input_tokens: int
     output_tokens: int
     cache_read_tokens: int
+    cache_write_tokens: int
     latency_ms: float
     ok: bool
     server_fallback_used: bool
@@ -34,7 +35,9 @@ class CallRecord:
     @property
     def cost_usd(self) -> float:
         p_in, p_out, p_cache = PRICES.get(self.model, (0.0, 0.0, 0.0))
-        return (self.input_tokens * p_in + self.output_tokens * p_out + self.cache_read_tokens * p_cache) / 1e6
+        # Cache writes (5-minute TTL) bill at 1.25x the input price.
+        return (self.input_tokens * p_in + self.output_tokens * p_out + self.cache_read_tokens * p_cache
+                + self.cache_write_tokens * p_in * 1.25) / 1e6
 
 
 class Telemetry:
@@ -52,7 +55,7 @@ class Telemetry:
         try:
             resp = fn(model=model, **kwargs)
         except Exception:
-            self.calls.append(CallRecord(call_type, model, 0, 0, 0, (time.perf_counter() - start) * 1000, False, False))
+            self.calls.append(CallRecord(call_type, model, 0, 0, 0, 0, (time.perf_counter() - start) * 1000, False, False))
             raise
         usage = getattr(resp, "usage", None)
         iterations = getattr(usage, "iterations", None) or []
@@ -62,6 +65,7 @@ class Telemetry:
             input_tokens=getattr(usage, "input_tokens", 0) or 0,
             output_tokens=getattr(usage, "output_tokens", 0) or 0,
             cache_read_tokens=getattr(usage, "cache_read_input_tokens", 0) or 0,
+            cache_write_tokens=getattr(usage, "cache_creation_input_tokens", 0) or 0,
             latency_ms=(time.perf_counter() - start) * 1000,
             ok=getattr(resp, "stop_reason", None) != "refusal",
             server_fallback_used=any(getattr(i, "type", None) == "fallback_message" for i in iterations),
@@ -79,13 +83,15 @@ class Telemetry:
         for c in self.calls:
             row = by_type.setdefault(
                 c.call_type,
-                {"calls": 0, "errors": 0, "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "_lat": [],
-                 "server_fallbacks": 0},
+                {"calls": 0, "errors": 0, "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0,
+                 "cache_write_tokens": 0, "cost_usd": 0.0, "_lat": [], "server_fallbacks": 0},
             )
             row["calls"] += 1
             row["errors"] += 0 if c.ok else 1
             row["input_tokens"] += c.input_tokens
             row["output_tokens"] += c.output_tokens
+            row["cache_read_tokens"] += c.cache_read_tokens
+            row["cache_write_tokens"] += c.cache_write_tokens
             row["cost_usd"] += c.cost_usd
             row["server_fallbacks"] += c.server_fallback_used
             row["_lat"].append(c.latency_ms)

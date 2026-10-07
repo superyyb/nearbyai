@@ -147,9 +147,9 @@ def print_report(args, metrics, runs, judge_report, stability, usage) -> None:
         print("\n Provider judge: skipped (run with --judge; needs ANTHROPIC_API_KEY)")
     if usage["total_calls"]:
         print("\n LLM usage (list-price estimate):")
-        print(f"  {'call type':<12}{'calls':>6}{'in tok':>10}{'out tok':>9}{'avg ms':>8}{'p95 ms':>8}{'cost $':>9}")
+        print(f"  {'call type':<12}{'calls':>6}{'in tok':>10}{'cached':>9}{'out tok':>9}{'avg ms':>8}{'p95 ms':>8}{'cost $':>9}")
         for name, r in usage["by_call_type"].items():
-            print(f"  {name:<12}{r['calls']:>6}{r['input_tokens']:>10}{r['output_tokens']:>9}"
+            print(f"  {name:<12}{r['calls']:>6}{r['input_tokens']:>10}{r['cache_read_tokens']:>9}{r['output_tokens']:>9}"
                   f"{r['avg_latency_ms']:>8}{r['p95_latency_ms']:>8}{r['cost_usd']:>9.3f}")
         print(f"  total cost ${usage['total_cost_usd']:.3f} over {usage['total_calls']} calls")
         print("\n Fallback rates:")

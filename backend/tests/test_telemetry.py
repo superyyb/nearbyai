@@ -6,7 +6,8 @@ from app.services.telemetry import Telemetry
 
 
 def fake_response(inp: int, out: int, iterations=None):
-    usage = SimpleNamespace(input_tokens=inp, output_tokens=out, cache_read_input_tokens=0, iterations=iterations)
+    usage = SimpleNamespace(input_tokens=inp, output_tokens=out, cache_read_input_tokens=0,
+                            cache_creation_input_tokens=0, iterations=iterations)
     return SimpleNamespace(usage=usage, model="claude-sonnet-5-5", stop_reason="end_turn")
 
 
@@ -37,3 +38,12 @@ def test_server_side_fallback_and_deterministic_fallbacks_are_counted():
     s = t.summary()
     assert s["by_call_type"]["rerank"]["server_fallbacks"] == 1
     assert s["deterministic_fallbacks"] == {"rerank_invalid_or_failed": 1}
+
+
+def test_cache_reads_and_writes_are_priced():
+    t = Telemetry()
+    usage = SimpleNamespace(input_tokens=0, output_tokens=0, cache_read_input_tokens=1_000_000,
+                            cache_creation_input_tokens=1_000_000, iterations=None)
+    t.track("extraction", "claude-sonnet-5-5", lambda **kw: SimpleNamespace(usage=usage, model="claude-sonnet-5-5",
+                                                                             stop_reason="end_turn"))
+    assert t.summary()["by_call_type"]["extraction"]["cost_usd"] == pytest.approx(0.20 + 2.0 * 1.25)

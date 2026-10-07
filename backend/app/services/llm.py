@@ -213,7 +213,7 @@ class ClaudeLLM:
                 resp = TELEMETRY.track(
                     "extraction", self.model, self.client.messages.parse,
                     max_tokens=2000,
-                    system=EXTRACTION_SYSTEM,
+                    system=_cached(EXTRACTION_SYSTEM),
                     messages=[{"role": "user", "content": content}],
                     output_format=LLMExtraction,
                     **self._kwargs(),
@@ -242,7 +242,7 @@ class ClaudeLLM:
             resp = TELEMETRY.track(
                 "response", self.model, self.client.messages.create,
                 max_tokens=1500,
-                system=WRITER_SYSTEM,
+                system=_cached(WRITER_SYSTEM),
                 messages=[{
                     "role": "user",
                     "content": f"<context>{json.dumps(context)}</context>\n<reference_message>{reference}</reference_message>\nWrite the message.",
@@ -262,7 +262,7 @@ class ClaudeLLM:
             resp = TELEMETRY.track(
                 "rerank", self.model, self.client.messages.parse,
                 max_tokens=1500,
-                system=RERANK_SYSTEM,
+                system=_cached(RERANK_SYSTEM),
                 messages=[{"role": "user", "content": json.dumps({"job": job, "candidates": records})}],
                 output_format=RerankResult,
                 **self._kwargs(),
@@ -271,6 +271,11 @@ class ClaudeLLM:
             log.warning("rerank failed: %s", e)
             return None
         return resp.parsed_output
+
+
+def _cached(system_prompt: str) -> list[dict]:
+    """The system prompts are fixed and sent on every turn; cache them (Sonnet 5.5 minimum is 512 tokens)."""
+    return [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
 
 
 def _provider_name(provider_id: str | None) -> str | None:
