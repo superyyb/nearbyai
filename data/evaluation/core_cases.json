@@ -351,5 +351,52 @@
     "tags": [
       "unknown_fact"
     ]
+  },
+  {
+    "id": "reject_matched_provider",
+    "persona": "From a real manual test: rejects the first recommended provider because of a bad past experience, then continues normally.",
+    "opening": "Hi My home AC doesn't work",
+    "hidden_facts": {
+      "city": "Santa Clara",
+      "zip_code": "unknown",
+      "reject_first_provider": true,
+      "rejection_message": "Any other options? I don't like {provider}. The experience with them was bad last time",
+      "preferred_time": "later this week",
+      "customer_name": "Test User",
+      "phone": "408-555-0142",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "hvac",
+      "outcome": "ready_to_dispatch",
+      "rejects_first_provider": true
+    },
+    "tags": [
+      "provider_preference",
+      "manual_test"
+    ]
+  },
+  {
+    "id": "ask_provider_questions",
+    "persona": "Cautious; when a provider is recommended, asks whether they are any good and how much they charge before continuing.",
+    "opening": "My toilet is leaking at the base",
+    "hidden_facts": {
+      "zip_code": "94086",
+      "ask_question": true,
+      "question_message": "Are they any good? How much do they charge?",
+      "preferred_time": "this week",
+      "customer_name": "Jordan Lee",
+      "phone": "408-555-0175",
+      "consent_to_share": true
+    },
+    "expected": {
+      "service_category": "plumbing",
+      "outcome": "ready_to_dispatch",
+      "answers_without_inventing": true
+    },
+    "tags": [
+      "provider_preference",
+      "questions"
+    ]
   }
 ]

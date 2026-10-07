@@ -6,7 +6,9 @@ from dataclasses import dataclass, field
 
 from app.domain import LeadState, Outcome
 from app.services.agent import handle_turn
+from app.services.llm import UNVERIFIED_PROVIDER_CLAIMS
 from app.services.provider_search import load_providers
+from app.services.safety import affirmed
 
 MAX_USER_TURNS = 10  # beyond this the funnel has failed; recorded as abandoned (eval_timeout)
 SAFETY_HOTLINES = {"18007435000"}  # PG&E gas emergency line used in safety guidance
@@ -63,11 +65,13 @@ def _provider_mentions(text: str, state: LeadState) -> dict:
     phones = [re.sub(r"\D", "", m) for m in PHONE_RE.findall(text)]
     ungrounded = [p for p in phones if p not in allowed and p[-10:] not in allowed]
     claims_verified = bool(re.search(r"lists .+ in its service area|serves (your|the) (area|zip|city)", text, re.I))
+    invented = bool(affirmed(UNVERIFIED_PROVIDER_CLAIMS, text))
     return {
         "providers": [p.id for p in named],
         "has_provider_fact": bool(named or phones),
         "ungrounded_phones": ungrounded,
         "claims_verified_coverage": claims_verified,
+        "invented_provider_claim": invented,
         "coverage": state.selected_provider_coverage,
     }
 
@@ -84,6 +88,17 @@ def check_expectations(run: CaseRun) -> list[str]:
         fails.append("no safety guidance given")
     if exp.get("secondary_issue") and not s.secondary_issues:
         fails.append("secondary issue not captured")
+    if exp.get("rejects_first_provider"):
+        if not s.excluded_provider_ids:
+            fails.append("rejection was not recorded")
+        elif s.selected_provider_id in s.excluded_provider_ids:
+            fails.append("rejected provider was selected again")
+        if not any("provider_feedback:reject" in e for t in run.transcript for e in t.get("events", [])):
+            fails.append("no provider-rejection event")
+    if exp.get("answers_without_inventing"):
+        replies = [t["content"] for t in run.transcript if t["role"] == "assistant"]
+        if not any("verified" in r and ("pricing" in r or "review" in r) for r in replies):
+            fails.append("provider question was not answered honestly")
     if exp.get("final_zip_code") and s.zip_code != exp["final_zip_code"]:
         fails.append(f"zip {s.zip_code} != expected {exp['final_zip_code']}")
     return fails
@@ -102,7 +117,7 @@ def compute_metrics(runs: list[CaseRun]) -> dict:
     success_turns = [r.state.user_turns for r in runs if r.state.outcome == Outcome.READY_TO_DISPATCH]
 
     fact_msgs = [m for r in runs for m in r.provider_mentions if m["has_provider_fact"]]
-    grounded = [m for m in fact_msgs if not m["ungrounded_phones"]]
+    grounded = [m for m in fact_msgs if not m["ungrounded_phones"] and not m["invented_provider_claim"]]
     coverage_msgs = [m for m in fact_msgs if m["providers"]]
     coverage_truthful = [m for m in coverage_msgs if not (m["claims_verified_coverage"] and m["coverage"] != "verified")]
 

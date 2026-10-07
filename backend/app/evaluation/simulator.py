@@ -8,6 +8,7 @@ real users; requires an API key.
 """
 
 import json
+import re
 
 from app.services.telemetry import TELEMETRY
 
@@ -34,6 +35,14 @@ class StructuredSimulator:
 
     def reply(self, agent_message: str, action_type: str, field: str | None) -> str:
         f = self.facts
+        # Provider-preference behaviors trigger the first time a provider is recommended.
+        found = re.search(r"I found (.+?), which", agent_message)
+        if found and f.get("reject_first_provider") and not f.get("_rejected"):
+            f["_rejected"] = True
+            return f["rejection_message"].format(provider=found.group(1))
+        if found and f.get("ask_question") and not f.get("_asked"):
+            f["_asked"] = True
+            return f["question_message"]
         # Persona-driven corrections are volunteered on the turn after the original answer.
         if "corrected_zip_code" in f and f.get("_zip_given") and not self.zip_corrected:
             self.zip_corrected = True
@@ -46,6 +55,8 @@ class StructuredSimulator:
             return f.get("clarification_answer", "I'm not sure")
         if action_type == "ask_location":
             f["_zip_given"] = True
+            if f.get("zip_code") == "unknown":
+                return f"I am in {f['city']}. I don't know the ZIP code"
             if f.get("street_address"):
                 f["_street_given"] = True
             if f.get("street_address") and "full address" in self.persona:
@@ -80,6 +91,11 @@ Rules:
 - Volunteer facts the assistant did not ask for only if the persona says you do.
 - Phone numbers, ZIP codes and addresses must be copied exactly from your facts.
 - If consent_to_share is false, refuse when asked whether your details may be shared with a provider.
+- If zip_code is "unknown", say you don't know your ZIP code and give your city instead.
+- If reject_first_provider is true: the first time a provider is recommended, send rejection_message (with the
+  provider's name filled in) instead of answering, then continue normally with the next provider.
+- If ask_question is true: the first time a provider is recommended, send question_message instead of answering,
+  then continue normally.
 - If your facts include corrected_zip_code, give zip_code first, then correct it on your next message.
 - If your facts include correction_message, say it (verbatim) the first time after you've given your ZIP.
 - Never mention that you are simulated."""
