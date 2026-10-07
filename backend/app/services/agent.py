@@ -60,6 +60,17 @@ class TurnResult:
     lead_withdrawn: bool = False
 
 
+MAX_MESSAGE_CHARS = 2000
+
+
+def _trim(message: str) -> str:
+    """Keep the start and end of very long messages; facts tend to be at either end of a long story."""
+    message = message.strip()
+    if len(message) <= MAX_MESSAGE_CHARS:
+        return message
+    return message[:1500] + " … " + message[-500:]
+
+
 # Fields whose change makes a finished conversation worth reopening.
 MATERIAL_FIELDS = {
     "service_category", "unsupported_service", "zip_code", "city", "street_address", "pilot_area", "urgency",
@@ -73,6 +84,11 @@ def _fingerprint(state: LeadState) -> dict:
 
 
 def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) -> TurnResult:
+    message = _trim(message)
+    if not message:
+        # Not a turn: nothing to extract, nothing changes.
+        action = NextAction(type="empty_input")
+        return TurnResult(templates.render(action, state, None), action, state)
     events: list[str] = []
     safety_text = ""  # deterministic; never rewritten by the LLM
     prefixes: list[str] = []

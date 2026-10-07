@@ -34,7 +34,8 @@ def get_provider(provider_id: str) -> Provider | None:
 
 def search(category: Category, pilot_area: str, providers: dict[str, Provider] | None = None) -> SearchResult:
     pool = providers if providers is not None else load_providers()
-    in_category = [p for p in pool.values() if category in p.service_categories]
+    # A provider without a phone can't act on a lead, so it is never a candidate.
+    in_category = [p for p in pool.values() if category in p.service_categories and p.phone.strip()]
     for tier in ("verified", "provisional"):
         matches = [p for p in in_category if p.coverage.get(pilot_area) == tier]
         if matches:
@@ -44,7 +45,8 @@ def search(category: Category, pilot_area: str, providers: dict[str, Provider] |
 
 def search_tier(category: Category, pilot_area: str, tier: str) -> list[Provider]:
     return sorted(
-        (p for p in load_providers().values() if category in p.service_categories and p.coverage.get(pilot_area) == tier),
+        (p for p in load_providers().values()
+         if category in p.service_categories and p.coverage.get(pilot_area) == tier and p.phone.strip()),
         key=lambda p: p.id,
     )
 

@@ -123,7 +123,10 @@ $("form").addEventListener("submit", async (e) => {
   $("input").value = ""; addMsg("user", text); $("send").disabled = true;
   try {
     const r = await fetch(`/api/conversations/${conversationId}/messages`, { method: "POST", headers, body: JSON.stringify({ content: text }) });
-    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      throw new Error(typeof body.detail === "string" ? body.detail : "request rejected");
+    }
     const d = await r.json();
     addMsg("agent", d.message);
     renderProgress(d.progress, d.outcome);

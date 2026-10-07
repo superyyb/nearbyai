@@ -35,7 +35,8 @@ def guard(request: Request, x_demo_code: str | None = Header(default=None)) -> N
 
 
 class MessageIn(BaseModel):
-    content: str = Field(min_length=1, max_length=2000)
+    # Generous limit: long messages are trimmed by the agent rather than rejected.
+    content: str = Field(default="", max_length=20000)
 
 
 @app.get("/health")

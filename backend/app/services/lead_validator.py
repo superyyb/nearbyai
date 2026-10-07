@@ -46,6 +46,8 @@ def validate_lead(state: LeadState, provider: Provider | None) -> ValidationResu
     if provider is None:
         missing.append("provider")
     else:
+        if not provider.phone.strip():
+            errors.append(f"provider {provider.id} has no phone number")
         if state.service_category not in provider.service_categories:
             errors.append(f"provider {provider.id} does not offer {state.service_category}")
         coverage = provider.coverage.get(state.pilot_area or "", "unknown")

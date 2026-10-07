@@ -115,6 +115,8 @@ def render(action: NextAction, state: LeadState, provider: Provider | None) -> s
         )
     if t == "safety_redirect":
         return "Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs."
+    if t == "empty_input":
+        return "I didn't catch that — could you tell me again?"
     if t in ("present_options", "offer_provisional"):
         return action.note
     if t == "already_closed":

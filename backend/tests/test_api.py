@@ -50,3 +50,11 @@ def test_withdrawing_consent_marks_persisted_lead_withdrawn():
     with SessionLocal() as db:
         statuses = list(db.scalars(select(Lead.status).where(Lead.conversation_id == cid)))
     assert statuses == ["withdrawn"]
+
+
+def test_long_and_empty_messages_are_handled_not_rejected():
+    cid = client.post("/api/conversations").json()["conversation_id"]
+    r = client.post(f"/api/conversations/{cid}/messages", json={"content": "My AC is broken. " * 400})
+    assert r.status_code == 200 and r.json()["progress"]["user_turns"] == 1
+    r = client.post(f"/api/conversations/{cid}/messages", json={"content": "   "})
+    assert r.status_code == 200 and r.json()["action"] == "empty_input" and r.json()["progress"]["user_turns"] == 1

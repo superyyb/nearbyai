@@ -255,6 +255,7 @@ ActionType = Literal[
     "lead_ready",
     "self_serve",
     "already_closed",
+    "empty_input",
 ]
 
 

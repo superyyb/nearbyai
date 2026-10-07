@@ -291,6 +291,11 @@ UNVERIFIED_PROVIDER_CLAIMS = re.compile(
     r"\b(is|are|fully) (licensed|insured|bonded)\b|\blicensed and insured\b",
     re.I,
 )
+INTERNAL_DETAILS = re.compile(
+    r"\b(system prompt|LeadState|asked_fields|reference_message|next_step|provider_facts|guardrail|"
+    r"extraction|json|my instructions)\b|[{}]",
+    re.I,
+)
 FORBIDDEN_CLAIMS = re.compile(
     r"\b(dispatched|booked|scheduled|appointment (is|has been) (set|confirmed)|has been (contacted|notified|sent)|"
     r"(will|is going to) (arrive|come|be there)|on (their|the) way|guarantee\w*)\b",
@@ -305,6 +310,8 @@ def guardrail_violations(text: str, allowed_phones: set[str], allowed_urls: set[
     # Negation-aware: "I can't guarantee timing" is the honest answer, not a claim.
     if affirmed(FORBIDDEN_CLAIMS, text):
         issues.append("forbidden claim")
+    if INTERNAL_DETAILS.search(text):
+        issues.append("internal details")
     if affirmed(UNVERIFIED_PROVIDER_CLAIMS, text):
         issues.append("unverified provider claim (price/rating/license)")
     digits_allowed = {re.sub(r"\D", "", p) for p in allowed_phones}
