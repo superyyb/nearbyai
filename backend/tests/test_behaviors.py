@@ -222,3 +222,62 @@ def test_hvac_has_no_provisional_so_exhausting_verified_is_no_match():
     state, _ = converse(MATCHED)
     state, results = exhaust_verified(state)
     assert state.outcome == "no_match" and results[-1].action.note == "all_rejected"
+
+
+# ---------- safety interrupts and scope boundaries ----------
+
+from app.services import ambiguity, safety  # noqa: E402
+from app.services.rules_llm import RulesLLM  # noqa: E402
+from app.domain import LeadState  # noqa: E402
+from app.services.agent import handle_turn  # noqa: E402
+
+
+@pytest.mark.parametrize("message,flag", [
+    ("The furnace has a burning smell coming from the vents", "hvac_burning_smell"),
+    ("Raw sewage is coming up through the shower drain", "sewage_backup"),
+    ("The ceiling is sagging with water above the bed", "ceiling_sagging"),
+    ("A tree fell on the house and went through the roof", "tree_on_house"),
+])
+def test_new_urgent_hazards_get_specific_guidance(message, flag):
+    r = safety.screen(message)
+    assert flag in r.urgent_flags and not r.is_redirect
+    assert r.guidance()
+
+
+def test_hvac_burning_smell_does_not_get_breaker_guidance():
+    r = safety.screen("there's a burning smell from the heater")
+    assert r.urgent_flags == ["hvac_burning_smell"] and "thermostat" in r.guidance()
+
+
+def test_hazard_interrupts_funnel_then_continues():
+    state = LeadState(conversation_id="x")
+    r = handle_turn(state, "Raw sewage is backing up into my basement toilet", RulesLLM(), [])
+    assert r.message.startswith("For safety: avoid contact with the sewage")
+    assert state.service_category == "plumbing" and r.action.type == "ask_location"
+
+
+@pytest.mark.parametrize("message,expected", [
+    ("My dishwasher is leaking all over the kitchen floor", "plumbing"),
+    ("My dishwasher won't drain", "appliance repair"),
+    ("The garage door is stuck", "unsupported"),
+    ("I'm locked out of my house", "unsupported"),
+])
+def test_scope_policy_for_borderline_jobs(message, expected):
+    state = LeadState(conversation_id="x")
+    r = handle_turn(state, message, RulesLLM(), [])
+    if expected == "plumbing":
+        assert state.service_category == "plumbing"
+    else:
+        assert r.action.type == "unsupported_category"
+        if expected != "unsupported":
+            assert state.unsupported_service == expected
+
+
+@pytest.mark.parametrize("text,rule", [
+    ("The wall next to my bed feels warm", "warm_wall"),
+    ("There's a buzzing sound in the hallway", "buzzing"),
+    ("There's a buzzing sound from the outlet", None),  # already resolved: clearly electrical
+])
+def test_new_ambiguity_rules(text, rule):
+    found = ambiguity.detect(text)
+    assert (found.name if found else None) == rule

@@ -24,6 +24,20 @@ URGENT_RULES = {
         r"|\b(outlet|panel|breaker|wires?|wiring|electrical)\b.*\bwater\b",
         re.I,
     ),
+    "hvac_burning_smell": re.compile(
+        r"\b(burning|burnt|burned)( smell| odor)?\b.{0,40}\b(furnace|heater|vents?|ac|a/c|hvac|heat pump)\b"
+        r"|\b(furnace|heater|vents?|ac|a/c|hvac|heat pump)\b.{0,40}\b(burning|burnt|burned)\b",
+        re.I,
+    ),
+    "sewage_backup": re.compile(r"\b(sewage|raw sewage|sewer (backup|backed up|overflow\w*))\b", re.I),
+    "ceiling_sagging": re.compile(
+        r"\bceiling\b.{0,30}\b(sagging|bulging|bowing|collapsing|caving)\b|\b(sagging|bulging|bowing)\b.{0,15}\bceiling\b",
+        re.I,
+    ),
+    "tree_on_house": re.compile(
+        r"\btree\b.{0,40}\b(fell|fallen|came down|crashed)\b.{0,30}\b(roof|house|home)\b|\btree\b.{0,20}\bthrough (the|my) roof\b",
+        re.I,
+    ),
 }
 
 REDIRECT_GUIDANCE = {
@@ -44,6 +58,22 @@ URGENT_GUIDANCE = {
     "water_near_electrical": (
         "For safety: stay out of standing water that may be near outlets, cords, or the electrical panel. "
         "If you can reach the main breaker without touching water, switch it off; otherwise wait for a professional."
+    ),
+    "hvac_burning_smell": (
+        "For safety: turn the system off at the thermostat. If you see smoke or the smell gets stronger, "
+        "leave the home and call 911."
+    ),
+    "sewage_backup": (
+        "For safety: avoid contact with the sewage water, keep kids and pets away, and don't use sinks, toilets, "
+        "or showers until it's fixed."
+    ),
+    "ceiling_sagging": (
+        "For safety: stay out from under that part of the ceiling — a sagging, water-filled ceiling can come down. "
+        "If it's safe, move valuables away and put a bucket nearby."
+    ),
+    "tree_on_house": (
+        "For safety: stay away from the damaged area. If anyone is hurt, or you see downed power lines or "
+        "structural damage, leave and call 911."
     ),
 }
 
@@ -83,8 +113,16 @@ def affirmed(rx: re.Pattern, message: str) -> bool:
     return False
 
 
+SPARK_WORDS = re.compile(r"\b(spark\w*|arcing|outlet|panel|breaker|switch|wires?|wiring)\b", re.I)
+
+
 def screen(message: str) -> SafetyResult:
+    urgent = [name for name, rx in URGENT_RULES.items() if affirmed(rx, message)]
+    # A burning smell from the heating/cooling system gets HVAC guidance (turn it off at the thermostat),
+    # not the breaker-and-outlet guidance — unless electrical parts are mentioned too.
+    if "hvac_burning_smell" in urgent and "electrical_sparking" in urgent and not SPARK_WORDS.search(message):
+        urgent.remove("electrical_sparking")
     return SafetyResult(
         redirect_flags=[name for name, rx in REDIRECT_RULES.items() if affirmed(rx, message)],
-        urgent_flags=[name for name, rx in URGENT_RULES.items() if affirmed(rx, message)],
+        urgent_flags=urgent,
     )

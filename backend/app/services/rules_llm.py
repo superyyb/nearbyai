@@ -18,7 +18,9 @@ CATEGORY_KEYWORDS: list[tuple[Category, re.Pattern]] = [
     (Category.ELECTRICAL, re.compile(r"\b(outlet|breaker|electric\w*|wiring|wires?|spark\w*|lights? (flicker\w*|out)|panel|switch)\b", re.I)),
 ]
 UNSUPPORTED_KEYWORDS = re.compile(
-    r"\b(pests?|termites?|rodents?|mice|rats?|ants|cockroach\w*|bed ?bugs|landscap\w*|lawn|tree trimming|pool|painting|cleaning service|locksmith|appliance repair)\b",
+    r"\b(pests?|termites?|rodents?|mice|rats?|ants|cockroach\w*|bed ?bugs|landscap\w*|lawn|tree (trimming|removal)|"
+    r"pool|painting|cleaning service|locksmith|locked out|garage door|windows?|foundation|moving|internet|wifi|cable|"
+    r"appliance repair)\b",
     re.I,
 )
 ZIP_RE = re.compile(r"\b(9\d{4})\b")
@@ -86,8 +88,15 @@ def _urgency(msg: str) -> str | None:
     return None
 
 
+APPLIANCE_RE = re.compile(r"\b(dishwasher|washing machine|washer|dryer|fridge|refrigerator|oven|stove|microwave)\b", re.I)
+LEAK_RE = re.compile(r"\b(leak\w*|water (on|all over)|flood\w*|dripping)\b", re.I)
+
+
 def _classify(msg: str) -> list[Category]:
-    return [cat for cat, rx in CATEGORY_KEYWORDS if rx.search(msg)]
+    cats = [cat for cat, rx in CATEGORY_KEYWORDS if rx.search(msg)]
+    if APPLIANCE_RE.search(msg) and LEAK_RE.search(msg) and Category.PLUMBING not in cats:
+        cats.insert(0, Category.PLUMBING)  # leak from an appliance's water connection is plumbing
+    return cats
 
 
 class RulesLLM:
@@ -99,9 +108,12 @@ class RulesLLM:
         corrections: list[str] = []
         is_correction = bool(re.search(r"\b(actually|sorry|correction|i meant|wrong|instead|changed?)\b", msg, re.I))
 
-        # Category
-        cats = _classify(msg)
-        if UNSUPPORTED_KEYWORDS.search(msg) and not cats:
+        # Category (an appliance that won't run/drain/cool is appliance repair, checked before trade keywords)
+        appliance_fault = bool(APPLIANCE_RE.search(msg) and not LEAK_RE.search(msg))
+        cats = [] if appliance_fault else _classify(msg)
+        if appliance_fault:
+            up.unsupported_service = "appliance repair"
+        elif UNSUPPORTED_KEYWORDS.search(msg) and not cats:
             up.unsupported_service = UNSUPPORTED_KEYWORDS.search(msg).group(0).lower()
         elif cats:
             primary = cats[0]

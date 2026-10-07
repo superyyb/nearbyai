@@ -36,7 +36,16 @@ Supported categories:
 - roofing: roof leaks, shingles, storm damage to roof, gutters
 - hvac: heating, air conditioning, furnaces, heat pumps, thermostats
 - electrical: outlets, breakers, panels, wiring, lighting circuits
-Anything else (pest control, landscaping, appliances, cleaning, locksmith...) -> service_category null and unsupported_service set to a short name of the service.
+Anything else -> service_category null and unsupported_service set to a short name of the service. Unsupported
+examples: pest control, landscaping/tree removal, garage doors, locksmiths, pools, windows, foundations, cleaning,
+moving, internet/cable, and appliance repair.
+Scope rules:
+- Appliances: water leaking from an appliance's water connection (dishwasher, washer, fridge line) is plumbing;
+  an appliance that won't run, drain, cool, or heat is appliance repair (unsupported).
+- Mold or staining caused by a water leak is water_damage_restoration.
+- Several related problems: safety first, then the immediate source, then the consequence. The source is
+  service_category and the consequences go in secondary_issues (a burst pipe that soaked the floor -> plumbing,
+  secondary "water damage to the floor"). Unrelated problems: the most urgent is primary, the rest secondary.
 
 Rules:
 - Extract only what the LATEST user message states or clearly implies. For anything not stated use "" for text,
