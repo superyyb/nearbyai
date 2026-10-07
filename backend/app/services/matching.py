@@ -25,6 +25,8 @@ def deterministic_rank(state: LeadState, candidates: list[Provider]) -> tuple[li
         return s + (3 if urgent and p.emergency_service else 0)
 
     ranked = sorted(candidates, key=lambda p: (-score(p), p.id))
+    if not ranked:
+        return [], ""
     reason = "24/7 service noted on its official site" if urgent and ranked[0].emergency_service else "best keyword match to the job description"
     return ranked, reason
 

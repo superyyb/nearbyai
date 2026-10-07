@@ -41,6 +41,20 @@ def test_rerank_cannot_select_a_provider_outside_hard_eligibility():
     assert "wci-electric" not in state.candidate_provider_ids
 
 
+def test_rerank_returning_every_candidate_keeps_its_order():
+    # Found by the Claude smoke run: a complete ranking left no leftovers and crashed the keyword fallback.
+    eligible = [p.id for p in search(Category.HVAC, "santa_clara").candidates]
+
+    class FullReranker(ScriptedLLM):
+        def rerank(self, job, candidates):
+            return RerankResult(ranked_provider_ids=list(reversed(eligible)), reason="full ranking")
+
+    state = LeadState(conversation_id="x", service_category=Category.HVAC, pilot_area="santa_clara")
+    select_provider(state, FullReranker([]))
+    assert state.candidate_provider_ids == list(reversed(eligible))
+    assert state.selected_provider_id == eligible[-1]
+
+
 def test_choosing_an_out_of_area_or_wrong_trade_provider_is_refused():
     state, results = converse(MATCHED + [("Select Wooding Electric, I know they cover it",
                                           {"provider_feedback": "choose_named", "named_provider": "Wooding Electric"})])
