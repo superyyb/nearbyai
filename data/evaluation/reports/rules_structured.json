@@ -1,0 +1,1781 @@
+{
+  "config": {
+    "backend": "rules",
+    "simulator": "structured",
+    "cases": null,
+    "judge": false,
+    "repeat": 1,
+    "repeat_tags": ""
+  },
+  "metrics": {
+    "cases": 18,
+    "outcome_accuracy": 94.4,
+    "service_category_accuracy": 93.8,
+    "dispatchable_lead_rate": 92.9,
+    "useful_resolution_rate": 93.3,
+    "median_user_turns_to_lead": 6,
+    "mean_user_turns_to_lead": 5.77,
+    "provider_grounding": 100.0,
+    "coverage_truthfulness": 100.0,
+    "provider_eligibility": 100.0,
+    "consent_correctness": 100.0,
+    "avg_lead_quality": 91.8,
+    "cases_passed": 17
+  },
+  "judge": null,
+  "stability": {},
+  "cases": [
+    {
+      "id": "water_damage_basement_storm",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "water_damage_restoration",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Water started coming into my basement last night after the storm. I don't know who to call."
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "1450 Lafayette St, Santa Clara 95050"
+        },
+        {
+          "role": "assistant",
+          "content": "Is water still actively coming in right now?",
+          "action": "ask_qualification",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "no"
+        },
+        {
+          "role": "assistant",
+          "content": "I found 911 Restoration of San Jose, which handles water damage restoration and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:3 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "today if possible"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you?",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Test User, 408-555-0142"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with 911 Restoration of San Jose so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Test User. Your service request is ready to send to 911 Restoration of San Jose. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 449-4904.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Test User",
+          "contact_method": "phone",
+          "contact": "(408) 555-0142",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "1450 Lafayette St, Santa Clara, CA 95050",
+          "address_status": "complete",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "Water Damage Restoration",
+          "problem": "Water started coming into my basement last night after the storm. I don't know who to call.",
+          "details": {
+            "Water still entering": "No",
+            "Likely source": "Exterior / storm water"
+          },
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Same-day service preferred",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "911-restoration-of-san-jose",
+          "name": "911 Restoration of San Jose",
+          "phone": "(408) 449-4904",
+          "website": "https://www.911restorationsanjose.com",
+          "address": "803 Salt Lake Dr, San Jose, CA 95133",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.911restorationsanjose.com/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 100.0
+      }
+    },
+    {
+      "id": "plumbing_burst_pipe",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "plumbing",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 5,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "A pipe under my kitchen sink burst and it's spraying everywhere"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95051"
+        },
+        {
+          "role": "assistant",
+          "content": "I found EJ Home Services, which handles plumbing and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "right now, asap"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Jordan Kim, 408-555-0101"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with EJ Home Services so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Jordan Kim. Your service request is ready to send to EJ Home Services. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (650) 434-4432.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Jordan Kim",
+          "contact_method": "phone",
+          "contact": "(408) 555-0101",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95051; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "Plumbing",
+          "problem": "A pipe under my kitchen sink burst and it's spraying everywhere",
+          "details": {},
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "As soon as possible (customer reports urgent need)",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "ej-home-services",
+          "name": "EJ Home Services",
+          "phone": "(650) 434-4432",
+          "website": "https://www.ejplumbing.com",
+          "address": "985 Parker Ct, Santa Clara, CA 95050",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.ejplumbing.com/areas-we-serve/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "plumbing_toilet_overflow",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "plumbing",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 5,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My toilet keeps overflowing every time we flush"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "820 E El Camino Real, Sunnyvale, CA 94087"
+        },
+        {
+          "role": "assistant",
+          "content": "I found EJ Home Services, which handles plumbing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "tomorrow works"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Alex Rivera, 650-555-0123"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with EJ Home Services so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Alex Rivera. Your service request is ready to send to EJ Home Services. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (650) 434-4432.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Alex Rivera",
+          "contact_method": "phone",
+          "contact": "(650) 555-0123",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 94087; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Sunnyvale"
+        },
+        "service": {
+          "category": "Plumbing",
+          "problem": "My toilet keeps overflowing every time we flush",
+          "details": {},
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Within the next few days",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "ej-home-services",
+          "name": "EJ Home Services",
+          "phone": "(650) 434-4432",
+          "website": "https://www.ejplumbing.com",
+          "address": "985 Parker Ct, Santa Clara, CA 95050",
+          "coverage": "Verified \u2014 Sunnyvale listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.ejplumbing.com/areas-we-serve/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "hvac_ac_warm_air",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "hvac",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 5,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My AC is running but only blowing warm air"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95134"
+        },
+        {
+          "role": "assistant",
+          "content": "I found DG Heating & Air Conditioning, which handles hvac (heating & cooling) and lists North San Jose in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "this week is fine"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Morgan Lee, 408-555-0177"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with DG Heating & Air Conditioning so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Morgan Lee. Your service request is ready to send to DG Heating & Air Conditioning. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 201-9411.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Morgan Lee",
+          "contact_method": "phone",
+          "contact": "(408) 555-0177",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95134; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "North San Jose"
+        },
+        "service": {
+          "category": "HVAC (Heating & Cooling)",
+          "problem": "My AC is running but only blowing warm air",
+          "details": {},
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Within the next few days",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "dg-heating-air-conditioning",
+          "name": "DG Heating & Air Conditioning",
+          "phone": "(408) 201-9411",
+          "website": "https://www.dgheatingandair.com",
+          "address": null,
+          "coverage": "Verified \u2014 North San Jose listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.dgheatingandair.com/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "hvac_furnace_dead",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "hvac",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 5,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "The furnace won't turn on at all and the house is freezing"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "94086"
+        },
+        {
+          "role": "assistant",
+          "content": "I found Supreme Comfort HVAC, Inc., which handles hvac (heating & cooling) and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "today if possible"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Chris Patel, 408-555-0190"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with Supreme Comfort HVAC, Inc. so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Chris Patel. Your service request is ready to send to Supreme Comfort HVAC, Inc.. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 222-6463.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Chris Patel",
+          "contact_method": "phone",
+          "contact": "(408) 555-0190",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 94086; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Sunnyvale"
+        },
+        "service": {
+          "category": "HVAC (Heating & Cooling)",
+          "problem": "The furnace won't turn on at all and the house is freezing",
+          "details": {},
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Same-day service preferred",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "supreme-comfort-hvac-inc",
+          "name": "Supreme Comfort HVAC, Inc.",
+          "phone": "(408) 222-6463",
+          "website": "https://www.supremecomfortca.com",
+          "address": "San Jose, CA",
+          "coverage": "Verified \u2014 Sunnyvale listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.supremecomfortca.com/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "electrical_sparking_outlet",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "electrical",
+        "outcome": "ready_to_dispatch",
+        "safety_guidance": true
+      },
+      "user_turns": 4,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "One of my outlets sparked when I plugged in the vacuum"
+        },
+        {
+          "role": "assistant",
+          "content": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [
+            "safety_urgent:electrical_sparking"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95054"
+        },
+        {
+          "role": "assistant",
+          "content": "I found WCI Electric, which handles electrical and lists Santa Clara in its service area. What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [
+            "provider_search:4 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Taylor Nguyen, 408-555-0133"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with WCI Electric so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Taylor Nguyen. Your service request is ready to send to WCI Electric. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 242-2069.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Taylor Nguyen",
+          "contact_method": "phone",
+          "contact": "(408) 555-0133",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95054; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "Electrical",
+          "problem": "One of my outlets sparked when I plugged in the vacuum",
+          "details": {
+            "Sparks / burning smell / hot fixtures": "Yes \u2014 safety guidance given"
+          },
+          "secondary_issues": [],
+          "safety_flags": [
+            "electrical_sparking"
+          ]
+        },
+        "timing": {
+          "preference": "As soon as possible (customer reports urgent need)",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "wci-electric",
+          "name": "WCI Electric",
+          "phone": "(408) 242-2069",
+          "website": "https://www.wcielectric.com",
+          "address": "3088 El Camino Real Unit 2, Santa Clara, CA 95051",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "24/7 service noted on its official site",
+          "source_url": "https://www.wcielectric.com/about-us-electricians/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "roofing_leak_after_rain",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "roofing",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Our roof started leaking into the upstairs bedroom during the rain"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95131"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it actively leaking right now?",
+          "action": "ask_qualification",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "I found First Tier Exterior, which handles roofing and lists North San Jose in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "asap"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Dana Brooks, 669-555-0144"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with First Tier Exterior so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Dana Brooks. Your service request is ready to send to First Tier Exterior. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (669) 249-1684.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Dana Brooks",
+          "contact_method": "phone",
+          "contact": "(669) 555-0144",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95131; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "North San Jose"
+        },
+        "service": {
+          "category": "Roofing",
+          "problem": "Our roof started leaking into the upstairs bedroom during the rain",
+          "details": {
+            "Actively leaking": "Yes"
+          },
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "As soon as possible (customer reports urgent need)",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "first-tier-exterior",
+          "name": "First Tier Exterior",
+          "phone": "(669) 249-1684",
+          "website": "https://www.firsttierexterior.com",
+          "address": "4701 Patrick Henry Dr Bldg 15, Santa Clara, CA 95054",
+          "coverage": "Verified \u2014 North San Jose listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.firsttierexterior.com/services/roofing/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "ceiling_stain_ambiguous",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "roofing",
+        "outcome": "ready_to_dispatch",
+        "should_clarify": true
+      },
+      "user_turns": 7,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "There's a brown stain on my ceiling that keeps getting bigger"
+        },
+        {
+          "role": "assistant",
+          "content": "Does it mainly show up when it rains, or is there a bathroom or plumbing directly above that spot?",
+          "action": "clarify_category",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "It seems to get worse when it rains"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "94085"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it actively leaking right now?",
+          "action": "ask_qualification",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "no"
+        },
+        {
+          "role": "assistant",
+          "content": "I found Conrad Roofing Service, which handles roofing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:3 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "no rush"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Riley Chen, 408-555-0155"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with Conrad Roofing Service so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Riley Chen. Your service request is ready to send to Conrad Roofing Service. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 294-7615.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Riley Chen",
+          "contact_method": "phone",
+          "contact": "(408) 555-0155",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 94085; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Sunnyvale"
+        },
+        "service": {
+          "category": "Roofing",
+          "problem": "There's a brown stain on my ceiling that keeps getting bigger",
+          "details": {
+            "Actively leaking": "No"
+          },
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Flexible timing",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "conrad-roofing-service",
+          "name": "Conrad Roofing Service",
+          "phone": "(408) 294-7615",
+          "website": "https://conradroofingservice.com",
+          "address": "663 Walnut St, San Jose, CA 95110",
+          "coverage": "Verified \u2014 Sunnyvale listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://conradroofingservice.com/contact/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "vague_request",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "electrical",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 7,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Something is wrong in my house and I need help"
+        },
+        {
+          "role": "assistant",
+          "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+          "action": "ask_category",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "The lights in the kitchen keep flickering and the breaker trips"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95050"
+        },
+        {
+          "role": "assistant",
+          "content": "Are you seeing any sparks, a burning smell, or outlets or switches that feel hot?",
+          "action": "ask_qualification",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "no"
+        },
+        {
+          "role": "assistant",
+          "content": "I found California Power & Light, which handles electrical and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:4 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "this week"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Sam Ortiz, 408-555-0166"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with California Power & Light so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Sam Ortiz. Your service request is ready to send to California Power & Light. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 406-5832.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Sam Ortiz",
+          "contact_method": "phone",
+          "contact": "(408) 555-0166",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "homeowner"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95050; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "Electrical",
+          "problem": "The lights in the kitchen keep flickering and the breaker trips",
+          "details": {
+            "Sparks / burning smell / hot fixtures": "No"
+          },
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Within the next few days",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "california-power-light",
+          "name": "California Power & Light",
+          "phone": "(408) 406-5832",
+          "website": "https://www.cplelectric.com",
+          "address": "9 N Peter Dr, Campbell, CA 95008",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.cplelectric.com/about-us/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "unsupported_pest_control",
+      "outcome": "unsupported_category",
+      "expected": {
+        "service_category": null,
+        "outcome": "unsupported_category"
+      },
+      "user_turns": 1,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "We have termites in the garage, can you send someone?"
+        },
+        {
+          "role": "assistant",
+          "content": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for termites. If you also have one of those issues, I'm happy to help with it.",
+          "action": "unsupported_category",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": null
+    },
+    {
+      "id": "user_changes_zip",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "plumbing",
+        "outcome": "ready_to_dispatch",
+        "final_zip_code": "95134"
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My water heater is leaking all over the garage floor"
+        },
+        {
+          "role": "assistant",
+          "content": "I'll note the other issue too, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95050"
+        },
+        {
+          "role": "assistant",
+          "content": "I found EJ Home Services, which handles plumbing and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Sorry, actually the ZIP is 95134, not 95050"
+        },
+        {
+          "role": "assistant",
+          "content": "I found EJ Home Services, which handles plumbing and lists North San Jose in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "location changed; provider match cleared",
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "today if possible"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Jamie Fox, 408-555-0188"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with EJ Home Services so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Jamie Fox. Your service request is ready to send to EJ Home Services. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (650) 434-4432.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Jamie Fox",
+          "contact_method": "phone",
+          "contact": "(408) 555-0188",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95134; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "North San Jose"
+        },
+        "service": {
+          "category": "Plumbing",
+          "problem": "My water heater is leaking all over the garage floor",
+          "details": {},
+          "secondary_issues": [
+            "possible heating/cooling issue also mentioned"
+          ],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Same-day service preferred",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "ej-home-services",
+          "name": "EJ Home Services",
+          "phone": "(650) 434-4432",
+          "website": "https://www.ejplumbing.com",
+          "address": "985 Parker Ct, Santa Clara, CA 95050",
+          "coverage": "Verified \u2014 North San Jose listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.ejplumbing.com/areas-we-serve/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "user_changes_category",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "roofing",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 7,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "I think a pipe is leaking, there's water dripping in the hallway"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "94086"
+        },
+        {
+          "role": "assistant",
+          "content": "I found EJ Home Services, which handles plumbing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Actually I just checked the attic, it's the roof leaking, not a pipe"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it actively leaking right now?",
+          "action": "ask_qualification",
+          "events": [
+            "category changed plumbing -> roofing",
+            "category_changed"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "I found First Tier Exterior, which handles roofing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:3 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "asap"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Casey Wu, 408-555-0199"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with First Tier Exterior so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Casey Wu. Your service request is ready to send to First Tier Exterior. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (669) 249-1684.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Casey Wu",
+          "contact_method": "phone",
+          "contact": "(408) 555-0199",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 94086; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Sunnyvale"
+        },
+        "service": {
+          "category": "Roofing",
+          "problem": "Actually I just checked the attic, it's the roof leaking, not a pipe",
+          "details": {
+            "Actively leaking": "Yes"
+          },
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "As soon as possible (customer reports urgent need)",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "first-tier-exterior",
+          "name": "First Tier Exterior",
+          "phone": "(669) 249-1684",
+          "website": "https://www.firsttierexterior.com",
+          "address": "4701 Patrick Henry Dr Bldg 15, Santa Clara, CA 95054",
+          "coverage": "Verified \u2014 Sunnyvale listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.firsttierexterior.com/services/roofing/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "refuses_contact_sharing",
+      "outcome": "self_serve",
+      "expected": {
+        "service_category": "hvac",
+        "outcome": "self_serve"
+      },
+      "user_turns": 5,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "The AC in my condo stopped working"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95051"
+        },
+        {
+          "role": "assistant",
+          "content": "I found DG Heating & Air Conditioning, which handles hvac (heating & cooling) and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "whenever"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Pat Doe, 408-555-0111"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with DG Heating & Air Conditioning so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "no, I'd rather call them myself"
+        },
+        {
+          "role": "assistant",
+          "content": "No problem \u2014 I won't share your details. You can contact DG Heating & Air Conditioning directly at (408) 201-9411 (https://www.dgheatingandair.com).",
+          "action": "self_serve",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": null
+    },
+    {
+      "id": "safety_gas_leak",
+      "outcome": "safety_redirect",
+      "expected": {
+        "service_category": null,
+        "outcome": "safety_redirect"
+      },
+      "user_turns": 1,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "I smell gas in the kitchen, what should I do?"
+        },
+        {
+          "role": "assistant",
+          "content": "If you smell gas, please leave the home now, avoid using light switches, flames, or your phone indoors, and once you're outside call 911 and PG&E's gas emergency line at 1-800-743-5000. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+          "action": "safety_redirect",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": null
+    },
+    {
+      "id": "out_of_pilot_area",
+      "outcome": "no_match",
+      "expected": {
+        "service_category": "hvac",
+        "outcome": "no_match"
+      },
+      "user_turns": 2,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Our AC is blowing warm air"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "94301"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks. Right now I only have verified providers in Santa Clara, Sunnyvale, and North San Jose (95131, 95134), so I can't confidently match a provider for 94301. If the property is in one of those areas, send me the ZIP and I'll keep going.",
+          "action": "out_of_area",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": null
+    },
+    {
+      "id": "multiple_issues",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "roofing",
+        "outcome": "ready_to_dispatch",
+        "secondary_issue": true
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My roof is leaking after the rain and also my AC stopped working"
+        },
+        {
+          "role": "assistant",
+          "content": "I'll note the other issue too, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "95054"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it actively leaking right now?",
+          "action": "ask_qualification",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "I found First Tier Exterior, which handles roofing and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:4 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "today if possible"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Avery Park, 408-555-0122"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with First Tier Exterior so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Avery Park. Your service request is ready to send to First Tier Exterior. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (669) 249-1684.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Avery Park",
+          "contact_method": "phone",
+          "contact": "(408) 555-0122",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95054; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "Roofing",
+          "problem": "My roof is leaking after the rain and also my AC stopped working",
+          "details": {
+            "Water still entering": "No",
+            "Actively leaking": "Yes"
+          },
+          "secondary_issues": [
+            "possible heating/cooling issue also mentioned"
+          ],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Same-day service preferred",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "first-tier-exterior",
+          "name": "First Tier Exterior",
+          "phone": "(669) 249-1684",
+          "website": "https://www.firsttierexterior.com",
+          "address": "4701 Patrick Henry Dr Bldg 15, Santa Clara, CA 95054",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.firsttierexterior.com/services/roofing/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    },
+    {
+      "id": "typo_heavy",
+      "outcome": "unsupported_category",
+      "expected": {
+        "service_category": "water_damage_restoration",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 4,
+      "failures": [
+        "outcome unsupported_category != expected ready_to_dispatch",
+        "category None != expected water_damage_restoration"
+      ],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "wter coming in my basment aftr the big strom last nite"
+        },
+        {
+          "role": "assistant",
+          "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+          "action": "ask_category",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "I'm not sure"
+        },
+        {
+          "role": "assistant",
+          "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+          "action": "ask_category",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "I'm not sure"
+        },
+        {
+          "role": "assistant",
+          "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+          "action": "ask_category",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "I'm not sure"
+        },
+        {
+          "role": "assistant",
+          "content": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for this request. If you also have one of those issues, I'm happy to help with it.",
+          "action": "unsupported_category",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": null
+    },
+    {
+      "id": "unknown_qualification_fact",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "water_damage_restoration",
+        "outcome": "ready_to_dispatch"
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My neighbor says water is pooling in my basement after the storm"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "94089"
+        },
+        {
+          "role": "assistant",
+          "content": "Is water still actively coming in right now?",
+          "action": "ask_qualification",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "I'm not sure"
+        },
+        {
+          "role": "assistant",
+          "content": "I found 911 Restoration of San Jose, which handles water damage restoration and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:2 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "today if possible"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the best phone number for the provider to reach you?",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Robin Hale, 408-555-0109"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with 911 Restoration of San Jose so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Not Sure. Your service request is ready to send to 911 Restoration of San Jose. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 449-4904.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Not Sure",
+          "contact_method": "phone",
+          "contact": "(408) 555-0109",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 94089; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Sunnyvale"
+        },
+        "service": {
+          "category": "Water Damage Restoration",
+          "problem": "My neighbor says water is pooling in my basement after the storm",
+          "details": {
+            "Likely source": "Exterior / storm water"
+          },
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Same-day service preferred",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "911-restoration-of-san-jose",
+          "name": "911 Restoration of San Jose",
+          "phone": "(408) 449-4904",
+          "website": "https://www.911restorationsanjose.com",
+          "address": "803 Salt Lake Dr, San Jose, CA 95133",
+          "coverage": "Verified \u2014 Sunnyvale listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.911restorationsanjose.com/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 82.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "config": {
+    "backend": "anthropic",
+    "simulator": "structured",
+    "cases": "multiple_issues",
+    "judge": false,
+    "repeat": 1,
+    "repeat_tags": ""
+  },
+  "metrics": {
+    "cases": 1,
+    "outcome_accuracy": 100.0,
+    "service_category_accuracy": 100.0,
+    "dispatchable_lead_rate": 100.0,
+    "useful_resolution_rate": 100.0,
+    "median_user_turns_to_lead": 5,
+    "mean_user_turns_to_lead": 5,
+    "provider_grounding": 100.0,
+    "coverage_truthfulness": 100.0,
+    "provider_eligibility": 100.0,
+    "consent_correctness": 100.0,
+    "avg_lead_quality": 92.0,
+    "cases_passed": 1
+  },
+  "judge": null,
+  "stability": {},
+  "cases": [
+    {
+      "id": "multiple_issues",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "roofing",
+        "outcome": "ready_to_dispatch",
+        "secondary_issue": true
+      },
+      "user_turns": 5,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My roof is leaking after the rain and also my AC stopped working"
+        },
+        {
+          "role": "assistant",
+          "content": "I'm sorry you're dealing with this. I've noted the AC issue so it won't be lost, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "llm"
+        },
+        {
+          "role": "user",
+          "content": "95054"
+        },
+        {
+          "role": "assistant",
+          "content": "I found First Tier Exterior, which handles roofing and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:4 candidates"
+          ],
+          "wording": "llm"
+        },
+        {
+          "role": "user",
+          "content": "today if possible"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks for letting me know. What's your name and the best phone number to reach you? If you'd like, you can also include the street address so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "llm"
+        },
+        {
+          "role": "user",
+          "content": "Avery Park, 408-555-0122"
+        },
+        {
+          "role": "assistant",
+          "content": "First Tier Exterior handles roofing and serves your area. Is it okay if I share your name and phone number with them so they can call or text you about this request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "llm"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Avery Park. Your request is all set to send to First Tier Exterior. This demo only prepares the lead and doesn't contact the provider automatically, so if you'd like to reach them sooner, their number is (669) 249-1684.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "llm"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Avery Park",
+          "contact_method": "phone",
+          "contact": "(408) 555-0122",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 95054; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "Roofing",
+          "problem": "Roof is leaking after rain. Customer also reports their AC has stopped working. Customer would like service today if possible.",
+          "details": {
+            "Actively leaking": "Yes",
+            "Likely source": "Exterior / storm water"
+          },
+          "secondary_issues": [
+            "AC stopped working"
+          ],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Same-day service preferred",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "first-tier-exterior",
+          "name": "First Tier Exterior",
+          "phone": "(669) 249-1684",
+          "website": "https://www.firsttierexterior.com",
+          "address": "4701 Patrick Henry Dr Bldg 15, Santa Clara, CA 95054",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "The job is a storm-related roof leak, and First Tier Exterior's record explicitly lists roof repair and storm damage service. The other candidates' records show no storm damage or repair specialty, and none lists 24/7 emergency service, so specialty fit decides it. The AC issue is outside the roofing category.",
+          "source_url": "https://www.firsttierexterior.com/services/roofing/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "quality_score": 92.0
+      }
+    }
+  ]
+}
