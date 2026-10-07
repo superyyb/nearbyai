@@ -28,6 +28,8 @@ def build_packet(state: LeadState, provider: Provider, quality_score: float) -> 
         value = getattr(state.service_details, field)
         if value is not None:
             details[label] = values.get(value, str(value))
+        elif field in state.asked_fields:
+            details[label] = "Unknown — customer could not confirm"
     coverage = (
         f"Verified — {area} listed on provider's official site"
         if state.selected_provider_coverage == "verified"

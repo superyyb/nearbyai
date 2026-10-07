@@ -144,6 +144,14 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
         if getattr(state.service_details, field) is None or field in corrections:
             setattr(state.service_details, field, new)
 
+    # "I can't tell" overrides an earlier inference and counts as asked, so it is not re-asked
+    # and the lead says "unknown" instead of a guessed yes/no.
+    for field in up.unknown_facts:
+        if field in QUALIFICATION_FIELDS:
+            setattr(state.service_details, field, None)
+            if field not in state.asked_fields:
+                state.asked_fields.append(field)
+
     for field in up.declined_fields:
         if field not in state.declined_fields:
             state.declined_fields.append(field)

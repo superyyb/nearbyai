@@ -230,3 +230,35 @@ def test_denying_hazard_does_not_mark_lead_urgent():
     state, results = run(["my kitchen lights keep flickering", "95050", "no sparks or burning smell"])
     assert state.safety_flags == [] and state.urgency is None
     assert results[-1].action.type == "ask_timing"
+
+
+def test_unknown_fact_overrides_earlier_inference():
+    s = ready_state()
+    s.service_details.water_still_active = True  # inferred earlier
+    merge(s, ExtractionResult(updates=ExtractedFields(unknown_facts=["water_still_active"])))
+    assert s.service_details.water_still_active is None
+    assert "water_still_active" in s.asked_fields
+    r = validate_lead(s, get_provider(s.selected_provider_id))
+    assert r.valid  # asked-but-unknown is acceptable; the provider confirms on the call
+
+
+def test_lead_packet_says_unknown_instead_of_guessing():
+    from app.services.lead_packet import build_packet
+
+    s = ready_state(service_details=ServiceDetails())
+    s.asked_fields.append("water_still_active")
+    packet = build_packet(s, get_provider(s.selected_provider_id), 90)
+    assert packet["service"]["details"]["Water still entering"].startswith("Unknown")
+
+
+def test_wire_schema_maps_unknown():
+    from app.services.llm import LLMExtraction
+
+    base = dict(service_category="none", candidate_categories=[], needs_clarification=False, unsupported_service="",
+                issue_summary="", secondary_issues=[], street_address="", city="", zip_code="", urgency="none",
+                preferred_time="", customer_name="", property_relationship="none", contact_method="none",
+                contact_value="", consent_to_share="not_answered", insurance_intent="", water_still_active="unknown",
+                active_leak="not_mentioned", hazard_present="yes", likely_source="not_mentioned", declined_fields=[],
+                corrections=[])
+    up = LLMExtraction(**base).to_result().updates
+    assert up.water_still_active is None and up.unknown_facts == ["water_still_active"] and up.hazard_present is True

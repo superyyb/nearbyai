@@ -142,6 +142,8 @@ class RulesLLM:
             up.active_leak = yn
         if last_question_field == "hazard_present" and yn is not None:
             up.hazard_present = yn
+        if last_question_field in ("water_still_active", "active_leak", "hazard_present") and DONT_KNOW_RE.search(msg):
+            up.unknown_facts.append(last_question_field)
         if re.search(r"\b(still (coming|leaking|dripping|flowing)|getting worse|won'?t stop)\b", msg, re.I):
             up.water_still_active = True
             up.active_leak = True

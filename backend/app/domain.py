@@ -194,6 +194,9 @@ class ExtractedFields(BaseModel):
     likely_source: LikelySource | None = None
     active_leak: bool | None = None
     hazard_present: bool | None = None
+    unknown_facts: list[str] = Field(
+        default_factory=list, description="Qualification facts the user said they cannot confirm."
+    )
     declined_fields: list[str] = Field(
         default_factory=list,
         description="Fields the user explicitly declined to give, e.g. 'street_address', 'contact'.",

@@ -48,7 +48,10 @@ Rules:
 - consent_to_share: only set when the user is answering the explicit question about sharing contact details with the provider.
 - declined_fields: "street_address" or "contact" when the user refuses to give them.
 - urgency: emergency (needs help immediately), same_day (today), within_week, flexible.
-- If the user answers yes/no, interpret it against the assistant's last question field."""
+- If the user answers yes/no, interpret it against the assistant's last question field.
+- water_still_active / active_leak / hazard_present: "yes"/"no" only when the user states the current situation
+  directly. Second-hand or ambiguous reports (e.g. "my neighbor says water is pooling") are "not_mentioned".
+  Use "unknown" when the user says they don't know or can't check."""
 
 WRITER_SYSTEM = """You write the next assistant message for a home-service intake chat.
 
@@ -70,7 +73,8 @@ and a short reason grounded only in the candidate's record."""
 
 
 CategoryOrNone = Literal["water_damage_restoration", "plumbing", "roofing", "hvac", "electrical", "none"]
-YesNo = Literal["yes", "no", "not_mentioned"]
+# "unknown" = the user said they can't tell; distinct from "not_mentioned".
+YesNo = Literal["yes", "no", "unknown", "not_mentioned"]
 CorrectableField = Literal[
     "service_category", "zip_code", "city", "street_address", "urgency", "customer_name", "contact_value",
     "water_still_active", "active_leak", "hazard_present",
@@ -108,12 +112,14 @@ class LLMExtraction(BaseModel):
     def to_result(self) -> ExtractionResult:
         none_values = {"", "none", "not_mentioned", "not_answered"}
         yes_no = {"yes": True, "no": False}
-        data = {}
+        data: dict = {"unknown_facts": []}
         for name, value in self.model_dump().items():
             if name in ("corrections",):
                 continue
             if name in ("water_still_active", "active_leak", "hazard_present", "consent_to_share"):
                 data[name] = yes_no.get(value)
+                if value == "unknown" and name != "consent_to_share":
+                    data["unknown_facts"].append(name)
             elif isinstance(value, str):
                 data[name] = None if value.strip().lower() in none_values else value.strip()
             else:
