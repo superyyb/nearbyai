@@ -23,6 +23,7 @@ from app.evaluation.evaluator import compute_metrics, run_case  # noqa: E402
 from app.evaluation.simulator import ClaudeSimulator, StructuredSimulator  # noqa: E402
 from app.services.lead_packet import render_text  # noqa: E402
 from app.services.rules_llm import RulesLLM  # noqa: E402
+from app.services.telemetry import TELEMETRY  # noqa: E402
 
 TARGETS = {
     "provider_grounding": 100.0,
@@ -63,6 +64,7 @@ def main() -> None:
     def make_sim(case):
         return ClaudeSimulator(case, client, model) if args.simulator == "claude" else StructuredSimulator(case)
 
+    TELEMETRY.reset()
     runs = [run_case(c, llm, make_sim(c)) for c in cases]
 
     stability = {}
@@ -81,11 +83,31 @@ def main() -> None:
 
         judge_report = run_judge(ClaudeJudge(client, model), [r.lead for r in runs if r.lead])
 
-    print_report(args, metrics, runs, judge_report, stability)
-    write_report(args, metrics, runs, judge_report, stability)
+    usage = TELEMETRY.summary()
+    usage["fallback_rates"] = fallback_rates(usage)
+    print_report(args, metrics, runs, judge_report, stability, usage)
+    write_report(args, metrics, runs, judge_report, stability, usage)
 
 
-def print_report(args, metrics, runs, judge_report, stability) -> None:
+def fallback_rates(usage: dict) -> dict:
+    """How often deterministic code covered for the model, per responsibility."""
+    calls = {k: v["calls"] for k, v in usage["by_call_type"].items()}
+    fb = usage["deterministic_fallbacks"]
+    rate = lambda n, d: f"{n}/{d} ({100 * n / d:.1f}%)" if d else "n/a"  # noqa: E731
+    # Each failed extraction turn makes up to N attempts; count turns, not attempts.
+    extraction_turns = calls.get("extraction", 0) and (calls["extraction"] - fb.get("extraction_retries", 0))
+    return {
+        "extraction_failed_turns": rate(fb.get("extraction_failed", 0), extraction_turns),
+        "response_fell_back_to_template": rate(
+            fb.get("writer_guardrail_rejected", 0) + fb.get("writer_unavailable", 0), calls.get("response", 0)
+        ),
+        "rerank_fell_back_to_keyword": rate(fb.get("rerank_invalid_or_failed", 0), calls.get("rerank", 0)),
+        "rerank_skipped_single_candidate": fb.get("rerank_skipped_single_candidate", 0),
+        "server_side_model_fallbacks": sum(v["server_fallbacks"] for v in usage["by_call_type"].values()),
+    }
+
+
+def print_report(args, metrics, runs, judge_report, stability, usage) -> None:
     print("=" * 52)
     print(f" Home Service Agent Evaluation  ({args.backend} / {args.simulator} sim)")
     print("=" * 52)
@@ -123,9 +145,19 @@ def print_report(args, metrics, runs, judge_report, stability) -> None:
             print(f"  {k}: {v}")
     elif not args.judge:
         print("\n Provider judge: skipped (run with --judge; needs ANTHROPIC_API_KEY)")
+    if usage["total_calls"]:
+        print("\n LLM usage (list-price estimate):")
+        print(f"  {'call type':<12}{'calls':>6}{'in tok':>10}{'out tok':>9}{'avg ms':>8}{'p95 ms':>8}{'cost $':>9}")
+        for name, r in usage["by_call_type"].items():
+            print(f"  {name:<12}{r['calls']:>6}{r['input_tokens']:>10}{r['output_tokens']:>9}"
+                  f"{r['avg_latency_ms']:>8}{r['p95_latency_ms']:>8}{r['cost_usd']:>9.3f}")
+        print(f"  total cost ${usage['total_cost_usd']:.3f} over {usage['total_calls']} calls")
+        print("\n Fallback rates:")
+        for k, v in usage["fallback_rates"].items():
+            print(f"  {k}: {v}")
 
 
-def write_report(args, metrics, runs, judge_report, stability) -> None:
+def write_report(args, metrics, runs, judge_report, stability, usage) -> None:
     out_dir = ROOT / "data/evaluation/reports"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"{args.backend}_{args.simulator}"
@@ -134,6 +166,7 @@ def write_report(args, metrics, runs, judge_report, stability) -> None:
         "metrics": metrics,
         "judge": judge_report,
         "stability": stability,
+        "llm_usage": usage,
         "cases": [
             {
                 "id": r.case["id"],
@@ -151,6 +184,12 @@ def write_report(args, metrics, runs, judge_report, stability) -> None:
 
     md = [f"# Eval report — {args.backend} backend, {args.simulator} simulator", "", "| Metric | Value |", "|---|---|"]
     md += [f"| {k} | {v} |" for k, v in metrics.items()]
+    if usage["total_calls"]:
+        md += ["", "## LLM usage (list-price estimate)", "", "| Call type | Calls | Input tok | Output tok | Avg ms | p95 ms | Cost $ |",
+               "|---|---|---|---|---|---|---|"]
+        md += [f"| {k} | {r['calls']} | {r['input_tokens']} | {r['output_tokens']} | {r['avg_latency_ms']} | "
+               f"{r['p95_latency_ms']} | {r['cost_usd']:.3f} |" for k, r in usage["by_call_type"].items()]
+        md += ["", "| Fallback | Rate |", "|---|---|"] + [f"| {k} | {v} |" for k, v in usage["fallback_rates"].items()]
     for r in runs:
         status = "PASS" if not r.failures else "FAIL: " + "; ".join(r.failures)
         md += ["", f"## {r.case['id']} — {r.state.outcome} ({r.state.user_turns} user turns) — {status}", ""]

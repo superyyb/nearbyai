@@ -9,6 +9,8 @@ real users; requires an API key.
 
 import json
 
+from app.services.telemetry import TELEMETRY
+
 QUESTION_FIELD_TO_FACT = {
     "water_still_active": "water_still_active",
     "active_leak": "active_leak",
@@ -93,8 +95,8 @@ class ClaudeSimulator:
     def reply(self, agent_message: str, action_type: str, field: str | None) -> str:
         # Roles are flipped: the agent is the "user" from the simulator's point of view.
         self.history.append({"role": "user", "content": agent_message})
-        resp = self.client.messages.create(
-            model=self.model,
+        resp = TELEMETRY.track(
+            "simulator", self.model, self.client.messages.create,
             max_tokens=1000,
             output_config={"effort": "low"},
             system=SIMULATOR_SYSTEM.format(persona=self.case["persona"], facts=json.dumps(self.case["hidden_facts"])),

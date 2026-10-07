@@ -10,6 +10,7 @@ import copy
 from pydantic import BaseModel, Field
 
 from app.services.lead_packet import render_text
+from app.services.telemetry import TELEMETRY
 
 JUDGE_SYSTEM = """You are the owner of the home-service business named as the matched provider in this lead.
 Decide whether you would accept and act on this lead today. Be strict and practical: you need to understand
@@ -52,8 +53,8 @@ class ClaudeJudge:
         self.client, self.model = client, model
 
     def judge(self, packet: dict) -> JudgeVerdict | None:
-        resp = self.client.messages.parse(
-            model=self.model,
+        resp = TELEMETRY.track(
+            "judge", self.model, self.client.messages.parse,
             max_tokens=2000,
             output_config={"effort": "medium"},
             system=JUDGE_SYSTEM,

@@ -22,6 +22,7 @@ from app.services.matching import select_provider
 from app.services.provider_search import get_provider
 from app.services.rules_llm import CATEGORY_LABELS_SHORT
 from app.services.state_manager import merge
+from app.services.telemetry import TELEMETRY
 
 log = logging.getLogger(__name__)
 
@@ -93,6 +94,7 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         events += merge(state, extraction)
     except ExtractionFailed as e:
         state.extraction_failures += 1
+        TELEMETRY.fallback("extraction_failed")
         events.append(f"extraction_failed:{e}")
         log.warning("extraction failed; keeping prior state: %s", e)
 
@@ -169,11 +171,14 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             "previous_assistant_message": state.last_agent_message,
         }
         candidate = llm.write(reference, context)
-        if candidate:
+        if not candidate:
+            TELEMETRY.fallback("writer_unavailable")
+        else:
             violations = guardrail_violations(
                 candidate, allowed_phones, allowed_urls, state.selected_provider_coverage == "provisional"
             )
             if violations:
+                TELEMETRY.fallback("writer_guardrail_rejected")
                 events.append(f"writer_rejected:{violations}")
             else:
                 body, source = candidate, "llm"

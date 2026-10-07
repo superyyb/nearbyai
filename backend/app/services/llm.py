@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from app.config import settings
 from app.domain import ExtractedFields, ExtractionResult, LeadState, Provider
 from app.services.rules_llm import RulesLLM
+from app.services.telemetry import TELEMETRY
 
 log = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ class ClaudeLLM:
         self.model = settings.llm_model
 
     def _kwargs(self) -> dict:
-        kw: dict = {"model": self.model, "output_config": {"effort": settings.llm_effort}}
+        kw: dict = {"output_config": {"effort": settings.llm_effort}}
         if os.getenv("LLM_FALLBACKS", "1") == "1":
             kw["extra_headers"] = {"anthropic-beta": "server-side-fallback-2026-07-01"}
             kw["extra_body"] = {"fallbacks": "default"}
@@ -156,7 +157,8 @@ class ClaudeLLM:
         for attempt in range(settings.extraction_attempts):
             content = f"<context>{json.dumps(context)}</context>\n<latest_user_message>{message}</latest_user_message>{feedback}"
             try:
-                resp = self.client.messages.parse(
+                resp = TELEMETRY.track(
+                    "extraction", self.model, self.client.messages.parse,
                     max_tokens=2000,
                     system=EXTRACTION_SYSTEM,
                     messages=[{"role": "user", "content": content}],
@@ -171,18 +173,21 @@ class ClaudeLLM:
                     return result
                 feedback = "\n<previous_attempt_errors>" + "; ".join(problems) + "</previous_attempt_errors>"
                 last_error = ValueError("; ".join(problems))
+                TELEMETRY.fallback("extraction_retries")
             except self._anthropic.BadRequestError as e:
                 # Not retryable (bad schema/params): fail this turn, keep prior state.
                 raise ExtractionFailed(str(e)) from e
             except (self._anthropic.APIConnectionError, self._anthropic.RateLimitError,
                     self._anthropic.InternalServerError, ValueError) as e:
                 last_error = e
+                TELEMETRY.fallback("extraction_retries")
                 log.warning("extraction attempt %d failed: %s", attempt + 1, e)
         raise ExtractionFailed(str(last_error))
 
     def write(self, reference: str, context: dict) -> str | None:
         try:
-            resp = self.client.messages.create(
+            resp = TELEMETRY.track(
+                "response", self.model, self.client.messages.create,
                 max_tokens=1500,
                 system=WRITER_SYSTEM,
                 messages=[{
@@ -201,7 +206,8 @@ class ClaudeLLM:
     def rerank(self, job: dict, candidates: list[Provider]) -> RerankChoice | None:
         records = [c.model_dump(include={"id", "name", "coverage_evidence", "emergency_service"}) for c in candidates]
         try:
-            resp = self.client.messages.parse(
+            resp = TELEMETRY.track(
+                "rerank", self.model, self.client.messages.parse,
                 max_tokens=1500,
                 system=RERANK_SYSTEM,
                 messages=[{"role": "user", "content": json.dumps({"job": job, "candidates": records})}],

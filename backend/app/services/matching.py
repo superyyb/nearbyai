@@ -10,6 +10,7 @@ import re
 
 from app.domain import LeadState, Provider
 from app.services.provider_search import search
+from app.services.telemetry import TELEMETRY
 
 URGENT = {"emergency", "same_day"}
 
@@ -42,6 +43,7 @@ def select_provider(state: LeadState, llm=None) -> bool:
     chosen, reason = None, None
     if len(result.candidates) == 1:
         chosen, reason = result.candidates[0], "only eligible provider"
+        TELEMETRY.fallback("rerank_skipped_single_candidate")
     elif llm is not None and hasattr(llm, "rerank"):
         job = {
             "category": state.service_category.value,
@@ -53,6 +55,8 @@ def select_provider(state: LeadState, llm=None) -> bool:
         by_id = {p.id: p for p in result.candidates}
         if choice and choice.selected_provider_id in by_id:
             chosen, reason = by_id[choice.selected_provider_id], choice.reason
+        else:
+            TELEMETRY.fallback("rerank_invalid_or_failed")
     if chosen is None:
         chosen, reason = deterministic_rank(state, result.candidates)
 
