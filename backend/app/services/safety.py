@@ -63,8 +63,28 @@ class SafetyResult:
         return " ".join(table[f] for f in flags)
 
 
+NEGATION = re.compile(
+    r"\b(no|not|nothing|never|without|none|don'?t|doesn'?t|didn'?t|isn'?t|aren'?t|wasn'?t|haven'?t|hasn'?t|can'?t)\b",
+    re.I,
+)
+CLAUSE_BREAK = re.compile(r"[.;!?,]|\bbut\b", re.I)
+
+
+def _affirmed(rx: re.Pattern, message: str) -> bool:
+    """True if the pattern matches at least once outside a negated clause.
+
+    "No sparks or burning smell" -> negated. "No, I do see sparks" -> affirmed,
+    because the comma ends the clause that holds the "no".
+    """
+    for m in rx.finditer(message):
+        clause = CLAUSE_BREAK.split(message[: m.start()])[-1]
+        if not NEGATION.search(clause):
+            return True
+    return False
+
+
 def screen(message: str) -> SafetyResult:
     return SafetyResult(
-        redirect_flags=[name for name, rx in REDIRECT_RULES.items() if rx.search(message)],
-        urgent_flags=[name for name, rx in URGENT_RULES.items() if rx.search(message)],
+        redirect_flags=[name for name, rx in REDIRECT_RULES.items() if _affirmed(rx, message)],
+        urgent_flags=[name for name, rx in URGENT_RULES.items() if _affirmed(rx, message)],
     )

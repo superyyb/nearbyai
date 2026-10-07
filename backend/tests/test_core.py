@@ -212,3 +212,21 @@ def test_address_rides_with_contact_question_once():
     assert first.type == "ask_contact" and first.note == "include_address"
     s.asked_fields.append("street_address")
     assert next_action.decide(s).note is None
+
+
+@pytest.mark.parametrize("message,redirect,urgent", [
+    ("No, nothing like that. No sparks or burning smell.", [], []),
+    ("I don't smell gas, the stove is fine", [], []),
+    ("No, I do see sparks coming from it", [], ["electrical_sparking"]),
+    ("No, but I smell gas near the water heater", ["gas_leak"], []),
+    ("The outlet is sparking and there's no breaker label", [], ["electrical_sparking"]),
+])
+def test_safety_screen_respects_negation(message, redirect, urgent):
+    r = safety.screen(message)
+    assert r.redirect_flags == redirect and r.urgent_flags == urgent
+
+
+def test_denying_hazard_does_not_mark_lead_urgent():
+    state, results = run(["my kitchen lights keep flickering", "95050", "no sparks or burning smell"])
+    assert state.safety_flags == [] and state.urgency is None
+    assert results[-1].action.type == "ask_timing"
