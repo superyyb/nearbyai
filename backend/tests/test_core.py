@@ -252,15 +252,9 @@ def test_lead_packet_says_unknown_instead_of_guessing():
 
 
 def test_wire_schema_maps_unknown():
-    from app.services.llm import LLMExtraction
+    from tests.helpers import wire_defaults
 
-    base = dict(service_category="none", candidate_categories=[], needs_clarification=False, unsupported_service="",
-                issue_summary="", secondary_issues=[], street_address="", city="", zip_code="", urgency="none",
-                preferred_time="", customer_name="", property_relationship="none", contact_method="none",
-                contact_value="", consent_to_share="not_answered", insurance_intent="", water_still_active="unknown",
-                active_leak="not_mentioned", hazard_present="yes", likely_source="not_mentioned", declined_fields=[],
-                provider_feedback="none", provider_feedback_reason="", corrections=[])
-    up = LLMExtraction(**base).to_result().updates
+    up = wire_defaults(water_still_active="unknown", hazard_present="yes").to_result().updates
     assert up.water_still_active is None and up.unknown_facts == ["water_still_active"] and up.hazard_present is True
 
 

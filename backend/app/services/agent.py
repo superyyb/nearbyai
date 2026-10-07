@@ -3,7 +3,8 @@
   1. safety screen (deterministic)
   2. LLM extraction -> validated ExtractionResult (retry inside the LLM layer)
   3. merge into LeadState (corrections, invalidation)
-  4. ambiguity rules + funnel decision
+  4. explicit user intent first (provider feedback, questions, impossible requests),
+     then ambiguity rules + funnel decision — the funnel is the default path, not a script
   5. provider match when prerequisites are met (rerank only if 2+)
   6. lead validation when the funnel reaches the end
   7. wording: deterministic template, optionally rephrased by the LLM and
@@ -14,7 +15,7 @@ import logging
 from dataclasses import dataclass, field
 
 from app.domain import CATEGORY_LABELS, LeadState, NextAction, Outcome, Provider
-from app.services import ambiguity, next_action, safety, templates
+from app.services import ambiguity, answers, next_action, safety, templates
 from app.services.lead_packet import build_packet
 from app.services.lead_validator import validate_lead
 from app.services.llm import ExtractionFailed, guardrail_violations
@@ -124,6 +125,18 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             prefixes.append(templates.no_other_option(state, previous))
         else:
             prefixes.append(templates.provider_switched(state, previous, get_provider(state.selected_provider_id), feedback))
+
+    # Questions and requests the system can't fulfil: answer first, then resume the funnel.
+    up = extraction.updates if extraction else None
+    if up and (up.question_topic or up.requested_action) and not screen.is_redirect:
+        intent_turn = True
+        current = get_provider(state.selected_provider_id) if state.selected_provider_id else None
+        if up.question_topic:
+            prefixes.append(answers.answer_question(up.question_topic, up.question_info_field, state, current))
+            events.append(f"user_question:{up.question_topic}")
+        if up.requested_action:
+            prefixes.append(answers.answer_request(up.requested_action, current))
+            events.append(f"requested_action:{up.requested_action}")
 
     # 4-5. funnel
     rule = ambiguity.detect(conversation_text) if not state.category_confirmed else None

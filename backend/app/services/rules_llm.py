@@ -29,6 +29,32 @@ NAME_RE = re.compile(r"\b(?:my name is|i am|i'm|this is|name'?s)\s+([A-Z][a-z]+(
 YES_RE = re.compile(r"^\s*(y|ya|yes|yeah|yep|yup|sure|ok|okay|of course|please do|go ahead|that'?s fine|fine)\b", re.I)
 NO_RE = re.compile(r"^\s*(n|no|nope|nah|not really|don'?t|do not)\b", re.I)
 DONT_KNOW_RE = re.compile(r"\b(not sure|don'?t know|no idea|unsure|idk|dunno)\b", re.I)
+QUESTION_TOPICS = [
+    ("sponsorship", re.compile(r"\b(sponsor\w*|paid (placement|ads?)|affiliat\w*|get paid|kickback)\b", re.I)),
+    ("is_this_a_person", re.compile(r"\b(real person|human|a bot|are you (an? )?(ai|robot))\b", re.I)),
+    ("request_status", re.compile(r"\b(did you (send|contact)|(has|have) (it|my request|they) been (sent|contacted)|already sent)\b", re.I)),
+    ("data_privacy", re.compile(r"\b(my data|privacy|who (sees|gets) my|store my|selling my)\b", re.I)),
+    ("why_need_info", re.compile(r"\bwhy (do|would) you need\b", re.I)),
+    ("price", re.compile(r"\b(price|cost|charge|how much|expensive|cheap|quote)\b", re.I)),
+    ("reviews", re.compile(r"\b(reviews?|rating|rated|good company|any good|reputable|trust(worthy)?)\b", re.I)),
+    ("license_or_insurance", re.compile(r"\b(licen[cs]ed?|insured|insurance|bonded)\b", re.I)),
+    ("distance", re.compile(r"\b(how far|distance|close to me|nearby)\b", re.I)),
+    ("hours_or_24_7", re.compile(r"\b(open (now|late)|24/7|hours|weekends?)\b", re.I)),
+    ("availability", re.compile(r"\b(can they come|available|availability|come (today|tomorrow)|how soon)\b", re.I)),
+    ("why_this_provider", re.compile(r"\bwhy (this|them|that|did you (pick|choose))\b", re.I)),
+]
+INFO_FIELDS = [
+    ("phone", re.compile(r"\b(phone|number)\b", re.I)),
+    ("zip_or_address", re.compile(r"\b(zip|address|location)\b", re.I)),
+    ("name", re.compile(r"\bname\b", re.I)),
+]
+REQUESTED_ACTIONS = [
+    ("book_appointment", re.compile(r"\b(book|schedule|make an appointment|set up an appointment)\b", re.I)),
+    ("call_provider", re.compile(r"\b(call|text|phone|contact|email) (them|the (company|provider|plumber|electrician))\b", re.I)),
+    ("send_now", re.compile(r"\bsend (it|my request|the request)\b", re.I)),
+    ("guarantee", re.compile(r"\bguarantee\b", re.I)),
+]
+QUESTION_RE = re.compile(r"\?|^\s*(why|how|what|who|are|is|do|does|can|could|will|would)\b", re.I)
 REJECT_PROVIDER_RE = re.compile(
     r"\b(don'?t (like|want|trust)|bad experience|terrible|awful|not (them|that one|happy with)|never again|avoid)\b", re.I
 )
@@ -165,6 +191,19 @@ class RulesLLM:
                 up.provider_feedback_reason = msg[:120]
             elif ALTERNATIVE_RE.search(msg):
                 up.provider_feedback = "want_alternative"
+
+        # Questions and requests the system can't fulfil
+        if QUESTION_RE.search(msg):
+            for topic, rx in QUESTION_TOPICS:
+                if rx.search(msg):
+                    up.question_topic = topic
+                    break
+            if up.question_topic == "why_need_info":
+                up.question_info_field = next((f for f, rx in INFO_FIELDS if rx.search(msg)), "other")
+        for action, rx in REQUESTED_ACTIONS:
+            if rx.search(msg):
+                up.requested_action = action
+                break
 
         # Address / contact refusals
         if DECLINE_RE.search(msg) or (yn is False and last_question_field in ("street_address",)):

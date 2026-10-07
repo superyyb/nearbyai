@@ -70,7 +70,7 @@ NEGATION = re.compile(
 CLAUSE_BREAK = re.compile(r"[.;!?,]|\bbut\b", re.I)
 
 
-def _affirmed(rx: re.Pattern, message: str) -> bool:
+def affirmed(rx: re.Pattern, message: str) -> bool:
     """True if the pattern matches at least once outside a negated clause.
 
     "No sparks or burning smell" -> negated. "No, I do see sparks" -> affirmed,
@@ -85,6 +85,6 @@ def _affirmed(rx: re.Pattern, message: str) -> bool:
 
 def screen(message: str) -> SafetyResult:
     return SafetyResult(
-        redirect_flags=[name for name, rx in REDIRECT_RULES.items() if _affirmed(rx, message)],
-        urgent_flags=[name for name, rx in URGENT_RULES.items() if _affirmed(rx, message)],
+        redirect_flags=[name for name, rx in REDIRECT_RULES.items() if affirmed(rx, message)],
+        urgent_flags=[name for name, rx in URGENT_RULES.items() if affirmed(rx, message)],
     )

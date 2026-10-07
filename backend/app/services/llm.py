@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from app.config import settings
 from app.domain import ExtractedFields, ExtractionResult, LeadState, Provider
 from app.services.rules_llm import RulesLLM
+from app.services.safety import affirmed
 from app.services.telemetry import TELEMETRY
 
 log = logging.getLogger(__name__)
@@ -54,13 +55,22 @@ Rules:
   Use "unknown" when the user says they don't know or can't check.
 - provider_feedback: "reject" if the user turns down the currently recommended provider (dislikes them, bad past
   experience, doesn't want them); "want_alternative" if they ask for other options without rejecting it; else "none".
-  provider_feedback_reason: their stated reason, or ""."""
+  provider_feedback_reason: their stated reason, or "".
+- question_topic: if the user asks the assistant a question, classify it (why this provider, price, reviews,
+  availability, hours/24-7, distance, license/insurance, why do you need some info, data privacy, are you a person,
+  are recommendations sponsored/paid, has my request been sent); "other" for any other question; else "none".
+  For why_need_info also set question_info_field to the info they asked about; otherwise "none".
+- requested_action: if the user asks the assistant to call/text the provider, book or schedule an appointment,
+  send the request right now, or guarantee timing, classify it; else "none".
+- A message can contain both a question and facts; extract both."""
 
 WRITER_SYSTEM = """You write the next assistant message for a home-service intake chat.
 
 The backend has already decided WHAT to do. Your job is only to phrase it warmly and briefly.
 Rules:
 - Ask at most the one question in the reference message; do not add new questions.
+- The reference may first answer the user's question or respond to their request; keep that answer's meaning
+  exactly (including any "I don't have verified ..." statements) and add no new facts, then ask the question.
 - Keep it under 60 words. Plain text, no lists, no markdown.
 - Do not mention any business, phone number, website, or fact that is not in the reference message or provider facts.
 - Never say a provider has been contacted, dispatched, booked, scheduled, or will arrive at a certain time.
@@ -112,6 +122,15 @@ class LLMExtraction(BaseModel):
     declined_fields: list[Literal["street_address", "contact"]]
     provider_feedback: Literal["reject", "want_alternative", "none"]
     provider_feedback_reason: str
+    question_topic: Literal[
+        "why_this_provider", "price", "reviews", "availability", "hours_or_24_7", "distance", "license_or_insurance",
+        "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other", "none",
+    ]
+    question_info_field: Literal[
+        "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present",
+        "consent", "other", "none",
+    ]
+    requested_action: Literal["call_provider", "book_appointment", "send_now", "guarantee", "other", "none"]
     corrections: list[CorrectableField]
 
     def to_result(self) -> ExtractionResult:
@@ -257,6 +276,12 @@ def semantic_problems(result: ExtractionResult) -> list[str]:
 
 # ---------- Guardrails on generated wording ----------
 
+# Provider facts the dataset never contains; if the writer states them, they were invented.
+UNVERIFIED_PROVIDER_CLAIMS = re.compile(
+    r"\$\s?\d|\b\d(\.\d)?\s*(stars?|/\s*5)\b|\b(highly|top|well)[- ]rated\b|\b(great|excellent|good) reviews\b|"
+    r"\b(is|are|fully) (licensed|insured|bonded)\b|\blicensed and insured\b",
+    re.I,
+)
 FORBIDDEN_CLAIMS = re.compile(
     r"\b(dispatched|booked|scheduled|appointment (is|has been) (set|confirmed)|has been (contacted|notified|sent)|"
     r"(will|is going to) (arrive|come|be there)|on (their|the) way|guarantee\w*)\b",
@@ -268,8 +293,11 @@ URL_IN_TEXT = re.compile(r"https?://[^\s)]+|www\.[^\s)]+", re.I)
 
 def guardrail_violations(text: str, allowed_phones: set[str], allowed_urls: set[str], provisional: bool) -> list[str]:
     issues = []
-    if FORBIDDEN_CLAIMS.search(text):
+    # Negation-aware: "I can't guarantee timing" is the honest answer, not a claim.
+    if affirmed(FORBIDDEN_CLAIMS, text):
         issues.append("forbidden claim")
+    if affirmed(UNVERIFIED_PROVIDER_CLAIMS, text):
+        issues.append("unverified provider claim (price/rating/license)")
     digits_allowed = {re.sub(r"\D", "", p) for p in allowed_phones}
     for m in PHONE_IN_TEXT.findall(text):
         if re.sub(r"\D", "", m) not in digits_allowed:

@@ -79,6 +79,14 @@ Urgency = Literal["emergency", "same_day", "within_week", "flexible"]
 ContactMethod = Literal["phone", "email"]
 LikelySource = Literal["storm_exterior", "plumbing", "unknown"]
 PropertyRelationship = Literal["homeowner", "tenant", "property_manager", "other"]
+QuestionTopic = Literal[
+    "why_this_provider", "price", "reviews", "availability", "hours_or_24_7", "distance", "license_or_insurance",
+    "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other",
+]
+InfoField = Literal[
+    "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present", "consent", "other",
+]
+RequestedAction = Literal["call_provider", "book_appointment", "send_now", "guarantee", "other"]
 
 
 class ServiceDetails(BaseModel):
@@ -201,6 +209,11 @@ class ExtractedFields(BaseModel):
         default=None, description="User rejects the recommended provider, or asks for other options."
     )
     provider_feedback_reason: str | None = None
+    question_topic: QuestionTopic | None = Field(default=None, description="What the user asked about, if anything.")
+    question_info_field: InfoField | None = None
+    requested_action: RequestedAction | None = Field(
+        default=None, description="Something the user asked the system to do that it cannot (call, book, ...)."
+    )
     unknown_facts: list[str] = Field(
         default_factory=list, description="Qualification facts the user said they cannot confirm."
     )
