@@ -51,7 +51,8 @@ class Lead(Base):
     conversation_id: Mapped[str] = mapped_column(ForeignKey("conversations.id"), index=True)
     provider_id: Mapped[str] = mapped_column(String)
     packet: Mapped[dict] = mapped_column(JSON)
-    quality_score: Mapped[float] = mapped_column(Float)
+    # Column keeps its original name so existing local databases need no migration.
+    completeness_score: Mapped[float] = mapped_column("quality_score", Float)
     status: Mapped[str] = mapped_column(String, default="ready_to_dispatch")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 

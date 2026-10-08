@@ -72,7 +72,7 @@ def test_complete_lead_is_valid():
     s = ready_state()
     r = validate_lead(s, get_provider(s.selected_provider_id))
     assert r.valid, r
-    assert r.quality_score >= 90
+    assert r.completeness_score >= 90
 
 
 def test_no_dispatch_without_explicit_consent():
@@ -84,7 +84,7 @@ def test_no_dispatch_without_explicit_consent():
 def test_missing_street_address_is_pending_not_blocking():
     s = ready_state(street_address=None)
     r = validate_lead(s, get_provider(s.selected_provider_id))
-    assert r.valid and r.quality_breakdown["location"] < 20
+    assert r.valid and r.completeness_breakdown["location"] < 20
 
 
 def test_wrong_category_provider_is_rejected():

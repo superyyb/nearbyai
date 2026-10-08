@@ -9,8 +9,8 @@ from pydantic import BaseModel, Field
 from app import conversations
 from app.config import settings
 from app.db import init_db
-from app.domain import PILOT_AREAS, PILOT_ZIPS
-from app.services.lead_packet import render_text
+from app.domain import CATEGORY_LABELS, PILOT_AREAS, PILOT_ZIPS
+from app.services.lead_packet import URGENCY_LABELS, render_text
 from app.services.llm import get_llm
 from app.services.provider_search import load_providers
 
@@ -73,6 +73,9 @@ def post_message(conversation_id: str, body: MessageIn):
         else None,
         "progress": {
             "service_category": s.service_category,
+            "service_label": CATEGORY_LABELS.get(s.service_category) if s.service_category else None,
+            "area_label": PILOT_AREAS.get(s.pilot_area) if s.pilot_area else None,
+            "urgency_label": URGENCY_LABELS.get(s.urgency) if s.urgency else s.preferred_time,
             "zip_code": s.zip_code,
             "address_status": s.address_status,
             "urgency": s.urgency,

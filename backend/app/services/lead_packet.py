@@ -16,7 +16,7 @@ DETAIL_LABELS = {
 }
 
 
-def build_packet(state: LeadState, provider: Provider, quality_score: float) -> dict:
+def build_packet(state: LeadState, provider: Provider, completeness_score: float) -> dict:
     area = PILOT_AREAS.get(state.pilot_area or "", "")
     if state.street_address:
         address = f"{state.street_address}, {state.city or area}, CA {state.zip_code or ''}".strip()
@@ -75,7 +75,7 @@ def build_packet(state: LeadState, provider: Provider, quality_score: float) -> 
             "verified_at": provider.verified_at,
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": quality_score,
+        "completeness_score": completeness_score,
     }
 
 

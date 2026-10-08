@@ -57,7 +57,7 @@ def send_message(conversation_id: str, text: str, llm) -> tuple[TurnResult, str 
                 conversation_id=conv.id,
                 provider_id=state.selected_provider_id,
                 packet=result.lead,
-                quality_score=result.lead["quality_score"],
+                completeness_score=result.lead["completeness_score"],
             )
             db.add(lead)
             db.flush()

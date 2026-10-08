@@ -243,7 +243,7 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         result = validate_lead(state, provider)
         state.missing_blocking_fields = result.missing_fields
         if result.valid:
-            lead = build_packet(state, provider, result.quality_score)
+            lead = build_packet(state, provider, result.completeness_score)
         else:
             # Should not happen if the funnel is correct; never dispatch an invalid lead.
             events.append(f"validation_failed:{result.missing_fields + result.errors}")

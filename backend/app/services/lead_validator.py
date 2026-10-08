@@ -1,7 +1,8 @@
 """Deterministic lead validation. Only this module can make a lead dispatchable.
 
 Validator = pass/fail on business invariants.
-Quality score = interpretable 0-100 measure of how actionable the lead is.
+Completeness score = interpretable 0-100 measure of how many of the fields a provider needs are present. It is not
+a judgment of lead quality; whether a provider would act on the lead is measured by the provider-perspective judge.
 """
 
 from app.domain import BLOCKING_QUALIFICATION, LeadState, Provider, ValidationResult
@@ -56,17 +57,17 @@ def validate_lead(state: LeadState, provider: Provider | None) -> ValidationResu
         if state.selected_provider_coverage and coverage != state.selected_provider_coverage:
             errors.append("selected coverage label does not match provider record")
 
-    score, breakdown = quality_score(state, provider)
+    score, breakdown = completeness_score(state, provider)
     return ValidationResult(
         valid=not missing and not errors,
         missing_fields=missing,
         errors=errors,
-        quality_score=score,
-        quality_breakdown=breakdown,
+        completeness_score=score,
+        completeness_breakdown=breakdown,
     )
 
 
-def quality_score(state: LeadState, provider: Provider | None) -> tuple[float, dict[str, float]]:
+def completeness_score(state: LeadState, provider: Provider | None) -> tuple[float, dict[str, float]]:
     b: dict[str, float] = {}
 
     # 25 — issue completeness

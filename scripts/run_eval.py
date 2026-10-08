@@ -127,7 +127,7 @@ def print_report(args, metrics, runs, judge_report, stability, usage) -> None:
         "coverage_truthfulness": "Coverage truthfulness %",
         "provider_eligibility": "Provider eligibility %",
         "consent_correctness": "Consent correctness %",
-        "avg_lead_quality": "Avg lead quality (0-100)",
+        "avg_lead_completeness": "Avg lead completeness (0-100)",
     }
     for key, label in labels.items():
         value = metrics[key]

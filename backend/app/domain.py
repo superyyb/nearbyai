@@ -317,5 +317,5 @@ class ValidationResult(BaseModel):
     valid: bool
     missing_fields: list[str]
     errors: list[str]
-    quality_score: float
-    quality_breakdown: dict[str, float]
+    completeness_score: float  # required/useful fields present; not a judgment of lead quality
+    completeness_breakdown: dict[str, float]

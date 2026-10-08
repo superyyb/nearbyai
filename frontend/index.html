@@ -78,10 +78,10 @@ function renderProgress(p, outcome) {
   const [label, cls] = OUTCOME_LABELS[outcome] || ["In progress", "b-muted"];
   $("progress").innerHTML =
     row("Status", `<span class="badge ${cls}">${label}</span>`) +
-    row("Service", esc(p.service_category || "—")) +
-    row("ZIP", esc(p.zip_code || "—")) +
+    row("Service", esc(p.service_label || "—")) +
+    row("Location", esc([p.area_label, p.zip_code].filter(Boolean).join(" ") || "—")) +
     row("Street address", p.address_status === "complete" ? "✓" : "pending (optional)") +
-    row("Timing", esc(p.urgency || "—")) +
+    row("Timing", esc(p.urgency_label || "—")) +
     row("Name & contact", yes(p.has_contact)) +
     row("Consent to share", p.consent === true ? "✓" : p.consent === false ? "declined" : "—") +
     row("Your messages", p.user_turns);
@@ -102,8 +102,9 @@ function renderProvider(p, alt) {
 
 function renderLead(text, score) {
   if (!text) { $("leadCard").style.display = "none"; return; }
-  $("leadCard").innerHTML = `<h1>Lead packet <span class="badge b-ok">quality ${score}/100</span></h1>` +
-    `<p class="sub">What the provider would receive.</p><pre>${esc(text)}</pre>`;
+  $("leadCard").innerHTML = `<h1>Lead packet <span class="badge b-ok">completeness ${score}%</span></h1>` +
+    `<p class="sub">What the provider would receive. Completeness = the fields a provider needs are present; ` +
+    `it is not a quality rating.</p><pre>${esc(text)}</pre>`;
   $("leadCard").style.display = "";
 }
 
@@ -132,7 +133,7 @@ $("form").addEventListener("submit", async (e) => {
     addMsg("agent", d.message);
     renderProgress(d.progress, d.outcome);
     renderProvider(d.provider, d.alternative_provider);
-    if (d.lead_text) renderLead(d.lead_text, d.lead.quality_score);
+    if (d.lead_text) renderLead(d.lead_text, d.lead.completeness_score);
     else if (d.lead_withdrawn) renderLead(null);
     // The conversation stays open after an outcome: the user can still change details or ask questions.
     $("input").placeholder = d.outcome ? "Anything else? You can still change details or ask a question." : "Describe the problem in your home…";

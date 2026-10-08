@@ -129,7 +129,7 @@ def compute_metrics(runs: list[CaseRun]) -> dict:
             eligible.append(r)
     dispatched = [r for r in runs if r.state.outcome == Outcome.READY_TO_DISPATCH]
     consent_ok = [r for r in dispatched if r.state.consent_to_share is True]
-    scores = [r.lead["quality_score"] for r in runs if r.lead]
+    scores = [r.lead["completeness_score"] for r in runs if r.lead]
 
     return {
         "cases": len(runs),
@@ -143,6 +143,6 @@ def compute_metrics(runs: list[CaseRun]) -> dict:
         "coverage_truthfulness": pct(len(coverage_truthful), len(coverage_msgs)),
         "provider_eligibility": pct(len(eligible), len(selected)),
         "consent_correctness": pct(len(consent_ok), len(dispatched)),
-        "avg_lead_quality": round(statistics.mean(scores), 1) if scores else None,
+        "avg_lead_completeness": round(statistics.mean(scores), 1) if scores else None,
         "cases_passed": sum(not r.failures for r in runs),
     }
