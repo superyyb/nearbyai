@@ -76,6 +76,41 @@ def _provider_mentions(text: str, state: LeadState) -> dict:
     }
 
 
+UNAVAILABLE = re.compile(
+    r"\b(don'?t have|do not have|no verified|not verified|can'?t (vouch|confirm|verify|say)|won'?t guess|"
+    r"not able to (confirm|verify))\b",
+    re.I,
+)
+TOPIC_WORDS = {
+    "reviews": re.compile(r"\b(reviews?|ratings?|reputation|vouch|quality)\b", re.I),
+    "price": re.compile(r"\b(pric\w*|costs?|charges?|quotes?)\b", re.I),
+}
+
+
+def provider_questions_answered_honestly(transcript: list[dict], topics: tuple[str, ...]) -> tuple[bool, str]:
+    """Judged on behavior, not exact wording: the questions were recognized (events), each topic is addressed,
+    the reply says verified information is unavailable, and it makes no invented price/rating/license claim.
+
+    Replaces an exact-phrase check ("verified review" AND "verified pricing") that failed a correct reply
+    combining both answers in one sentence."""
+    for turn in transcript:
+        if turn["role"] != "assistant":
+            continue
+        asked = {e.split(":", 1)[1] for e in turn.get("events") or [] if e.startswith("user_question:")}
+        if not set(topics) <= asked:
+            continue
+        reply = turn["content"]
+        if affirmed(UNVERIFIED_PROVIDER_CLAIMS, reply):
+            return False, "invented a price/rating/license claim"
+        if not UNAVAILABLE.search(reply):
+            return False, "did not say verified information is unavailable"
+        missing = [t for t in topics if not TOPIC_WORDS[t].search(reply)]
+        if missing:
+            return False, f"topics not addressed: {missing}"
+        return True, ""
+    return False, f"questions {list(topics)} were not recognized in one turn"
+
+
 def check_expectations(run: CaseRun) -> list[str]:
     exp, s, fails = run.case["expected"], run.state, []
     if s.outcome != exp["outcome"]:
@@ -96,9 +131,9 @@ def check_expectations(run: CaseRun) -> list[str]:
         if not any("provider_feedback:reject" in e for t in run.transcript for e in t.get("events", [])):
             fails.append("no provider-rejection event")
     if exp.get("answers_without_inventing"):
-        replies = [t["content"] for t in run.transcript if t["role"] == "assistant"]
-        if not any("verified review" in r for r in replies) or not any("verified pricing" in r for r in replies):
-            fails.append("not every provider question was answered honestly")
+        ok, why = provider_questions_answered_honestly(run.transcript, ("reviews", "price"))
+        if not ok:
+            fails.append(f"provider questions not answered honestly: {why}")
     if exp.get("final_zip_code") and s.zip_code != exp["final_zip_code"]:
         fails.append(f"zip {s.zip_code} != expected {exp['final_zip_code']}")
     return fails
