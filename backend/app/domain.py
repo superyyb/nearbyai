@@ -111,7 +111,8 @@ class LeadState(BaseModel):
     unsupported_service: str | None = None
     issue_summary: str | None = None
     service_details: ServiceDetails = Field(default_factory=ServiceDetails)
-    secondary_issues: list[str] = Field(default_factory=list)
+    secondary_issues: list[str] = Field(default_factory=list)  # unrelated problems needing a separate job
+    observed_impacts: list[str] = Field(default_factory=list)  # damage caused by the main problem
 
     # Location
     street_address: str | None = None
@@ -199,7 +200,12 @@ class ExtractedFields(BaseModel):
     issue_summary: str | None = Field(
         default=None, description="One provider-facing sentence describing the problem, using only stated facts."
     )
-    secondary_issues: list[str] = Field(default_factory=list)
+    secondary_issues: list[str] = Field(
+        default_factory=list, description="Unrelated problems that would need a separate job."
+    )
+    observed_impacts: list[str] = Field(
+        default_factory=list, description="Damage caused by the main problem (e.g. 'ceiling stained')."
+    )
     street_address: str | None = None
     city: str | None = None
     zip_code: str | None = None

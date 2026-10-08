@@ -55,6 +55,7 @@ def build_packet(state: LeadState, provider: Provider, quality_score: float) -> 
             "category": CATEGORY_LABELS[state.service_category],
             "problem": state.issue_summary,
             "details": details,
+            "observed_impacts": state.observed_impacts,
             "secondary_issues": state.secondary_issues,
             "safety_flags": state.safety_flags,
         },
@@ -95,6 +96,8 @@ def render_text(packet: dict) -> str:
         f"Problem: {s['problem']}",
     ]
     lines += [f"  {k}: {v}" for k, v in s["details"].items()]
+    if s.get("observed_impacts"):
+        lines.append(f"Observed impact: {'; '.join(s['observed_impacts'])}")
     if s["secondary_issues"]:
         lines.append(f"Also mentioned (not part of this lead): {'; '.join(s['secondary_issues'])}")
     if s["safety_flags"]:

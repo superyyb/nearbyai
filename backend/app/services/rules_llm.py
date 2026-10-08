@@ -138,6 +138,11 @@ class RulesLLM:
             if state.issue_summary is None or is_correction or last_question_field in (None, "service_category"):
                 up.issue_summary = msg[:240]
 
+        # Damage caused by the problem (not a separate job)
+        impacts = re.findall(r"\b((?:floor|ceiling|wall|carpet|drywall|cabinets?)\w* (?:is |are |got )?(?:soaked|stained|warp\w*|wet|ruined|damaged))\b", msg, re.I)
+        if impacts:
+            up.observed_impacts = list(dict.fromkeys(i.lower() for i in impacts))
+
         # Disambiguation answers
         if last_question_field == "service_category" and not cats:
             if re.search(r"\b(rain|storm)\b", msg, re.I):

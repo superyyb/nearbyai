@@ -142,6 +142,10 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
     if up.consent_to_share is not None:
         state.consent_to_share = up.consent_to_share
 
+    for impact in up.observed_impacts:
+        if impact not in state.observed_impacts:
+            state.observed_impacts.append(impact)
+
     if up.secondary_issues:
         for issue in up.secondary_issues:
             if issue not in state.secondary_issues:

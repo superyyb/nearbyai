@@ -43,9 +43,10 @@ Scope rules:
 - Appliances: water leaking from an appliance's water connection (dishwasher, washer, fridge line) is plumbing;
   an appliance that won't run, drain, cool, or heat is appliance repair (unsupported).
 - Mold or staining caused by a water leak is water_damage_restoration.
-- Several related problems: safety first, then the immediate source, then the consequence. The source is
-  service_category and the consequences go in secondary_issues (a burst pipe that soaked the floor -> plumbing,
-  secondary "water damage to the floor"). Unrelated problems: the most urgent is primary, the rest secondary.
+- Several problems: safety first, then the immediate source, then the consequences. The source decides
+  service_category. Damage CAUSED by the main problem goes in observed_impacts (a burst pipe that soaked the
+  floor -> plumbing, observed_impacts ["kitchen floor soaked"]). secondary_issues is ONLY for unrelated problems
+  that would need a separate job (a roof leak AND a broken AC -> roofing, secondary_issues ["AC not working"]).
 
 Rules:
 - Extract only what the LATEST user message states or clearly implies. For anything not stated use "" for text,
@@ -69,7 +70,8 @@ Rules:
   they say neighbors are fine or it's only their home, "unknown" if they don't know; else "not_mentioned".
   When utility_signal is set and outage_scope is unknown, suggested_question should ask whether it's only their
   home or nearby homes too.
-- If the user mentions several unrelated problems, pick the most urgent as service_category and put the others in secondary_issues.
+- If the user mentions several unrelated problems, pick the most urgent as service_category and put the others in
+  secondary_issues. Never put the main problem's own consequences in secondary_issues.
 - corrections: list a field only if the user explicitly changes an earlier answer ("actually it's 95051").
 - consent_to_share: "yes"/"no" when the user answers the question about sharing their contact details with the
   provider, or later explicitly withdraws ("don't share my number") or grants that permission; else "not_answered".
@@ -144,6 +146,7 @@ class LLMExtraction(BaseModel):
     unsupported_service: str
     issue_summary: str
     secondary_issues: list[str]
+    observed_impacts: list[str]
     street_address: str
     city: str
     zip_code: str
@@ -223,7 +226,8 @@ class ClaudeLLM:
         context = {
             "current_state": state.model_dump(
                 include={"service_category", "issue_summary", "zip_code", "city", "street_address", "urgency",
-                         "customer_name", "contact_value", "service_details", "secondary_issues"},
+                         "customer_name", "contact_value", "service_details", "secondary_issues",
+                         "observed_impacts"},
                 mode="json",
             ),
             "assistant_last_question_field": last_question_field,

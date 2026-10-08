@@ -353,3 +353,32 @@ def test_every_question_in_one_message_is_answered():
     msg = results[-1].message
     assert "don't have verified review" in msg and "don't have verified pricing" in msg
     assert results[-1].action.type == "ask_timing"
+
+
+# ---------- consequences are observed impacts, not separate issues ----------
+
+def test_consequence_is_an_observed_impact_not_a_second_issue():
+    # Found in the generalization run: "I've noted the water dripping from your ceiling so it isn't lost, but let's
+    # get the plumbing problem handled first" - the drip IS the plumbing problem's consequence.
+    state, results = converse([("A pipe burst under the sink and soaked the kitchen floor", {
+        "service_category": "plumbing", "issue_summary": "Burst pipe under the kitchen sink",
+        "observed_impacts": ["kitchen floor soaked"]})])
+    assert "noted the other issue" not in results[-1].message
+    assert state.observed_impacts == ["kitchen floor soaked"] and state.secondary_issues == []
+
+
+def test_unrelated_problem_is_still_noted_as_secondary():
+    state, results = converse([("Roof is leaking and the AC also died", {
+        "service_category": "roofing", "issue_summary": "Roof leaking", "secondary_issues": ["AC not working"]})])
+    assert "noted the other issue (AC not working)" in results[-1].message
+
+
+def test_lead_packet_lists_observed_impact():
+    from app.services.lead_packet import build_packet, render_text
+    from app.services.provider_search import get_provider
+
+    state, _ = converse([("pipe burst, floor soaked", {
+        "service_category": "plumbing", "issue_summary": "Burst pipe", "observed_impacts": ["kitchen floor soaked"],
+        "zip_code": "95050"})])
+    packet = build_packet(state, get_provider(state.selected_provider_id or "plumbing-point-inc"), 90)
+    assert "Observed impact: kitchen floor soaked" in render_text(packet)
