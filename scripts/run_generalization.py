@@ -121,9 +121,12 @@ def main() -> None:
     ap.add_argument("--judge", action="store_true")
     ap.add_argument("--label", default="current", help="name for the report, e.g. before / after")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--only-expect", help="comma-separated labels to run a targeted subset, e.g. safety_guidance")
     args = ap.parse_args()
 
     items = json.loads((ROOT / "data/evaluation/generalization_openings.json").read_text())
+    if args.only_expect:
+        items = [it for it in items if it.get("expect") in set(args.only_expect.split(","))]
     if args.backend == "anthropic":
         from app.services.llm import ClaudeLLM
 

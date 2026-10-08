@@ -16,12 +16,25 @@ REDIRECT_RULES = {
     "carbon_monoxide": re.compile(r"\b(carbon monoxide|co (alarm|detector))\b", re.I),
 }
 URGENT_RULES = {
+    "electrical_buzzing": re.compile(
+        r"\b(buzz\w*|humm\w*|crackl\w*)\b.{0,30}\b(panel|breaker|outlets?|switch|fuse box)\b"
+        r"|\b(panel|breaker|outlets?|switch|fuse box)\b.{0,30}\b(buzz\w*|humm\w*|crackl\w*)\b",
+        re.I,
+    ),
     "electrical_sparking": re.compile(
         r"\b(spark(s|ing|ed)?|arcing|burning smell|smell(s|ing)? (of )?burning|melt(ed|ing)|scorch(ed)?)\b", re.I
     ),
     "water_near_electrical": re.compile(
-        r"\bwater\b.*\b(outlet|panel|breaker|wires?|wiring|electrical)\b"
-        r"|\b(outlet|panel|breaker|wires?|wiring|electrical)\b.*\bwater\b",
+        r"\b(water|wet|flood\w*|dripping)\b.*\b(outlets?|panel|breaker|wires?|wiring|electrical|(extension )?cords?|"
+        r"light fixture|ceiling light|lamp|plugs?)\b"
+        r"|\b(outlets?|panel|breaker|wires?|wiring|electrical|(extension )?cords?|light fixture|ceiling light|lamp|plugs?)\b"
+        r".*\b(water|wet|flood\w*|dripping)\b",
+        re.I,
+    ),
+    "overheating_burning": re.compile(
+        r"\b(outlets?|switch|plugs?|cords?|panel|breaker|socket)\b.{0,30}\b(warm|hot|melt\w*|scorch\w*|discolou?red)\b"
+        r"|\b(warm|hot)\b.{0,20}\b(outlets?|switch|plugs?|socket)\b"
+        r"|\bsmells? like (something )?burn\w*\b",
         re.I,
     ),
     "hvac_burning_smell": re.compile(
@@ -41,6 +54,10 @@ URGENT_RULES = {
 }
 
 REDIRECT_GUIDANCE = {
+    "gas_co_fire": (
+        "If you smell gas, see fire or smoke, or a carbon monoxide alarm is going off, leave the home now and call "
+        "911 once you're outside. For a gas smell, also call PG&E's gas emergency line at 1-800-743-5000."
+    ),
     "gas_leak": (
         "If you smell gas, please leave the home now, avoid using light switches, flames, or your phone indoors, "
         "and once you're outside call 911 and PG&E's gas emergency line at 1-800-743-5000."
@@ -51,6 +68,14 @@ REDIRECT_GUIDANCE = {
     ),
 }
 URGENT_GUIDANCE = {
+    "overheating_burning": (
+        "For safety: if an outlet, switch, cord, or appliance is hot or smells burnt, stop using it and switch off its "
+        "breaker if it's safe to reach. If you see smoke or flames, leave and call 911."
+    ),
+    "electrical_buzzing": (
+        "For safety: don't touch the panel or outlet that's buzzing. If it's hot, smells burnt, or sparks, leave the "
+        "area and call 911; otherwise keep clear of it until an electrician checks it."
+    ),
     "electrical_sparking": (
         "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or "
         "panel. If you see smoke or flames, leave and call 911."
@@ -103,14 +128,44 @@ CLAUSE_BREAK = re.compile(r"[.;!?,]|\bbut\b", re.I)
 def affirmed(rx: re.Pattern, message: str) -> bool:
     """True if the pattern matches at least once outside a negated clause.
 
-    "No sparks or burning smell" -> negated. "No, I do see sparks" -> affirmed,
-    because the comma ends the clause that holds the "no".
+    "No sparks or burning smell" -> negated. "The outlet isn't warm" -> negated (negation inside the match).
+    "No, I do see sparks" -> affirmed, because the comma ends the clause that holds the "no".
     """
     for m in rx.finditer(message):
         clause = CLAUSE_BREAK.split(message[: m.start()])[-1]
-        if not NEGATION.search(clause):
+        # The negation can also sit inside the match: "the outlet isn't warm".
+        if not NEGATION.search(clause) and not NEGATION.search(m.group(0)):
             return True
     return False
+
+
+# The extractor may only pick from these families; each maps to a fixed flag and fixed guidance above.
+LLM_HAZARD_FLAGS = {
+    "gas_co_fire": "gas_co_fire",
+    "electrical_water": "water_near_electrical",
+    "overheating_burning": "overheating_burning",
+    "sparking_buzzing_electrical": "electrical_sparking",
+}
+FAMILY = {
+    "gas_leak": "gas_co_fire", "fire": "gas_co_fire", "carbon_monoxide": "gas_co_fire", "gas_co_fire": "gas_co_fire",
+    "water_near_electrical": "electrical_water",
+    "overheating_burning": "overheating_burning", "hvac_burning_smell": "overheating_burning",
+    "electrical_sparking": "sparking_buzzing_electrical", "electrical_buzzing": "sparking_buzzing_electrical",
+}
+
+
+def with_llm_hazards(result: "SafetyResult", categories: list[str]) -> tuple["SafetyResult", list[str]]:
+    """Union the regex screen with the extractor's hazard families. A family the regex already caught keeps the
+    regex's more specific guidance. Returns the combined result and the flags the LLM added."""
+    covered = {FAMILY[f] for f in result.redirect_flags + result.urgent_flags}
+    added = []
+    for category in dict.fromkeys(categories):
+        if category in covered or category not in LLM_HAZARD_FLAGS:
+            continue
+        flag = LLM_HAZARD_FLAGS[category]
+        (result.redirect_flags if category == "gas_co_fire" else result.urgent_flags).append(flag)
+        added.append(flag)
+    return result, added
 
 
 SPARK_WORDS = re.compile(r"\b(spark\w*|arcing|outlet|panel|breaker|switch|wires?|wiring)\b", re.I)

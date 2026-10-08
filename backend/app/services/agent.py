@@ -105,19 +105,8 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     state.user_turns += 1
     conversation_text = " ".join(user_history + [message])
 
-    # 1. safety
+    # 1. safety, part one: the regex screen works even if extraction fails
     screen = safety.screen(message)
-    if screen.redirect_flags or screen.urgent_flags:
-        new_flags = [f for f in screen.redirect_flags + screen.urgent_flags if f not in state.safety_flags]
-        state.safety_flags.extend(new_flags)
-        if screen.is_redirect:
-            safety_text = screen.guidance()
-        elif new_flags and not state.safety_guidance_given:
-            safety_text = screen.guidance()
-            state.safety_guidance_given = True
-            if state.urgency is None:
-                state.urgency = "emergency"
-            events.append(f"safety_urgent:{','.join(new_flags)}")
 
     # 2-3. extraction + merge
     llm_needs_clarification = False
@@ -133,6 +122,23 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         TELEMETRY.fallback("extraction_failed")
         events.append(f"extraction_failed:{e}")
         log.warning("extraction failed; keeping prior state: %s", e)
+
+    # 1. safety, part two: union with the extractor's hazard families, then apply fixed guidance
+    if extraction and extraction.updates.hazard_categories:
+        screen, llm_added = safety.with_llm_hazards(screen, extraction.updates.hazard_categories)
+        if llm_added:
+            events.append(f"safety_llm:{','.join(llm_added)}:{extraction.updates.hazard_evidence or ''}")
+    if screen.redirect_flags or screen.urgent_flags:
+        new_flags = [f for f in screen.redirect_flags + screen.urgent_flags if f not in state.safety_flags]
+        state.safety_flags.extend(new_flags)
+        if screen.is_redirect:
+            safety_text = screen.guidance()
+        elif new_flags and not state.safety_guidance_given:
+            safety_text = screen.guidance()
+            state.safety_guidance_given = True
+            if state.urgency is None:
+                state.urgency = "emergency"
+            events.append(f"safety_urgent:{','.join(new_flags)}")
 
     if prior_category and state.service_category != prior_category:
         events.append("category_changed")

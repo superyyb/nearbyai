@@ -59,6 +59,10 @@ Rules:
   uses what the user already told you and best resolves that open decision (e.g. "Does it get worse when it
   rains, or is there a bathroom above that spot?"). Never list the service categories back to the user, and
   never ask for contact details or a ZIP here. Otherwise "".
+- hazard_categories: safety hazards the user describes as present now (not denied): gas smell / CO alarm / fire or
+  smoke -> gas_co_fire; water touching or entering anything electrical (outlets, cords, light fixtures, panel) ->
+  electrical_water; something hot, melting, or smelling burnt -> overheating_burning; sparks, arcing, or buzzing
+  from electrical equipment -> sparking_buzzing_electrical. hazard_evidence: the user's words that show it, else "".
 - utility_signal: "possible_water_outage" if the WHOLE home has no water (or pressure dropped everywhere);
   "possible_power_outage" if the WHOLE home lost power. Not for one fixture, one circuit, or half the house.
   outage_scope: "neighbors_affected" if the user says nearby homes/street/area are affected too, "home_only" if
@@ -133,6 +137,8 @@ class LLMExtraction(BaseModel):
     needs_clarification: bool
     clarification_reason: str
     suggested_question: str
+    hazard_categories: list[Literal["gas_co_fire", "electrical_water", "overheating_burning", "sparking_buzzing_electrical"]]
+    hazard_evidence: str
     utility_signal: Literal["possible_water_outage", "possible_power_outage", "none"]
     outage_scope: Literal["home_only", "neighbors_affected", "unknown", "not_mentioned"]
     unsupported_service: str

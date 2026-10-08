@@ -235,6 +235,8 @@ class ExtractedFields(BaseModel):
     utility_signal: Literal["water", "power"] | None = Field(
         default=None, description="The whole home has no water / no power, which could be a utility outage."
     )
+    hazard_categories: list[str] = Field(default_factory=list, description="Safety hazard families the user describes.")
+    hazard_evidence: str | None = None
     outage_scope: Literal["home_only", "neighbors_affected", "unknown"] | None = None
     unknown_facts: list[str] = Field(
         default_factory=list, description="Qualification facts the user said they cannot confirm."
