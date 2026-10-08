@@ -5,3 +5,6 @@ __pycache__/
 data/*.db
 .DS_Store
 .env
+
+# Scratch eval output (overwritten by every run); curated results live in data/evaluation/results/
+data/evaluation/reports/

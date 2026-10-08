@@ -1,0 +1,2328 @@
+{
+ "metrics": {
+  "openings": 112,
+  "generic_fallback_rate": 28.8,
+  "contextual_clarification_rate": 14.3,
+  "clarifying_replies": 35,
+  "premature_provider": 0,
+  "hard_violations": 0,
+  "labeled_accuracy": 80.0,
+  "labeled_by_expectation": {
+   "home_only_outage": "1/1",
+   "no_symptom": "4/4",
+   "not_home_problem": "4/4",
+   "safety_guidance": "11/11",
+   "safety_redirect": "3/3",
+   "unsupported": "8/15",
+   "utility_check": "3/4",
+   "utility_redirect": "2/3"
+  },
+  "cost_usd": 0
+ },
+ "results": [
+  {
+   "id": "g000",
+   "text": "water dripping from the ceiling in my hallway, I think a pipe burst upstairs?? its a single story house tho",
+   "tags": [
+    "wrong_diagnosis",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "If you can safely reach and recognize the main water shutoff, turning it off may help limit further water damage. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "mitigation:active_pipe_leak"
+   ],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g001",
+   "text": "My kitchen sink is draining super slow and now the dishwasher won't drain either.",
+   "tags": [
+    "clear",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g002",
+   "text": "no water",
+   "tags": [
+    "short",
+    "utility"
+   ],
+   "expect": "utility_check",
+   "reply": "Is it only your home, or are nearby homes affected too?",
+   "action": "clarify_outage",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g003",
+   "text": "I smell gas near the water heater in the garage. Should I be worried?",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_redirect",
+   "reply": "If you smell gas, please leave the home now, avoid using light switches, flames, or your phone indoors, and once you're outside call 911 and PG&E's gas emergency line at 1-800-743-5000. I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+   "action": "safety_redirect",
+   "outcome": "safety_redirect",
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "gas_leak"
+   ],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g004",
+   "text": "power just went out in half my house, the other half is fine. lights in kitchen work but bedrooms dont",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g005",
+   "text": "Is there a power outage in Sunnyvale right now? My whole street is dark.",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "utility_redirect",
+   "reply": "Since nearby homes are out too, this sounds like a power outage rather than a problem an electrician can fix. Contact your electric utility (the company on your electric bill) or check its outage map. If it turns out only your home is affected, tell me and I'll find you an electrician.",
+   "action": "utility_redirect",
+   "outcome": "utility_redirect",
+   "category": null,
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g006",
+   "text": "THE AC HAS BEEN BROKEN FOR 3 DAYS AND ITS 100 DEGREES. I NEED SOMEONE TODAY",
+   "tags": [
+    "emotional",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g007",
+   "text": "there are ants all over my kitchen counter, how do I get rid of them",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for ants. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g008",
+   "text": "garage door wont close all the way, it goes down then goes back up",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for garage door. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g009",
+   "text": "hi",
+   "tags": [
+    "short",
+    "not_home_problem"
+   ],
+   "expect": "no_symptom",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g010",
+   "text": "My carbon monoxide alarm keeps beeping. I replaced the batteries and it's still going off.",
+   "tags": [
+    "safety",
+    "ambiguous"
+   ],
+   "expect": "safety_redirect",
+   "reply": "If a carbon monoxide alarm is going off, get everyone outside into fresh air immediately and call 911. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+   "action": "safety_redirect",
+   "outcome": "safety_redirect",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "carbon_monoxide"
+   ],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g011",
+   "text": "toilet keeps running all nite cant sleep lol",
+   "tags": [
+    "clear",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g012",
+   "text": "I rent an apartment in San Jose 95126 and my landlord won't fix the leaking shower. Can you guys come out?",
+   "tags": [
+    "tenant",
+    "has_location",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Thanks. Right now I only have verified providers in Santa Clara, Sunnyvale, and North San Jose (95131, 95134), so I can't confidently match a provider for 95126. If the property is in one of those areas, send me the ZIP and I'll keep going.",
+   "action": "out_of_area",
+   "outcome": "no_match",
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g013",
+   "text": "burning smell coming from an outlet in the living room",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_sparking"
+   ],
+   "events": [
+    "safety_urgent:electrical_sparking"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g014",
+   "text": "there's a weird gurgling noise when i flush the toilet and the bathtub drain bubbles",
+   "tags": [
+    "ambiguous",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g015",
+   "text": "Sewage is backing up into my shower. It smells horrible. Please help.",
+   "tags": [
+    "safety",
+    "emotional"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: avoid contact with the sewage water, keep kids and pets away, and don't use sinks, toilets, or showers until it's fixed. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "sewage_backup"
+   ],
+   "events": [
+    "safety_urgent:sewage_backup",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g016",
+   "text": "heater blowing cold air",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g017",
+   "text": "my fridge stopped cooling, everything is warm",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g018",
+   "text": "locked myself out of my house",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g019",
+   "text": "wifi keeps dropping in the back bedroom, need someone to look at it",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for wifi. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g020",
+   "text": "Brown stain on my ceiling getting bigger after the rain last week. Is that a plumbing problem?",
+   "tags": [
+    "wrong_diagnosis",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g021",
+   "text": "water pressure in the shower is terrible all of a sudden",
+   "tags": [
+    "ambiguous",
+    "short"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g022",
+   "text": "Is anyone else in Santa Clara having low water pressure today? Neighbor said hers is weak too",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "utility_check",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g023",
+   "text": "saw sparks when i plugged in the vaccum, now that outlet doesnt work",
+   "tags": [
+    "safety",
+    "typos"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_sparking"
+   ],
+   "events": [
+    "safety_urgent:electrical_sparking"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g024",
+   "text": "half my outlets stopped working after I ran the microwave and the toaster at the same time",
+   "tags": [
+    "ambiguous",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g025",
+   "text": "my water heater is leaking from the bottom, theres a puddle in the garage",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g026",
+   "text": "no hot water since this morning",
+   "tags": [
+    "clear",
+    "short"
+   ],
+   "expect": null,
+   "reply": "Is your hot water from a standalone water heater (tank or tankless), or tied into your heating system?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:rule"
+   ],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g027",
+   "text": "I have a raccoon living in my attic I can hear it at night",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g028",
+   "text": "Can someone trim the big tree in my backyard? branches are hanging over the roof",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g029",
+   "text": "roof leaking",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g030",
+   "text": "some shingles blew off in the wind last night, near Cherry Chase in Sunnyvale",
+   "tags": [
+    "clear",
+    "has_location"
+   ],
+   "expect": null,
+   "reply": "Is it actively leaking right now?",
+   "action": "ask_qualification",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g031",
+   "text": "my basement flooded after the storm and there's water touching the extension cords down there",
+   "tags": [
+    "safety",
+    "multi_symptom"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: stay out of standing water that may be near outlets, cords, or the electrical panel. If you can reach the main breaker without touching water, switch it off; otherwise wait for a professional. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "water_damage_restoration",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "water_near_electrical"
+   ],
+   "events": [
+    "safety_urgent:water_near_electrical"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g032",
+   "text": "wall in bathroom is soft and kinda moldy smelling",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g033",
+   "text": "Hi, my mother is 87 and lives alone in Willow Glen. She says the house is cold and she doesn't know how to work the thermostat. I'm in Seattle and I'm so worried.",
+   "tags": [
+    "emotional",
+    "has_location",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g034",
+   "text": "whats the weather tomorrow",
+   "tags": [
+    "not_home_problem",
+    "short"
+   ],
+   "expect": "not_home_problem",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g035",
+   "text": "my dishwasher is leaking water onto the floor",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g036",
+   "text": "lights flicker whenever the AC kicks on",
+   "tags": [
+    "ambiguous",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible electrical issue also mentioned) so it isn't lost, but let's get the heating/cooling problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g037",
+   "text": "the furnace makes a loud bang when it turns on",
+   "tags": [
+    "clear",
+    "safety"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g038",
+   "text": "i think my pipes are frozen?? no water coming out of the outside faucet",
+   "tags": [
+    "wrong_diagnosis",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g039",
+   "text": "FIX MY TOILET NOW ITS OVERFLOWING",
+   "tags": [
+    "emotional",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "If it's safe and accessible, turn off the toilet's water supply valve. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "mitigation:toilet_overflow"
+   ],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g040",
+   "text": "Hello, I noticed my water bill doubled this month but I don't see any leaks. What could it be?",
+   "tags": [
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g041",
+   "text": "theres a hissing sound behind the wall in my kitchen",
+   "tags": [
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g042",
+   "text": "Do you guys clean carpets? My dog had an accident on the rug",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g043",
+   "text": "breaker keeps tripping",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g044",
+   "text": "the bathroom fan is super loud and doesnt seem to pull out any steam",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g045",
+   "text": "i smell rotten eggs outside by the meter",
+   "tags": [
+    "safety",
+    "colloquial"
+   ],
+   "expect": "safety_redirect",
+   "reply": "If you smell gas, please leave the home now, avoid using light switches, flames, or your phone indoors, and once you're outside call 911 and PG&E's gas emergency line at 1-800-743-5000. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+   "action": "safety_redirect",
+   "outcome": "safety_redirect",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "gas_leak"
+   ],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g046",
+   "text": "power is out at my place in 95051, neighbors lights are on tho",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "home_only_outage",
+   "reply": "Are you seeing any sparks, a burning smell, or outlets or switches that feel hot?",
+   "action": "ask_qualification",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g047",
+   "text": "Our ceiling fan wobbles really bad and makes a clicking noise",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g048",
+   "text": "ugh the garbage disposal is jammed again and it just hums",
+   "tags": [
+    "out_of_scope",
+    "emotional"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g049",
+   "text": "water coming up through the floor in my kitchen idk from where",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g050",
+   "text": "My landlord says the mold in my bedroom is my fault from not opening windows. Is that true? I'm renting in Sunnyvale.",
+   "tags": [
+    "tenant",
+    "has_location",
+    "emotional"
+   ],
+   "expect": null,
+   "reply": "Is water still actively coming in right now?",
+   "action": "ask_qualification",
+   "outcome": null,
+   "category": "water_damage_restoration",
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g051",
+   "text": "how much do you charge",
+   "tags": [
+    "short",
+    "not_home_problem"
+   ],
+   "expect": "no_symptom",
+   "reply": "I haven't matched a provider yet \u2014 once I do, I can tell you what I know about them. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:price",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g052",
+   "text": "the AC is running but the house isnt getting cooler and theres ice on the pipes outside",
+   "tags": [
+    "multi_symptom",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g053",
+   "text": "weird clicking noise in the attic",
+   "tags": [
+    "ambiguous",
+    "short"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g054",
+   "text": "I think my water heater is broken because the kitchen faucet only gets lukewarm. The shower is hot though.",
+   "tags": [
+    "wrong_diagnosis",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g055",
+   "text": "smoke detector chirping every 30 seconds driving me crazy",
+   "tags": [
+    "colloquial",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g056",
+   "text": "my sprinklers are leaking and flooding the side yard",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "water_damage_restoration",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g057",
+   "text": "Theres mice in the walls",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for mice. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g058",
+   "text": "gas stove burner wont light, just clicks",
+   "tags": [
+    "ambiguous",
+    "out_of_scope"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g059",
+   "text": "wtr leakng under bathrm sink pls hlp",
+   "tags": [
+    "typos",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g060",
+   "text": "Our whole block in east San Jose lost water around 9am, is the city doing work?",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "utility_redirect",
+   "reply": "Since nearby homes are affected too, this sounds like a water-service outage rather than a plumbing problem, so a plumber can't fix it. Contact your water provider (the utility on your water bill) to report it or check for planned work. If it turns out only your home is affected, tell me and I'll find you a plumber.",
+   "action": "utility_redirect",
+   "outcome": "utility_redirect",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g061",
+   "text": "I'm so stressed. Baby is coming next week and now the nursery has a damp spot on the wall and it smells musty.",
+   "tags": [
+    "emotional",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g062",
+   "text": "main sewer line clogged maybe? all drains slow",
+   "tags": [
+    "multi_symptom",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g063",
+   "text": "the outlet in my bathroom is warm to the touch",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if an outlet, switch, cord, or appliance is hot or smells burnt, stop using it and switch off its breaker if it's safe to reach. If you see smoke or flames, leave and call 911. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "overheating_burning"
+   ],
+   "events": [
+    "safety_urgent:overheating_burning"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g064",
+   "text": "Thermostat screen is blank",
+   "tags": [
+    "short",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g065",
+   "text": "can you install a new washing machine",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g066",
+   "text": "water heater pilot light keeps going out",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g067",
+   "text": "I think the roof is leaking because there's water under the kitchen sink",
+   "tags": [
+    "wrong_diagnosis"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g068",
+   "text": "my upstairs neighbor's bathtub overflowed and now water is coming through my ceiling light. I rent.",
+   "tags": [
+    "safety",
+    "tenant",
+    "multi_symptom"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: stay out of standing water that may be near outlets, cords, or the electrical panel. If you can reach the main breaker without touching water, switch it off; otherwise wait for a professional. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "water_near_electrical"
+   ],
+   "events": [
+    "safety_urgent:water_near_electrical",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g069",
+   "text": "house smells like something burning but i cant find where its coming from",
+   "tags": [
+    "safety",
+    "ambiguous"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if an outlet, switch, cord, or appliance is hot or smells burnt, stop using it and switch off its breaker if it's safe to reach. If you see smoke or flames, leave and call 911. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "overheating_burning"
+   ],
+   "events": [
+    "safety_urgent:overheating_burning",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g070",
+   "text": "Do you know a good dentist in Santa Clara?",
+   "tags": [
+    "not_home_problem",
+    "has_location"
+   ],
+   "expect": "not_home_problem",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g071",
+   "text": "gutters overflowing every time it rains and water pours down the window",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for window. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g072",
+   "text": "heat pump making grinding noise",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g073",
+   "text": "I need someone to come pressure wash my driveway",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g074",
+   "text": "the floor by the toilet feels spongy and theres a gap at the base",
+   "tags": [
+    "clear",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g075",
+   "text": "NO POWER AGAIN. THIRD TIME THIS MONTH. PG&E IS USELESS",
+   "tags": [
+    "utility",
+    "emotional"
+   ],
+   "expect": "utility_check",
+   "reply": "Is it only your home, or are nearby homes affected too?",
+   "action": "clarify_outage",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g076",
+   "text": "our tankless water heater shows error code 11",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g077",
+   "text": "crack in the ceiling and drywall bubbling",
+   "tags": [
+    "ambiguous",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g078",
+   "text": "is this the right place for a broken window",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for window. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g079",
+   "text": "Hi there, I just moved to Sunnyvale from Ohio and the water tastes really weird, kind of like a pool. Is something wrong with my pipes?",
+   "tags": [
+    "wrong_diagnosis",
+    "has_location"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for pool. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g080",
+   "text": "yo my AC smells like dirty socks when it turns on",
+   "tags": [
+    "colloquial",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g081",
+   "text": "Apartment complex near Santana Row, maintenance hasn't responded in a week about my broken heater. What are my options?",
+   "tags": [
+    "tenant",
+    "has_location",
+    "emotional"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g082",
+   "text": "buzzing sound from the electrical panel",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: don't touch the panel or outlet that's buzzing. If it's hot, smells burnt, or sparks, leave the area and call 911; otherwise keep clear of it until an electrician checks it. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_buzzing"
+   ],
+   "events": [
+    "safety_urgent:electrical_buzzing"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g083",
+   "text": "water spot on ceiling",
+   "tags": [
+    "short",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Does it mainly show up when it rains, or is there a bathroom or plumbing directly above that spot?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:rule"
+   ],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g084",
+   "text": "The washer drained and water came up out of the shower drain downstairs",
+   "tags": [
+    "clear",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g085",
+   "text": "my dryer takes 3 cycles to dry anything",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g086",
+   "text": "pipe under the house is leaking i can hear water running in the crawl space",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g087",
+   "text": "I want to add an EV charger in my garage, who do I talk to",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g088",
+   "text": "bees nest under the eaves",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g089",
+   "text": "help",
+   "tags": [
+    "short"
+   ],
+   "expect": "no_symptom",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g090",
+   "text": "hot water smells like sulfur only from the hot side",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g091",
+   "text": "Can you recommend a good movie for tonight?",
+   "tags": [
+    "not_home_problem"
+   ],
+   "expect": "not_home_problem",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g092",
+   "text": "Ive got water in the light fixture in the bathroom and its still on, what do i do",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: stay out of standing water that may be near outlets, cords, or the electrical panel. If you can reach the main breaker without touching water, switch it off; otherwise wait for a professional. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "water_near_electrical"
+   ],
+   "events": [
+    "safety_urgent:water_near_electrical",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g093",
+   "text": "I'm renting a room in San Jose and the owner lives upstairs. The shower has been leaking into the wall for months and he says it's fine. Is it?",
+   "tags": [
+    "tenant",
+    "has_location",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "What's the ZIP code of the property in San Jose?",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g094",
+   "text": "vents upstairs barely blow air but downstairs is fine",
+   "tags": [
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g095",
+   "text": "fridge is leaking water onto the hardwood and the floor is warping",
+   "tags": [
+    "out_of_scope",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g096",
+   "text": "the lights dim when the dryer runs, 95054",
+   "tags": [
+    "ambiguous",
+    "has_location"
+   ],
+   "expect": null,
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g097",
+   "text": "dog chewed through a lamp cord, is he ok? cord looks scorched",
+   "tags": [
+    "safety",
+    "not_home_problem"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. For safety: if an outlet, switch, cord, or appliance is hot or smells burnt, stop using it and switch off its breaker if it's safe to reach. If you see smoke or flames, leave and call 911. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_sparking",
+    "overheating_burning"
+   ],
+   "events": [
+    "safety_urgent:electrical_sparking,overheating_burning",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g098",
+   "text": "toliet clogged plunger not working",
+   "tags": [
+    "typos",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g099",
+   "text": "my house keeps getting dusty no matter how much i clean",
+   "tags": [
+    "ambiguous",
+    "out_of_scope"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g100",
+   "text": "sewage smell in the backyard near the cleanout",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: avoid contact with the sewage water, keep kids and pets away, and don't use sinks, toilets, or showers until it's fixed. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "sewage_backup"
+   ],
+   "events": [
+    "safety_urgent:sewage_backup",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g101",
+   "text": "roof leak I guess? it only drips when the AC is on",
+   "tags": [
+    "wrong_diagnosis"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g102",
+   "text": "Front door lock is broken and won't turn",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g103",
+   "text": "furnace wont turn on and the house is 55 degrees, kids are freezing",
+   "tags": [
+    "emotional",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g104",
+   "text": "faucet drips",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g105",
+   "text": "The internet and the power both went out in our neighborhood in Rose Garden, any idea when it's back?",
+   "tags": [
+    "utility",
+    "has_location",
+    "out_of_scope"
+   ],
+   "expect": "utility_redirect",
+   "reply": "Sorry \u2014 this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for internet. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": false
+  },
+  {
+   "id": "g106",
+   "text": "black stuff growing on the bathroom ceiling",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": []
+  },
+  {
+   "id": "g107",
+   "text": "can u guys come today or what",
+   "tags": [
+    "short",
+    "colloquial"
+   ],
+   "expect": "no_symptom",
+   "reply": "I haven't matched a provider yet \u2014 once I do, I can tell you what I know about them. I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:availability",
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g108",
+   "text": "My electricity bill went way up and I hear the water heater running constantly. Also the pressure valve dripped a little.",
+   "tags": [
+    "multi_symptom",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I've noted the other issue (possible electrical issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  },
+  {
+   "id": "g109",
+   "text": "Who won the Sharks game last night",
+   "tags": [
+    "not_home_problem",
+    "short"
+   ],
+   "expect": "not_home_problem",
+   "reply": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g110",
+   "text": "Hi, I have water issue. There is no water in my home",
+   "tags": [
+    "utility",
+    "ambiguous",
+    "short"
+   ],
+   "expect": "utility_check",
+   "reply": "Is it only your home, or are nearby homes affected too?",
+   "action": "clarify_outage",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "clarification_source:generic"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g111",
+   "text": "Hi My home AC doesn't work",
+   "tags": [
+    "clear",
+    "short"
+   ],
+   "expect": null,
+   "reply": "What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": []
+  }
+ ],
+ "llm_usage": {
+  "by_call_type": {},
+  "total_cost_usd": 0,
+  "total_calls": 0,
+  "deterministic_fallbacks": {}
+ }
+}

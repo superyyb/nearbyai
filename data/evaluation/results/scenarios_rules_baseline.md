@@ -2,19 +2,19 @@
 
 | Metric | Value |
 |---|---|
-| cases | 18 |
-| outcome_accuracy | 94.4 |
-| service_category_accuracy | 93.8 |
-| dispatchable_lead_rate | 92.9 |
-| useful_resolution_rate | 93.3 |
+| cases | 20 |
+| outcome_accuracy | 95.0 |
+| service_category_accuracy | 94.4 |
+| dispatchable_lead_rate | 93.8 |
+| useful_resolution_rate | 94.1 |
 | median_user_turns_to_lead | 6 |
-| mean_user_turns_to_lead | 5.77 |
+| mean_user_turns_to_lead | 5.8 |
 | provider_grounding | 100.0 |
 | coverage_truthfulness | 100.0 |
 | provider_eligibility | 100.0 |
 | consent_correctness | 100.0 |
-| avg_lead_quality | 91.8 |
-| cases_passed | 17 |
+| avg_lead_completeness | 91.9 |
+| cases_passed | 19 |
 
 ## water_damage_basement_storm — ready_to_dispatch (6 user turns) — PASS
 
@@ -59,7 +59,7 @@ Lead prepared for dispatch. No provider has been contacted automatically.
 ## plumbing_burst_pipe — ready_to_dispatch (5 user turns) — PASS
 
 - **User**: A pipe under my kitchen sink burst and it's spraying everywhere
-- **Agent** _(ask_location)_: What's the property address? Just the ZIP code is fine if that's easier.
+- **Agent** _(ask_location)_: If you can safely reach and recognize the main water shutoff, turning it off may help limit further water damage. What's the property address? Just the ZIP code is fine if that's easier.
 - **User**: 95051
 - **Agent** _(ask_timing)_: I found EJ Home Services, which handles plumbing and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?
 - **User**: right now, asap
@@ -95,8 +95,8 @@ Lead prepared for dispatch. No provider has been contacted automatically.
 ## plumbing_toilet_overflow — ready_to_dispatch (5 user turns) — PASS
 
 - **User**: My toilet keeps overflowing every time we flush
-- **Agent** _(ask_location)_: What's the property address? Just the ZIP code is fine if that's easier.
-- **User**: 820 E El Camino Real, Sunnyvale, CA 94087
+- **Agent** _(ask_location)_: If it's safe and accessible, turn off the toilet's water supply valve. What's the property address? Just the ZIP code is fine if that's easier.
+- **User**: 820 E El Camino Real, Sunnyvale 94087
 - **Agent** _(ask_timing)_: I found EJ Home Services, which handles plumbing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?
 - **User**: tomorrow works
 - **Agent** _(ask_contact)_: What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.
@@ -365,7 +365,7 @@ Lead prepared for dispatch. No provider has been contacted automatically.
 ## user_changes_zip — ready_to_dispatch (6 user turns) — PASS
 
 - **User**: My water heater is leaking all over the garage floor
-- **Agent** _(ask_location)_: I'll note the other issue too, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.
+- **Agent** _(ask_location)_: I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.
 - **User**: 95050
 - **Agent** _(ask_timing)_: I found EJ Home Services, which handles plumbing and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?
 - **User**: Sorry, actually the ZIP is 95134, not 95050
@@ -453,7 +453,7 @@ Lead prepared for dispatch. No provider has been contacted automatically.
 - **User**: Pat Doe, 408-555-0111
 - **Agent** _(ask_consent)_: Is it okay to share your name and phone number with DG Heating & Air Conditioning so they can call or text you about this service request?
 - **User**: no, I'd rather call them myself
-- **Agent** _(self_serve)_: No problem — I won't share your details. You can contact DG Heating & Air Conditioning directly at (408) 201-9411 (https://www.dgheatingandair.com).
+- **Agent** _(self_serve)_: I can't call or message providers myself — this demo prepares the request for you. You can reach DG Heating & Air Conditioning directly at (408) 201-9411. No problem — I won't share your details. You can contact DG Heating & Air Conditioning directly at (408) 201-9411 (https://www.dgheatingandair.com).
 
 ## safety_gas_leak — safety_redirect (1 user turns) — PASS
 
@@ -470,7 +470,7 @@ Lead prepared for dispatch. No provider has been contacted automatically.
 ## multiple_issues — ready_to_dispatch (6 user turns) — PASS
 
 - **User**: My roof is leaking after the rain and also my AC stopped working
-- **Agent** _(ask_location)_: I'll note the other issue too, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.
+- **Agent** _(ask_location)_: I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.
 - **User**: 95054
 - **Agent** _(ask_qualification)_: Is it actively leaking right now?
 - **User**: yes
@@ -546,6 +546,7 @@ Property: Pending — customer provided ZIP 94089; exact address to be confirmed
 
 Service: Water Damage Restoration
 Problem: My neighbor says water is pooling in my basement after the storm
+  Water still entering: Unknown — customer could not confirm
   Likely source: Exterior / storm water
 
 Timing: Same-day service preferred (availability not confirmed)
@@ -554,6 +555,82 @@ Matched provider: 911 Restoration of San Jose
   (408) 449-4904 · https://www.911restorationsanjose.com
   Coverage: Verified — Sunnyvale listed on provider's official site
   Source: https://www.911restorationsanjose.com/ (verified 2026-10-07)
+
+Lead prepared for dispatch. No provider has been contacted automatically.
+```
+
+## reject_matched_provider — ready_to_dispatch (6 user turns) — PASS
+
+- **User**: Hi My home AC doesn't work
+- **Agent** _(ask_location)_: What's the property address? Just the ZIP code is fine if that's easier.
+- **User**: I am in Santa Clara. I don't know the ZIP code
+- **Agent** _(ask_timing)_: I found DG Heating & Air Conditioning, which handles hvac (heating & cooling) and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?
+- **User**: Any other options? I don't like DG Heating & Air Conditioning. The experience with them was bad last time
+- **Agent** _(ask_timing)_: Understood — I won't use DG Heating & Air Conditioning. Another option is EVS Mechanical, which also lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?
+- **User**: later this week
+- **Agent** _(ask_contact)_: What's the best phone number for the provider to reach you?
+- **User**: Test User, 408-555-0142
+- **Agent** _(ask_consent)_: Is it okay to share your name and phone number with EVS Mechanical so they can call or text you about this service request?
+- **User**: yes
+- **Agent** _(lead_ready)_: Thanks, In Santa. Your service request is ready to send to EVS Mechanical. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 300-8254.
+
+```
+NEW SERVICE LEAD
+
+Customer: In Santa
+Contact: (408) 555-0142 (phone)
+Contact permission: Yes — explicit consent to share with this provider
+Relationship: homeowner
+
+Property: Pending — customer provided Santa Clara; exact address to be confirmed by provider.
+
+Service: HVAC (Heating & Cooling)
+Problem: Hi My home AC doesn't work
+
+Timing: Within the next few days (availability not confirmed)
+
+Matched provider: EVS Mechanical
+  (408) 300-8254 · https://www.evsmechanicalcorp.com
+  Coverage: Verified — Santa Clara listed on provider's official site
+  Source: https://www.evsmechanicalcorp.com/ (verified 2026-10-07)
+
+Lead prepared for dispatch. No provider has been contacted automatically.
+```
+
+## ask_provider_questions — ready_to_dispatch (6 user turns) — PASS
+
+- **User**: My toilet is leaking at the base
+- **Agent** _(ask_location)_: What's the property address? Just the ZIP code is fine if that's easier.
+- **User**: 94086
+- **Agent** _(ask_timing)_: I found EJ Home Services, which handles plumbing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?
+- **User**: Are they any good? How much do they charge?
+- **Agent** _(ask_timing)_: I don't have verified pricing for EJ Home Services, so I don't want to guess. They can quote you when they get in touch, or you can check https://www.ejplumbing.com. I don't have verified review or rating data for EJ Home Services, so I can't vouch for quality beyond the official-site information I used. If you'd prefer, I can suggest another verified provider. Would you prefer help today if someone is available, or is later this week okay?
+- **User**: this week
+- **Agent** _(ask_contact)_: What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.
+- **User**: Jordan Lee, 408-555-0175
+- **Agent** _(ask_consent)_: Is it okay to share your name and phone number with EJ Home Services so they can call or text you about this service request?
+- **User**: yes
+- **Agent** _(lead_ready)_: Thanks, Jordan Lee. Your service request is ready to send to EJ Home Services. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (650) 434-4432.
+
+```
+NEW SERVICE LEAD
+
+Customer: Jordan Lee
+Contact: (408) 555-0175 (phone)
+Contact permission: Yes — explicit consent to share with this provider
+Relationship: Not stated
+
+Property: Pending — customer provided ZIP 94086; exact address to be confirmed by provider.
+
+Service: Plumbing
+Problem: My toilet is leaking at the base
+
+Timing: Within the next few days (availability not confirmed)
+
+Matched provider: EJ Home Services
+  (650) 434-4432 · https://www.ejplumbing.com
+  Coverage: Verified — Sunnyvale listed on provider's official site
+  Source: https://www.ejplumbing.com/areas-we-serve/ (verified 2026-10-07)
 
 Lead prepared for dispatch. No provider has been contacted automatically.
 ```

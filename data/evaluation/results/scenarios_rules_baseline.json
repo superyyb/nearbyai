@@ -4,26 +4,40 @@
     "simulator": "structured",
     "cases": null,
     "judge": false,
+    "judge_controls": 6,
     "repeat": 1,
     "repeat_tags": ""
   },
   "metrics": {
-    "cases": 18,
-    "outcome_accuracy": 94.4,
-    "service_category_accuracy": 93.8,
-    "dispatchable_lead_rate": 92.9,
-    "useful_resolution_rate": 93.3,
+    "cases": 20,
+    "outcome_accuracy": 95.0,
+    "service_category_accuracy": 94.4,
+    "dispatchable_lead_rate": 93.8,
+    "useful_resolution_rate": 94.1,
     "median_user_turns_to_lead": 6,
-    "mean_user_turns_to_lead": 5.77,
+    "mean_user_turns_to_lead": 5.8,
     "provider_grounding": 100.0,
     "coverage_truthfulness": 100.0,
     "provider_eligibility": 100.0,
     "consent_correctness": 100.0,
-    "avg_lead_quality": 91.8,
-    "cases_passed": 17
+    "avg_lead_completeness": 91.9,
+    "cases_passed": 19
   },
   "judge": null,
   "stability": {},
+  "llm_usage": {
+    "by_call_type": {},
+    "total_cost_usd": 0,
+    "total_calls": 0,
+    "deterministic_fallbacks": {},
+    "fallback_rates": {
+      "extraction_failed_turns": "n/a",
+      "response_fell_back_to_template": "n/a",
+      "rerank_fell_back_to_keyword": "n/a",
+      "rerank_skipped_single_candidate": 0,
+      "server_side_model_fallbacks": 0
+    }
+  },
   "cases": [
     {
       "id": "water_damage_basement_storm",
@@ -110,6 +124,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0142",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -124,6 +139,7 @@
             "Water still entering": "No",
             "Likely source": "Exterior / storm water"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -143,7 +159,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 100.0
+        "completeness_score": 100.0
       }
     },
     {
@@ -162,9 +178,11 @@
         },
         {
           "role": "assistant",
-          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "content": "If you can safely reach and recognize the main water shutoff, turning it off may help limit further water damage. What's the property address? Just the ZIP code is fine if that's easier.",
           "action": "ask_location",
-          "events": [],
+          "events": [
+            "mitigation:active_pipe_leak"
+          ],
           "wording": "template"
         },
         {
@@ -220,6 +238,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0101",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -231,6 +250,7 @@
           "category": "Plumbing",
           "problem": "A pipe under my kitchen sink burst and it's spraying everywhere",
           "details": {},
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -250,7 +270,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -269,14 +289,16 @@
         },
         {
           "role": "assistant",
-          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "content": "If it's safe and accessible, turn off the toilet's water supply valve. What's the property address? Just the ZIP code is fine if that's easier.",
           "action": "ask_location",
-          "events": [],
+          "events": [
+            "mitigation:toilet_overflow"
+          ],
           "wording": "template"
         },
         {
           "role": "user",
-          "content": "820 E El Camino Real, Sunnyvale, CA 94087"
+          "content": "820 E El Camino Real, Sunnyvale 94087"
         },
         {
           "role": "assistant",
@@ -327,6 +349,7 @@
           "contact_method": "phone",
           "contact": "(650) 555-0123",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -338,6 +361,7 @@
           "category": "Plumbing",
           "problem": "My toilet keeps overflowing every time we flush",
           "details": {},
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -357,7 +381,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -434,6 +458,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0177",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -445,6 +470,7 @@
           "category": "HVAC (Heating & Cooling)",
           "problem": "My AC is running but only blowing warm air",
           "details": {},
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -464,7 +490,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -541,6 +567,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0190",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -552,6 +579,7 @@
           "category": "HVAC (Heating & Cooling)",
           "problem": "The furnace won't turn on at all and the house is freezing",
           "details": {},
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -571,7 +599,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -640,6 +668,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0133",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -653,6 +682,7 @@
           "details": {
             "Sparks / burning smell / hot fixtures": "Yes \u2014 safety guidance given"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": [
             "electrical_sparking"
@@ -674,7 +704,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -762,6 +792,7 @@
           "contact_method": "phone",
           "contact": "(669) 555-0144",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -775,6 +806,7 @@
           "details": {
             "Actively leaking": "Yes"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -794,7 +826,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -816,7 +848,9 @@
           "role": "assistant",
           "content": "Does it mainly show up when it rains, or is there a bathroom or plumbing directly above that spot?",
           "action": "clarify_category",
-          "events": [],
+          "events": [
+            "clarification_source:rule"
+          ],
           "wording": "template"
         },
         {
@@ -894,6 +928,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0155",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -907,6 +942,7 @@
           "details": {
             "Actively leaking": "No"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -926,7 +962,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -947,7 +983,9 @@
           "role": "assistant",
           "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
           "action": "ask_category",
-          "events": [],
+          "events": [
+            "clarification_source:generic"
+          ],
           "wording": "template"
         },
         {
@@ -1025,6 +1063,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0166",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "homeowner"
         },
         "property": {
@@ -1038,6 +1077,7 @@
           "details": {
             "Sparks / burning smell / hot fixtures": "No"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -1057,7 +1097,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -1101,7 +1141,7 @@
         },
         {
           "role": "assistant",
-          "content": "I'll note the other issue too, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+          "content": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
           "action": "ask_location",
           "events": [],
           "wording": "template"
@@ -1173,6 +1213,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0188",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -1184,6 +1225,7 @@
           "category": "Plumbing",
           "problem": "My water heater is leaking all over the garage floor",
           "details": {},
+          "observed_impacts": [],
           "secondary_issues": [
             "possible heating/cooling issue also mentioned"
           ],
@@ -1205,7 +1247,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -1309,6 +1351,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0199",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -1322,6 +1365,7 @@
           "details": {
             "Actively leaking": "Yes"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -1341,7 +1385,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -1406,9 +1450,11 @@
         },
         {
           "role": "assistant",
-          "content": "No problem \u2014 I won't share your details. You can contact DG Heating & Air Conditioning directly at (408) 201-9411 (https://www.dgheatingandair.com).",
+          "content": "I can't call or message providers myself \u2014 this demo prepares the request for you. You can reach DG Heating & Air Conditioning directly at (408) 201-9411. No problem \u2014 I won't share your details. You can contact DG Heating & Air Conditioning directly at (408) 201-9411 (https://www.dgheatingandair.com).",
           "action": "self_serve",
-          "events": [],
+          "events": [
+            "requested_action:call_provider"
+          ],
           "wording": "template"
         }
       ],
@@ -1490,7 +1536,7 @@
         },
         {
           "role": "assistant",
-          "content": "I'll note the other issue too, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+          "content": "I've noted the other issue (possible heating/cooling issue also mentioned) so it isn't lost, but let's get the roofing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
           "action": "ask_location",
           "events": [],
           "wording": "template"
@@ -1559,6 +1605,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0122",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -1573,6 +1620,7 @@
             "Water still entering": "No",
             "Actively leaking": "Yes"
           },
+          "observed_impacts": [],
           "secondary_issues": [
             "possible heating/cooling issue also mentioned"
           ],
@@ -1594,7 +1642,7 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 92.0
+        "completeness_score": 92.0
       }
     },
     {
@@ -1618,7 +1666,9 @@
           "role": "assistant",
           "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
           "action": "ask_category",
-          "events": [],
+          "events": [
+            "clarification_source:generic"
+          ],
           "wording": "template"
         },
         {
@@ -1629,7 +1679,9 @@
           "role": "assistant",
           "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
           "action": "ask_category",
-          "events": [],
+          "events": [
+            "clarification_source:generic"
+          ],
           "wording": "template"
         },
         {
@@ -1640,7 +1692,9 @@
           "role": "assistant",
           "content": "I can help with that. Can you tell me a bit about what's going on \u2014 for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
           "action": "ask_category",
-          "events": [],
+          "events": [
+            "clarification_source:generic"
+          ],
           "wording": "template"
         },
         {
@@ -1742,6 +1796,7 @@
           "contact_method": "phone",
           "contact": "(408) 555-0109",
           "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
           "relationship_to_property": "Not stated"
         },
         "property": {
@@ -1753,8 +1808,10 @@
           "category": "Water Damage Restoration",
           "problem": "My neighbor says water is pooling in my basement after the storm",
           "details": {
+            "Water still entering": "Unknown \u2014 customer could not confirm",
             "Likely source": "Exterior / storm water"
           },
+          "observed_impacts": [],
           "secondary_issues": [],
           "safety_flags": []
         },
@@ -1774,7 +1831,254 @@
           "verified_at": "2026-10-07"
         },
         "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
-        "quality_score": 82.0
+        "completeness_score": 82.0
+      }
+    },
+    {
+      "id": "reject_matched_provider",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "hvac",
+        "outcome": "ready_to_dispatch",
+        "rejects_first_provider": true
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Hi My home AC doesn't work"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "I am in Santa Clara. I don't know the ZIP code"
+        },
+        {
+          "role": "assistant",
+          "content": "I found DG Heating & Air Conditioning, which handles hvac (heating & cooling) and lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Any other options? I don't like DG Heating & Air Conditioning. The experience with them was bad last time"
+        },
+        {
+          "role": "assistant",
+          "content": "Understood \u2014 I won't use DG Heating & Air Conditioning. Another option is EVS Mechanical, which also lists Santa Clara in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_feedback:reject:dg-heating-air-conditioning->evs-mechanical"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "later this week"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the best phone number for the provider to reach you?",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Test User, 408-555-0142"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with EVS Mechanical so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, In Santa. Your service request is ready to send to EVS Mechanical. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (408) 300-8254.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "In Santa",
+          "contact_method": "phone",
+          "contact": "(408) 555-0142",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
+          "relationship_to_property": "homeowner"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided Santa Clara; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Santa Clara"
+        },
+        "service": {
+          "category": "HVAC (Heating & Cooling)",
+          "problem": "Hi My home AC doesn't work",
+          "details": {},
+          "observed_impacts": [],
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Within the next few days",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "evs-mechanical",
+          "name": "EVS Mechanical",
+          "phone": "(408) 300-8254",
+          "website": "https://www.evsmechanicalcorp.com",
+          "address": "3674 Bassett St, Santa Clara, CA 95054",
+          "coverage": "Verified \u2014 Santa Clara listed on provider's official site",
+          "match_reason": "next-ranked eligible provider after user feedback",
+          "source_url": "https://www.evsmechanicalcorp.com/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "completeness_score": 92.0
+      }
+    },
+    {
+      "id": "ask_provider_questions",
+      "outcome": "ready_to_dispatch",
+      "expected": {
+        "service_category": "plumbing",
+        "outcome": "ready_to_dispatch",
+        "answers_without_inventing": true
+      },
+      "user_turns": 6,
+      "failures": [],
+      "transcript": [
+        {
+          "role": "user",
+          "content": "My toilet is leaking at the base"
+        },
+        {
+          "role": "assistant",
+          "content": "What's the property address? Just the ZIP code is fine if that's easier.",
+          "action": "ask_location",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "94086"
+        },
+        {
+          "role": "assistant",
+          "content": "I found EJ Home Services, which handles plumbing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "provider_search:5 candidates"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Are they any good? How much do they charge?"
+        },
+        {
+          "role": "assistant",
+          "content": "I don't have verified pricing for EJ Home Services, so I don't want to guess. They can quote you when they get in touch, or you can check https://www.ejplumbing.com. I don't have verified review or rating data for EJ Home Services, so I can't vouch for quality beyond the official-site information I used. If you'd prefer, I can suggest another verified provider. Would you prefer help today if someone is available, or is later this week okay?",
+          "action": "ask_timing",
+          "events": [
+            "user_question:price",
+            "user_question:reviews"
+          ],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "this week"
+        },
+        {
+          "role": "assistant",
+          "content": "What's your name and the best phone number to reach you? If you'd like, include the street address too so they can plan the visit.",
+          "action": "ask_contact",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "Jordan Lee, 408-555-0175"
+        },
+        {
+          "role": "assistant",
+          "content": "Is it okay to share your name and phone number with EJ Home Services so they can call or text you about this service request?",
+          "action": "ask_consent",
+          "events": [],
+          "wording": "template"
+        },
+        {
+          "role": "user",
+          "content": "yes"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, Jordan Lee. Your service request is ready to send to EJ Home Services. This demo prepares the lead but does not contact the provider automatically. If you want to reach them sooner, their number is (650) 434-4432.",
+          "action": "lead_ready",
+          "events": [],
+          "wording": "template"
+        }
+      ],
+      "lead": {
+        "customer": {
+          "name": "Jordan Lee",
+          "contact_method": "phone",
+          "contact": "(408) 555-0175",
+          "contact_permission": "Yes \u2014 explicit consent to share with this provider",
+          "contact_preferences": null,
+          "relationship_to_property": "Not stated"
+        },
+        "property": {
+          "address": "Pending \u2014 customer provided ZIP 94086; exact address to be confirmed by provider.",
+          "address_status": "pending",
+          "area": "Sunnyvale"
+        },
+        "service": {
+          "category": "Plumbing",
+          "problem": "My toilet is leaking at the base",
+          "details": {},
+          "observed_impacts": [],
+          "secondary_issues": [],
+          "safety_flags": []
+        },
+        "timing": {
+          "preference": "Within the next few days",
+          "availability": "Not confirmed"
+        },
+        "matched_provider": {
+          "id": "ej-home-services",
+          "name": "EJ Home Services",
+          "phone": "(650) 434-4432",
+          "website": "https://www.ejplumbing.com",
+          "address": "985 Parker Ct, Santa Clara, CA 95050",
+          "coverage": "Verified \u2014 Sunnyvale listed on provider's official site",
+          "match_reason": "best keyword match to the job description",
+          "source_url": "https://www.ejplumbing.com/areas-we-serve/",
+          "verified_at": "2026-10-07"
+        },
+        "prototype_status": "Lead prepared for dispatch. No provider has been contacted automatically.",
+        "completeness_score": 92.0
       }
     }
   ]

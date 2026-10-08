@@ -1,0 +1,2523 @@
+{
+ "metrics": {
+  "openings": 112,
+  "generic_fallback_rate": 17.3,
+  "contextual_clarification_rate": 10.0,
+  "clarifying_replies": 20,
+  "premature_provider": 0,
+  "hard_violations": 0,
+  "labeled_accuracy": 71.1,
+  "labeled_by_expectation": {
+   "home_only_outage": "1/1",
+   "no_symptom": "4/4",
+   "not_home_problem": "4/4",
+   "safety_guidance": "5/11",
+   "safety_redirect": "3/3",
+   "unsupported": "15/15",
+   "utility_check": "0/4",
+   "utility_redirect": "0/3"
+  },
+  "judge_mean_score": 2.86,
+  "judge_low_scores(<=2)": 52,
+  "cost_usd": 1.2817
+ },
+ "results": [
+  {
+   "id": "g000",
+   "text": "water dripping from the ceiling in my hallway, I think a pipe burst upstairs?? its a single story house tho",
+   "tags": [
+    "wrong_diagnosis",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with this. To point you to the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "Asks the user to classify the problem as a leak, HVAC, electrical, or roof issue after they already described water dripping from the ceiling. It also ignores the key clue: a single-story house has no upstairs pipe, so the source is likely the roof, an attic pipe, or an HVAC condensate line. It gives no safety guidance (turn off the water main if dripping is active, keep away from wet ceiling lights or electrical fixtures, watch for a sagging ceiling). A better question would be whether it's been raining or whether there's attic plumbing or an HVAC unit above the hallway."
+  },
+  {
+   "id": "g001",
+   "text": "My kitchen sink is draining super slow and now the dishwasher won't drain either.",
+   "tags": [
+    "clear",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I've noted the dishwasher not draining so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply treats the dishwasher as a separate issue to set aside, when it most likely shares the sink's drain line and points to the same clog. Asking for the ZIP to confirm service area is reasonable but generic. A better reply would link the two symptoms or ask a targeted question, such as whether the garbage disposal or other drains are also affected."
+  },
+  {
+   "id": "g002",
+   "text": "no water",
+   "tags": [
+    "short",
+    "utility"
+   ],
+   "expect": "utility_check",
+   "reply": "I'm sorry you're dealing with this, but I can help. Can you tell me a bit about what's going on, for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "The user already said the problem is 'no water,' but the reply ignores that and asks a generic what's-wrong question with unrelated options like heating, electrical, and roof. It should have followed up on the no-water issue, e.g. whether it's the whole house or one fixture, whether neighbors are affected (possible utility outage), or whether the water heater is involved, which would show if a plumber is needed.",
+   "label_ok": false
+  },
+  {
+   "id": "g003",
+   "text": "I smell gas near the water heater in the garage. Should I be worried?",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_redirect",
+   "reply": "If you smell gas, please leave the home now, avoid using light switches, flames, or your phone indoors, and once you're outside call 911 and PG&E's gas emergency line at 1-800-743-5000. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+   "action": "safety_redirect",
+   "outcome": "safety_redirect",
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "gas_leak"
+   ],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g004",
+   "text": "power just went out in half my house, the other half is fine. lights in kitchen work but bedrooms dont",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with an electrical issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Ignores the specifics the user gave: half the house is out, with the kitchen working and the bedrooms dead. That pattern points to a tripped breaker or a lost leg of 240V service, and the most useful next step is to ask whether they've checked the breaker panel for a tripped breaker. Basic safety guidance also belongs here (don't touch scorched outlets; if anything smells burnt, call the utility or an electrician). The reply jumps straight to asking for an address without engaging with the problem."
+  },
+  {
+   "id": "g005",
+   "text": "Is there a power outage in Sunnyvale right now? My whole street is dark.",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "utility_redirect",
+   "reply": "Sorry about the trouble. I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for utility outage information. If you have one of those issues too, I'm happy to help.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The out-of-scope answer is honest and correct, since a street-wide outage is a utility matter, not something an electrician fixes. But it stops short of the most useful next step: pointing the user to PG&E's outage map or line for Sunnyvale and briefly warning them to stay away from any downed lines.",
+   "label_ok": false
+  },
+  {
+   "id": "g006",
+   "text": "THE AC HAS BEEN BROKEN FOR 3 DAYS AND ITS 100 DEGREES. I NEED SOMEONE TODAY",
+   "tags": [
+    "emotional",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with an HVAC issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Asking for the ZIP is a reasonable step, since service area matters, but the reply is generic. It doesn't acknowledge the heat or the same-day request, and it skips a quick heat-safety check (vulnerable occupants, staying cool). It also doesn't ask what the AC is doing, such as not turning on or blowing warm air."
+  },
+  {
+   "id": "g007",
+   "text": "there are ants all over my kitchen counter, how do I get rid of them",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry, I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for pest control. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g008",
+   "text": "garage door wont close all the way, it goes down then goes back up",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the trouble with your garage door. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for garage door repair. If you have one of those other issues too, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g009",
+   "text": "hi",
+   "tags": [
+    "short",
+    "not_home_problem"
+   ],
+   "expect": "no_symptom",
+   "reply": "I'm sorry you're dealing with this, but I can help. Can you tell me a bit about what's going on, for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g010",
+   "text": "My carbon monoxide alarm keeps beeping. I replaced the batteries and it's still going off.",
+   "tags": [
+    "safety",
+    "ambiguous"
+   ],
+   "expect": "safety_redirect",
+   "reply": "If a carbon monoxide alarm is going off, get everyone outside into fresh air immediately and call 911. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+   "action": "safety_redirect",
+   "outcome": "safety_redirect",
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "carbon_monoxide"
+   ],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "Safety-first guidance is correct, but the reply doesn't help the user tell a CO alarm pattern from a low-battery or end-of-life chirp, which matters since they already replaced the batteries. It also gives no concrete next step, such as an HVAC check of fuel-burning appliances.",
+   "label_ok": true
+  },
+  {
+   "id": "g011",
+   "text": "toilet keeps running all nite cant sleep lol",
+   "tags": [
+    "clear",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply jumps straight to asking for location and ignores the specifics: a running toilet, which is minor and often DIY-fixable (flapper or fill valve), and could be stopped tonight by closing the shutoff valve so the user can sleep. Asking for the ZIP is reasonable for scope but generic. A more useful step would give the quick shutoff tip first or ask a targeted question about the toilet."
+  },
+  {
+   "id": "g012",
+   "text": "I rent an apartment in San Jose 95126 and my landlord won't fix the leaking shower. Can you guys come out?",
+   "tags": [
+    "tenant",
+    "has_location",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with a plumbing issue. I don't have a provider matched yet, and right now my verified providers only cover Santa Clara, Sunnyvale, and North San Jose (95131, 95134), so I can't confidently match one for 95126. If the property is in one of those areas, what's the ZIP?",
+   "action": "out_of_area",
+   "outcome": "no_match",
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:availability"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The out-of-area answer for 95126 is honest and correct, but the reply misses the renter angle: the landlord may need to authorize the repair, and the reply could mention tenant resources. Asking for a ZIP in the covered areas is a bit redundant, since the user already said where they live."
+  },
+  {
+   "id": "g013",
+   "text": "burning smell coming from an outlet in the living room",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. I'm sorry you're dealing with an electrical problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_sparking"
+   ],
+   "events": [
+    "safety_urgent:electrical_sparking"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g014",
+   "text": "there's a weird gurgling noise when i flush the toilet and the bathtub drain bubbles",
+   "tags": [
+    "ambiguous",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply asks for a ZIP to confirm the service area, which is reasonable, but it doesn't engage with the specific symptoms. Gurgling when the toilet flushes plus a bubbling tub drain suggests a main line clog or venting issue. A better first reply would acknowledge that, ask whether other drains are slow or backing up, and advise holding off on flushing if sewage starts to back up."
+  },
+  {
+   "id": "g015",
+   "text": "Sewage is backing up into my shower. It smells horrible. Please help.",
+   "tags": [
+    "safety",
+    "emotional"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: avoid contact with the sewage water, keep kids and pets away, and don't use sinks, toilets, or showers until it's fixed. I'm sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "sewage_backup"
+   ],
+   "events": [
+    "safety_urgent:sewage_backup"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "Safety guidance comes first and is appropriate, and asking for location is necessary to confirm the user is in the service area. However, the reply misses an important triage point: whether sewage has already overflowed onto the floor, which would mean water-damage restoration is needed in addition to plumbing.",
+   "label_ok": true
+  },
+  {
+   "id": "g016",
+   "text": "heater blowing cold air",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply acknowledges the heater problem and asks for the ZIP, which is a reasonable step for checking the service area. It is generic, though. It doesn't ask a targeted diagnostic question, such as whether the thermostat is set to heat or whether it's a gas furnace or a heat pump. It also gives no quick checks, so the user's specific symptom goes unused."
+  },
+  {
+   "id": "g017",
+   "text": "my fridge stopped cooling, everything is warm",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the trouble with your appliance. This assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g018",
+   "text": "locked myself out of my house",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the trouble. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for a locksmith. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g019",
+   "text": "wifi keeps dropping in the back bedroom, need someone to look at it",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the internet trouble. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for internet or wifi. If you have one of those other issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g020",
+   "text": "Brown stain on my ceiling getting bigger after the rain last week. Is that a plumbing problem?",
+   "tags": [
+    "wrong_diagnosis",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I don't have verified information on that. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The user already said the stain is growing after rain, which strongly points to a roof leak rather than plumbing, yet the reply says it has no information and asks generic category questions the message already answers (it's a leak, likely the roof). A better reply would point to the likely roof cause and ask a targeted question, such as whether there's a bathroom or pipes above the stain or whether it only grows when it rains."
+  },
+  {
+   "id": "g021",
+   "text": "water pressure in the shower is terrible all of a sudden",
+   "tags": [
+    "ambiguous",
+    "short"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores the symptom the user described and only asks for a location. It should ask a targeted diagnostic question first, such as whether the low pressure is only in the shower or across the whole house, or whether it affects hot water only. That distinguishes a clogged showerhead or cartridge from a supply, pressure-regulator, or water-heater problem, and could even reveal an easy DIY fix. The reply is generic intake and doesn't use what the user said."
+  },
+  {
+   "id": "g022",
+   "text": "Is anyone else in Santa Clara having low water pressure today? Neighbor said hers is weak too",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "utility_check",
+   "reply": "I'm sorry you're dealing with this. I don't have verified information on that, but I found Plumbing Point Inc., which handles plumbing and lists Santa Clara in its service area. What's your name and best phone number? Adding the street address would help them plan the visit.",
+   "action": "ask_contact",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": "plumbing-point-inc",
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [
+    "user_question:other",
+    "provider_search:5 candidates"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The neighbor's matching weak pressure points to a city or water-main problem, not something in this home. The reply skips that clue and jumps straight to a plumber and contact details. It should first suggest checking Santa Clara water utility outage notices, or ask whether the low pressure is at every fixture, before matching a plumber.",
+   "label_ok": false
+  },
+  {
+   "id": "g023",
+   "text": "saw sparks when i plugged in the vaccum, now that outlet doesnt work",
+   "tags": [
+    "safety",
+    "typos"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. I'm sorry you're dealing with an electrical problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_sparking"
+   ],
+   "events": [
+    "safety_urgent:electrical_sparking"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The safety guidance contradicts itself: it says to switch off the breaker but also not to touch the panel. It also skips checking for ongoing danger signs like a burning smell or a hot outlet before moving on to location. Otherwise it puts safety first and reasonably asks for the ZIP to confirm the service area.",
+   "label_ok": true
+  },
+  {
+   "id": "g024",
+   "text": "half my outlets stopped working after I ran the microwave and the toaster at the same time",
+   "tags": [
+    "ambiguous",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an electrical problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores the specifics of the problem. Running two high-draw appliances together most likely tripped a breaker or a GFCI outlet. The reply should have suggested checking the breaker panel and pressing GFCI reset buttons first, or asked whether the user had already tried that, since this may resolve it without an electrician. Instead it jumps straight to asking for an address and doesn't engage with what the user said."
+  },
+  {
+   "id": "g025",
+   "text": "my water heater is leaking from the bottom, theres a puddle in the garage",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply flattens a specific report into \"a plumbing problem\" and does none of the urgent things. It gives no safety step: shutting off the water heater's cold-water supply valve and turning off its gas or breaker. It also doesn't ask the most useful question, such as how fast it's leaking or whether it's from the tank itself versus a valve or fitting. That answer decides whether this is an emergency replacement or a simpler repair, and whether water-damage restoration might be needed too. Asking for the ZIP code first is reasonable for checking the service area but less useful than any of these."
+  },
+  {
+   "id": "g026",
+   "text": "no hot water since this morning",
+   "tags": [
+    "clear",
+    "short"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this, and I'd like to point you to the right help. Is your hot water from a standalone water heater, either tank or tankless, or is it tied into your heating system?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The question about the water heater type is relevant, since it decides between a plumber and an HVAC company. But for a gas heater, a more useful first step would be to ask whether the user smells gas, or whether the pilot light or a leak is involved. Those answers settle safety and urgency faster."
+  },
+  {
+   "id": "g027",
+   "text": "I have a raccoon living in my attic I can hear it at night",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry, this assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for pest control. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g028",
+   "text": "Can someone trim the big tree in my backyard? branches are hanging over the roof",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about that, but I can only help with plumbing, water damage, roofing, heating/cooling, and electrical issues right now, so I can't match a provider for tree trimming. If you have one of those issues too, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g029",
+   "text": "roof leaking",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a roofing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "Reasonable, since location determines whether the user is in the service area. But it skips the most useful immediate triage: whether the leak is active right now, how bad it is, and any safety risk such as water near electrical fixtures or a sagging ceiling. Severity would also show whether water-damage restoration is needed alongside a roofer."
+  },
+  {
+   "id": "g030",
+   "text": "some shingles blew off in the wind last night, near Cherry Chase in Sunnyvale",
+   "tags": [
+    "clear",
+    "has_location"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with a roof problem. Is it actively leaking right now?",
+   "action": "ask_qualification",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": ""
+  },
+  {
+   "id": "g031",
+   "text": "my basement flooded after the storm and there's water touching the extension cords down there",
+   "tags": [
+    "safety",
+    "multi_symptom"
+   ],
+   "expect": "safety_guidance",
+   "reply": "I'm sorry you're dealing with this. I've noted the other issue, water reaching the extension cords and the electrical hazard, so it won't be lost, but let's get the water damage handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "water_damage_restoration",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "Water in contact with live extension cords is an immediate electrocution risk, yet the reply sets it aside and asks for a ZIP code. Safety guidance had to come first: stay out of the water, don't touch the cords, and shut off power at the breaker only if it can be reached without entering wet areas. Otherwise call the utility or 911.",
+   "label_ok": false
+  },
+  {
+   "id": "g032",
+   "text": "wall in bathroom is soft and kinda moldy smelling",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The user already described the problem: a soft wall with a musty smell, which points to a hidden water leak or water damage. Asking them to choose from a generic category menu (including HVAC and electrical) ignores that detail. A better reply would ask a targeted question, such as whether the wall backs onto the shower, tub, or toilet, or whether there's a stain or visible water. That would distinguish a plumbing leak from water-damage restoration."
+  },
+  {
+   "id": "g033",
+   "text": "Hi, my mother is 87 and lives alone in Willow Glen. She says the house is cold and she doesn't know how to work the thermostat. I'm in Seattle and I'm so worried.",
+   "tags": [
+    "emotional",
+    "has_location",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue. Right now I only have verified providers in Santa Clara, Sunnyvale, and North San Jose (95131, 95134), so I can't confidently match one for Willow Glen. If the property is in one of those areas, could you send me the ZIP?",
+   "action": "out_of_area",
+   "outcome": "no_match",
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Willow Glen is in central San Jose, outside the coverage area, and the reply says so honestly. But it ignores the urgent safety concern: an 87-year-old living alone in a cold house. It gives no safety guidance, such as calling her, having a neighbor check on her, or using space heaters safely. It also misses that the problem may just be the thermostat rather than the heating system. And it asks for a ZIP even though the user already said the house is in Willow Glen."
+  },
+  {
+   "id": "g034",
+   "text": "whats the weather tomorrow",
+   "tags": [
+    "not_home_problem",
+    "short"
+   ],
+   "expect": "not_home_problem",
+   "reply": "Sorry, I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for a weather forecast. If you have an issue in one of those areas, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g035",
+   "text": "my dishwasher is leaking water onto the floor",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I've noted the other issue (water on the floor) so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply wrongly splits the dishwasher leak and the water on the floor into two separate issues; they are the same problem. It then jumps to asking for a ZIP code without first giving basic safety guidance (shut off the dishwasher's water supply or power, avoid electrical hazards near standing water) or asking how much water there is. That would determine whether a plumber or water-damage restoration is needed."
+  },
+  {
+   "id": "g036",
+   "text": "lights flicker whenever the AC kicks on",
+   "tags": [
+    "ambiguous",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To point you to the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The user already described the symptom: lights flickering when the AC starts, which points to an electrical or HVAC load issue. The reply ignores this and asks a generic category question the user has effectively answered. A better reply would ask a targeted question, such as whether it's all lights or one circuit, or whether there's any burning smell or warm outlets. It could also give brief safety guidance and suggest an electrician or HVAC pro."
+  },
+  {
+   "id": "g037",
+   "text": "the furnace makes a loud bang when it turns on",
+   "tags": [
+    "clear",
+    "safety"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with heating or cooling trouble. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores the specific symptom. A loud bang when a furnace ignites often points to delayed ignition, which can be a safety concern. The assistant gave no safety guidance, such as shutting the furnace off if it bangs, or leaving and calling the gas company if there is a gas smell or CO alarm. It also asked no targeted question about the issue and jumped straight to a generic ZIP request with a canned 'heating or cooling trouble' line."
+  },
+  {
+   "id": "g038",
+   "text": "i think my pipes are frozen?? no water coming out of the outside faucet",
+   "tags": [
+    "wrong_diagnosis",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply skips the key unknown. A dry outdoor faucet in winter is often just that spigot or its shutoff, not a whole-house freeze, so the assistant should ask whether indoor faucets have water. It also gives no guidance on a possible frozen pipe, such as not using an open flame and watching for bursts or leaks once it thaws. Jumping straight to the ZIP code is generic intake that ignores the specifics the user gave."
+  },
+  {
+   "id": "g039",
+   "text": "FIX MY TOILET NOW ITS OVERFLOWING",
+   "tags": [
+    "emotional",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. Let's get this sorted. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "An overflowing toilet is an active water emergency. The reply should first tell the user to turn off the supply valve behind the toilet (turn it clockwise) and lift the tank lid to raise the flapper or float. It skips that safety guidance and goes straight to asking for an address. The location question is reasonable but should come second. The reply also doesn't acknowledge the urgency or the overflow itself."
+  },
+  {
+   "id": "g040",
+   "text": "Hello, I noticed my water bill doubled this month but I don't see any leaks. What could it be?",
+   "tags": [
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with a plumbing problem. I don't have verified information on that yet. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Ignores the user's actual question about a doubled water bill with no visible leaks. It offers no help, such as checking for a running toilet, watching the meter with all fixtures off, or hidden slab or irrigation leaks, and jumps straight to asking for an address. That can't be the key unknown before the problem is even explored. The claim of having no verified information is unhelpful."
+  },
+  {
+   "id": "g041",
+   "text": "theres a hissing sound behind the wall in my kitchen",
+   "tags": [
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem, I'll help get this sorted. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "A hissing sound behind a kitchen wall could be a gas leak, not just a pressurized water leak. The reply assumes it's plumbing and skips safety triage. It should first ask whether there's a gas smell (and advise leaving the home and calling the gas utility or 911 if so) or check for signs of water. Asking for the ZIP before resolving this key unknown is less useful and potentially unsafe."
+  },
+  {
+   "id": "g042",
+   "text": "Do you guys clean carpets? My dog had an accident on the rug",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about that. I don't have verified information on carpet cleaning, and this assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match you with a provider for it. If you have an issue with one of those, I'm happy to help.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g043",
+   "text": "breaker keeps tripping",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an electrical issue, let's get this sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Asking for the ZIP to confirm service area is reasonable, but the reply skips the questions that matter most for a repeatedly tripping breaker: any burning smell, scorching, sparks, or heat at the panel or outlets, and which circuit trips and under what load. It also gives no basic safety guidance, such as not repeatedly resetting the breaker."
+  },
+  {
+   "id": "g044",
+   "text": "the bathroom fan is super loud and doesnt seem to pull out any steam",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The user already described the problem: a loud bathroom exhaust fan that isn't venting steam. The reply asks a generic category question as if nothing had been said, making the user re-explain. A useful reply would recognize this as likely an electrician or HVAC job (motor or fan replacement, or a blocked or disconnected duct) and ask something targeted, such as the user's city or whether the fan runs at all or just hums. That would confirm service-area coverage and narrow the trade."
+  },
+  {
+   "id": "g045",
+   "text": "i smell rotten eggs outside by the meter",
+   "tags": [
+    "safety",
+    "colloquial"
+   ],
+   "expect": "safety_redirect",
+   "reply": "If you smell gas, please leave the home now, avoid using light switches, flames, or your phone indoors, and once you're outside call 911 and PG&E's gas emergency line at 1-800-743-5000. Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs.",
+   "action": "safety_redirect",
+   "outcome": "safety_redirect",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "gas_leak"
+   ],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g046",
+   "text": "power is out at my place in 95051, neighbors lights are on tho",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "home_only_outage",
+   "reply": "I'm sorry you're dealing with an electrical problem. Are you seeing any sparks, a burning smell, or outlets or switches that feel hot?",
+   "action": "ask_qualification",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "Leading with a safety check is reasonable, but the reply skips the obvious diagnostic step (has the main breaker tripped?) and ignores the useful detail that neighbors still have power, which points to a problem on the user's side. It reads as a generic safety screen rather than building on the specifics the user gave.",
+   "label_ok": true
+  },
+  {
+   "id": "g047",
+   "text": "Our ceiling fan wobbles really bad and makes a clicking noise",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an electrical issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply skips the key unknown and any safety note. A badly wobbling fan can mean a loose mount or a failing electrical box, which is a falling-fan risk, so it should first suggest turning the fan off. It should then ask a targeted question, such as whether the wobble is new or whether the fan is loose at the ceiling, instead of jumping straight to the ZIP code. It also labels the problem an electrical issue without checking."
+  },
+  {
+   "id": "g048",
+   "text": "ugh the garbage disposal is jammed again and it just hums",
+   "tags": [
+    "out_of_scope",
+    "emotional"
+   ],
+   "expect": null,
+   "reply": "Sorry about the trouble with your appliance. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for appliance repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "Wrongly declares a jammed garbage disposal out of scope. Disposals are routinely handled by plumbers, so this is in scope. The reply should have offered a plumber match and could have mentioned safe first steps: cut power at the switch, never put a hand inside, use the hex-key reset or the reset button."
+  },
+  {
+   "id": "g049",
+   "text": "water coming up through the floor in my kitchen idk from where",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I've noted the water on your kitchen floor so it isn't lost, but let's get the plumbing problem sorted first. To match you with the right pro, is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "Asks the user to pick a category even though they already described water coming up through the kitchen floor, which clearly points to a plumbing leak or water damage. It also gives no safety guidance, such as shutting off the main water valve or keeping clear of nearby outlets and appliances. A better reply would confirm it's a water problem, give that quick safety step, and ask a targeted question, such as whether the water is still flowing or where the house's main shutoff is."
+  },
+  {
+   "id": "g050",
+   "text": "My landlord says the mold in my bedroom is my fault from not opening windows. Is that true? I'm renting in Sunnyvale.",
+   "tags": [
+    "tenant",
+    "has_location",
+    "emotional"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I don't have verified information on that, but I can help. Can you tell me a bit about what's going on, for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply skips the user's actual question about whether mold is caused by not opening windows and offers no general guidance. The question is mostly outside the assistant's scope (a landlord-tenant liability dispute), so an honest out-of-scope answer was warranted. It then asks a generic 'what's going on' question even though the user already said the issue is bedroom mold. A better follow-up would ask whether there's a leak or water source behind the mold, which is the key unknown for routing to a plumber, roofer, or water-damage restoration company."
+  },
+  {
+   "id": "g051",
+   "text": "how much do you charge",
+   "tags": [
+    "short",
+    "not_home_problem"
+   ],
+   "expect": "no_symptom",
+   "reply": "I'm sorry you're dealing with this. I haven't matched a provider yet, but once I do, I can share what I know about them. Can you tell me a bit about what's going on, for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:price"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g052",
+   "text": "the AC is running but the house isnt getting cooler and theres ice on the pipes outside",
+   "tags": [
+    "multi_symptom",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue, let's get it sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Takes none of the user's details into account. Ice on the outdoor lines is a sign of a frozen coil, and the reply should first advise switching the AC off (or to fan-only) so it can thaw and the compressor isn't damaged. Asking for the ZIP to confirm the service area is reasonable but generic."
+  },
+  {
+   "id": "g053",
+   "text": "weird clicking noise in the attic",
+   "tags": [
+    "ambiguous",
+    "short"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Generic category menu that ignores the specific clue. A targeted question would be more useful, e.g. whether the clicking comes from the HVAC unit or ductwork when the system cycles, or whether it is near wiring or a fixture, which could be an electrical concern. The reply also mentions a leak, which has little to do with clicking."
+  },
+  {
+   "id": "g054",
+   "text": "I think my water heater is broken because the kitchen faucet only gets lukewarm. The shower is hot though.",
+   "tags": [
+    "wrong_diagnosis",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Ignores the key detail: since the shower runs hot, the water heater is probably fine and the trouble is more likely the kitchen faucet's mixing valve or cartridge, or a long pipe run. The reply should have pointed this out or asked a targeted question (e.g., whether the faucet heats up after running a while, or whether other sinks are hot). Instead it goes straight to asking for an address and doesn't engage with the diagnosis at all."
+  },
+  {
+   "id": "g055",
+   "text": "smoke detector chirping every 30 seconds driving me crazy",
+   "tags": [
+    "colloquial",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with an electrical issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "A smoke detector chirping every 30 seconds almost always means a low battery, which the user can fix themselves. The reply skips that easy fix, labels it an electrical issue, and jumps straight to asking for an address to match a pro. It should first suggest replacing the battery (or note that hardwired units have a backup battery and that units over 10 years old need replacing), then offer an electrician only if the chirping continues."
+  },
+  {
+   "id": "g056",
+   "text": "my sprinklers are leaking and flooding the side yard",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry about the trouble. This assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for sprinkler repair. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "It refuses too quickly. A leaking irrigation line flooding the yard may be a plumbing issue (supply line or backflow valve) and could become water damage if it reaches the house. The reply should have advised shutting off the irrigation or water supply and asked whether water is near or entering the home or comes from the supply plumbing, rather than declaring it out of scope."
+  },
+  {
+   "id": "g057",
+   "text": "Theres mice in the walls",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry, this assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match you with a provider for pest control. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g058",
+   "text": "gas stove burner wont light, just clicks",
+   "tags": [
+    "ambiguous",
+    "out_of_scope"
+   ],
+   "expect": null,
+   "reply": "Sorry about the trouble with your appliance. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for appliance repair. If you have one of those other issues too, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The out-of-scope answer is honest and correct, since appliance repair is not covered. It misses a brief safety check: if there's any gas smell, the user should leave and call the gas utility. It could also suggest common fixes like a wet or clogged burner cap."
+  },
+  {
+   "id": "g059",
+   "text": "wtr leakng under bathrm sink pls hlp",
+   "tags": [
+    "typos",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply asks for a ZIP code to check the service area, which is reasonable, but it ignores the active leak. It should first tell the user to shut off the supply valves under the sink (or the main water) and ask whether the leak is still running or has stopped. Its acknowledgement is also generic: it says 'a plumbing problem' rather than referring to the under-sink leak the user described."
+  },
+  {
+   "id": "g060",
+   "text": "Our whole block in east San Jose lost water around 9am, is the city doing work?",
+   "tags": [
+    "utility",
+    "has_location"
+   ],
+   "expect": "utility_redirect",
+   "reply": "Sorry about the trouble. I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for a municipal water outage. If you have one of those issues too, I'm happy to help.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "Honestly declines the out-of-scope outage question, but it doesn't point the user to the water utility or city for outage info. It also offers further help without noting that east San Jose is outside the service area (Santa Clara, Sunnyvale, North San Jose).",
+   "label_ok": false
+  },
+  {
+   "id": "g061",
+   "text": "I'm so stressed. Baby is coming next week and now the nursery has a damp spot on the wall and it smells musty.",
+   "tags": [
+    "emotional",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores the specifics the user gave and offers a generic category menu even though the damp spot and musty smell already point to water intrusion. A more useful next step would be one targeted question to find the source, such as whether the wall is exterior or shares space with a bathroom or plumbing, or whether it got worse after rain. That answer would separate roofer/exterior leak from plumbing leak and would suggest water-damage or mold restoration. The reply also misses the baby-due-next-week urgency, gives no brief advice about keeping the nursery ventilated and unused until it's checked, and asks the user to diagnose something they likely can't."
+  },
+  {
+   "id": "g062",
+   "text": "main sewer line clogged maybe? all drains slow",
+   "tags": [
+    "multi_symptom",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing issue, let's get this sorted. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Asks for location, which is reasonable for matching, but ignores the specifics the user gave (all drains slow, suspected main line clog). A sharper next step would be to ask about sewage backing up in the lowest drains or the cleanout, or to give quick guidance like holding off on running water, before or alongside asking for the ZIP."
+  },
+  {
+   "id": "g063",
+   "text": "the outlet in my bathroom is warm to the touch",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "I'm sorry you're dealing with an electrical issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "A warm outlet can be a fire hazard, but the reply gives no safety guidance first, such as unplugging everything from it, not using it, shutting off its breaker, and checking for scorching or a burning smell. It goes straight to asking for a ZIP code. Location will be needed eventually, but safety should come first here.",
+   "label_ok": false
+  },
+  {
+   "id": "g064",
+   "text": "Thermostat screen is blank",
+   "tags": [
+    "short",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue, let's get this sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Asks only for the location, which is a reasonable step but generic. It doesn't engage with the blank thermostat screen. A more useful first question would check whether this is just dead batteries or a tripped breaker before routing to an HVAC company, or ask whether heating/cooling has stopped entirely."
+  },
+  {
+   "id": "g065",
+   "text": "can you install a new washing machine",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about that. I don't have verified information on appliance installation, and this assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for it. Do you have an issue with one of those that I can help with?",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The out-of-scope answer is honest, but it overlooks the plumbing angle: washer hookups (supply valves, drain) are plumbing work and could be matched to a plumber. The opening 'Sorry about that' also makes little sense.",
+   "label_ok": true
+  },
+  {
+   "id": "g066",
+   "text": "water heater pilot light keeps going out",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply responds to the user's words only with a generic 'plumbing issue' acknowledgment and moves straight to asking for the address. It skips quick safety screening, which matters with a gas appliance whose pilot keeps going out: it should ask whether they smell gas and give leave-and-call guidance if so. It also asks nothing targeted to narrow the problem, such as gas vs. other type, the unit's age, or whether it relights. Asking for a ZIP is reasonable for checking the service area, but it isn't the most useful next step here."
+  },
+  {
+   "id": "g067",
+   "text": "I think the roof is leaking because there's water under the kitchen sink",
+   "tags": [
+    "wrong_diagnosis"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "The reply ignores what the user said. The user already described a leak and suspects the roof, yet the assistant asks which generic category the problem falls into. It also misses the key unknown: water under a kitchen sink almost always comes from the plumbing (supply lines, drain trap, faucet, dishwasher hose), not the roof. A useful reply would raise that and ask a targeted question, such as whether the cabinet base is wet near the pipes or water is dripping from above, and whether it's still actively leaking. If it is, the assistant should advise shutting off the valves under the sink."
+  },
+  {
+   "id": "g068",
+   "text": "my upstairs neighbor's bathtub overflowed and now water is coming through my ceiling light. I rent.",
+   "tags": [
+    "safety",
+    "tenant",
+    "multi_symptom"
+   ],
+   "expect": "safety_guidance",
+   "reply": "I'm sorry you're dealing with this. I've noted the other issue, water coming through a ceiling light fixture and a possible electrical hazard, so it isn't lost, but let's get the water damage handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "water_damage_restoration",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "Water coming through a light fixture is an active electrical hazard. The reply should open with safety guidance: don't touch the switch or fixture, shut off that circuit at the breaker if it's safe to reach, stay clear of the wet area, and alert the landlord and the neighbor. Instead it sets the hazard aside and asks for an address. It also overlooks that the user rents, so the landlord likely needs to be involved.",
+   "label_ok": false
+  },
+  {
+   "id": "g069",
+   "text": "house smells like something burning but i cant find where its coming from",
+   "tags": [
+    "safety",
+    "ambiguous"
+   ],
+   "expect": "safety_guidance",
+   "reply": "I'm sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "An unexplained burning smell could be an electrical fire or overheating equipment, so safety guidance should come first: leave and call 911 if there's smoke, heat, or sparking, and otherwise shut off suspect appliances or breakers. The reply skips this entirely. It also ignores the burning-smell detail and asks a generic category question (leak, roof) that the user can't answer, since they don't know the source.",
+   "label_ok": false
+  },
+  {
+   "id": "g070",
+   "text": "Do you know a good dentist in Santa Clara?",
+   "tags": [
+    "not_home_problem",
+    "has_location"
+   ],
+   "expect": "not_home_problem",
+   "reply": "Sorry about that. I don't have verified information on dentists, and this assistant currently covers only plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for that. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g071",
+   "text": "gutters overflowing every time it rains and water pours down the window",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a roofing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Acceptable but generic: it jumps to asking for location without engaging the specifics (overflowing gutters, water down the window). A more useful next step would be a targeted question about the likely cause, such as clogged gutters versus undersized or sagging gutters, or whether any water is getting inside. Gutter work also may or may not fall under the roofer category, and that should be confirmed."
+  },
+  {
+   "id": "g072",
+   "text": "heat pump making grinding noise",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue, let's get this sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Asking for location is a reasonable scoping step, since service is limited to Santa Clara, Sunnyvale, and North San Jose. But the reply ignores the grinding-noise detail: it gives no advice to shut the unit off to prevent further damage and asks nothing about the symptom, such as whether it's the indoor or outdoor unit or whether it's still running or heating. The reply is generic."
+  },
+  {
+   "id": "g073",
+   "text": "I need someone to come pressure wash my driveway",
+   "tags": [
+    "out_of_scope"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry, but this assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match you with a provider for pressure washing. If you have an issue with one of those, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g074",
+   "text": "the floor by the toilet feels spongy and theres a gap at the base",
+   "tags": [
+    "clear",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I've noted the other issue, the spongy floor that might be from water damage, so it won't get lost, but let's handle the plumbing problem first. To match you with the right pro, is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "The reply asks the user to choose a problem category even though they already described one: a spongy floor and a gap at the toilet base, which points to a leak at the toilet seal or flange that is causing water damage. It also invents a separate \"plumbing problem\" apart from the floor issue. The useful next step would be to ask whether there is visible water or whether it leaks when flushed, and to advise avoiding or limiting use of that toilet."
+  },
+  {
+   "id": "g075",
+   "text": "NO POWER AGAIN. THIRD TIME THIS MONTH. PG&E IS USELESS",
+   "tags": [
+    "utility",
+    "emotional"
+   ],
+   "expect": "utility_check",
+   "reply": "I'm sorry you're dealing with an electrical issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The user says the outage is the third this month and blames PG&E. That suggests a utility-side problem, but it could also be the home's main panel or service connection. The reply skips that question and asks for a ZIP code. It should first ask whether neighbors also lost power, and point to PG&E's outage line if so, before treating this as an electrician job.",
+   "label_ok": false
+  },
+  {
+   "id": "g076",
+   "text": "our tankless water heater shows error code 11",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Generic reply that ignores the specific detail given (tankless heater, error code 11, typically an ignition failure). It skips straight to asking for a ZIP without acknowledging the code, checking for safety concerns like a gas smell, or asking anything targeted such as gas vs. electric unit or whether there is any hot water."
+  },
+  {
+   "id": "g077",
+   "text": "crack in the ceiling and drywall bubbling",
+   "tags": [
+    "ambiguous",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Bubbling drywall plus a ceiling crack strongly points to water intrusion, yet the reply ignores that and asks a generic menu question that includes clearly irrelevant options (HVAC, electrical). A better reply would recognize the likely water problem and ask a targeted question, such as whether there's a bathroom or plumbing above or whether it got worse after rain (roof vs. plumbing). It also skips basic safety guidance: a sagging or bubbling ceiling can collapse, and water may be near light fixtures."
+  },
+  {
+   "id": "g078",
+   "text": "is this the right place for a broken window",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "I'm sorry, but I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for window repair. If you have one of those other issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The out-of-scope answer is honest and correct, but the opening line \"I don't have verified information on that\" is confusing and slightly off. It could also have checked whether the broken window caused water intrusion or damage, which would be in scope.",
+   "label_ok": true
+  },
+  {
+   "id": "g079",
+   "text": "Hi there, I just moved to Sunnyvale from Ohio and the water tastes really weird, kind of like a pool. Is something wrong with my pipes?",
+   "tags": [
+    "wrong_diagnosis",
+    "has_location"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I don't have verified information on that. I found Plumbing Point Inc., which handles plumbing and lists Sunnyvale in its service area. Would you prefer help today if someone is available, or is later this week okay?",
+   "action": "ask_timing",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": "plumbing-point-inc",
+   "pilot_area": "sunnyvale",
+   "safety_flags": [],
+   "events": [
+    "user_question:other",
+    "provider_search:5 candidates"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The pool-like taste is almost certainly chloramine disinfectant in the municipal water supply, which is normal for the area and not a pipe problem. Instead of saying so, the reply dodges the question and pushes the user toward booking a plumber, likely an unnecessary visit. It should explain the likely cause, or ask clarifying questions such as whether the taste is only from certain taps, before suggesting a referral."
+  },
+  {
+   "id": "g080",
+   "text": "yo my AC smells like dirty socks when it turns on",
+   "tags": [
+    "colloquial",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with an HVAC issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Generic reply that ignores the specific symptom (dirty-sock smell on startup, typically microbial growth on the evaporator coil or a clogged drain/filter) and jumps straight to asking for an address. It doesn't acknowledge the detail, give a quick tip like checking the filter, or ask a targeted diagnostic question. Asking for location to confirm service area is reasonable but not the most useful first step here."
+  },
+  {
+   "id": "g081",
+   "text": "Apartment complex near Santana Row, maintenance hasn't responded in a week about my broken heater. What are my options?",
+   "tags": [
+    "tenant",
+    "has_location",
+    "emotional"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue, let's get it sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores key context. Santana Row is in central/west San Jose, not North San Jose, so it is likely outside the service area. Asking for the ZIP partly re-asks location the user already gave. It also skips the renter situation: the landlord is usually responsible for heat, and hiring their own HVAC company may not be the user's best option. The user asked 'what are my options,' and the reply should flag the likely service-area gap and the landlord/tenant angle rather than jump straight to intake."
+  },
+  {
+   "id": "g082",
+   "text": "buzzing sound from the electrical panel",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "I'm sorry you're dealing with an electrical issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "A buzzing electrical panel can be a fire hazard, so safety guidance should come first: if there's heat, burning smell, smoke, or sparking, leave and call 911; otherwise avoid touching the panel. The reply skips this and doesn't engage with the symptom, going straight to a generic location question.",
+   "label_ok": false
+  },
+  {
+   "id": "g083",
+   "text": "water spot on ceiling",
+   "tags": [
+    "short",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To make sure I point you in the right direction: does it mainly show up when it rains, or is there a bathroom or plumbing directly above that spot?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": "roofing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": ""
+  },
+  {
+   "id": "g084",
+   "text": "The washer drained and water came up out of the shower drain downstairs",
+   "tags": [
+    "clear",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with a plumbing problem, let's get this sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Ignores the specific symptom. Water backing up into the lowest drain when the washer drains points to a main sewer line blockage. The reply should first advise not running water or draining appliances, and should treat the backflow as possibly contaminated sewage. It could also ask whether other fixtures are backing up. Instead it gives a generic acknowledgment and jumps to asking for the ZIP code, missing the key diagnostic and safety step."
+  },
+  {
+   "id": "g085",
+   "text": "my dryer takes 3 cycles to dry anything",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the trouble with your appliance. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for appliance repair. If you have one of those other issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The out-of-scope decline is reasonable, but it treats this purely as appliance repair. It misses that slow drying is often a clogged dryer vent, which is a fire hazard, and gives no lint/vent safety tip. It also misses a possible electrical cause (e.g., a 240V circuit with half the breaker tripped) that would be in scope. A quick question on whether the dryer heats at all, or whether the vent is clear, would have been more useful.",
+   "label_ok": true
+  },
+  {
+   "id": "g086",
+   "text": "pipe under the house is leaking i can hear water running in the crawl space",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing issue, let's get it sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Active leak with audible running water in the crawl space calls for safety guidance first: shut off the main water valve, and be cautious about electrical hazards near standing water. The reply skips that and asks only for a ZIP code. It also says nothing about the user's specifics (severity, the crawl space). Asking for location is reasonable for matching, but it should not come before the urgent mitigation step."
+  },
+  {
+   "id": "g087",
+   "text": "I want to add an EV charger in my garage, who do I talk to",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an electrical issue. I don't have verified information on that. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Treats an EV charger install as an 'electrical issue' and says it has no information, even though this is plainly an electrician job and in scope. It never confirms that an electrician is the right pro, though asking for the ZIP to check the service area is a reasonable next step."
+  },
+  {
+   "id": "g088",
+   "text": "bees nest under the eaves",
+   "tags": [
+    "out_of_scope",
+    "short"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the pest problem. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for pest control. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g089",
+   "text": "help",
+   "tags": [
+    "short"
+   ],
+   "expect": "no_symptom",
+   "reply": "I'm sorry you're dealing with this, but I can help. Can you tell me a bit about what's going on, for example a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g090",
+   "text": "hot water smells like sulfur only from the hot side",
+   "tags": [
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores the specific symptom the user described. Sulfur smell on the hot side only points to the water heater, likely a reaction with the anode rod. The reply instead asks a generic location question. A better first step would acknowledge the likely water-heater cause and ask a targeted question, such as the heater's type and age or whether the cold side is fine. It could then confirm the service area."
+  },
+  {
+   "id": "g091",
+   "text": "Can you recommend a good movie for tonight?",
+   "tags": [
+    "not_home_problem"
+   ],
+   "expect": "not_home_problem",
+   "reply": "Sorry, I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for movie recommendations. If you have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g092",
+   "text": "Ive got water in the light fixture in the bathroom and its still on, what do i do",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "I'm sorry you're dealing with this. I've noted the other issue, water leaking into the bathroom light fixture with an unknown source, so it isn't lost, but let's handle the electrical problem first. I don't have verified information on that. What's the property address? Just the ZIP code is fine.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "Water in a live light fixture is an immediate shock/fire hazard, and the reply gives no safety guidance: no advice to leave the switch alone, cut power at the breaker if it can be reached without touching wet areas, or stay out of the water. Instead it claims to have no verified information, invents a confusing 'other issue' split, and goes straight to asking for a ZIP code.",
+   "label_ok": false
+  },
+  {
+   "id": "g093",
+   "text": "I'm renting a room in San Jose and the owner lives upstairs. The shower has been leaking into the wall for months and he says it's fine. Is it?",
+   "tags": [
+    "tenant",
+    "has_location",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with this. I've noted the other issue, possible water damage inside the wall, so it isn't lost, but let's get the plumbing problem handled first. I don't have verified information on that. What's the ZIP code of the property in San Jose?",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply treats one problem as two ('the other issue' vs. 'the plumbing problem'), never answers the user's actual question of whether a months-long leak into the wall is fine (it isn't; it risks mold and rot), and dodges with 'I don't have verified information on that.' It also ignores the tenant/owner dynamic. Asking for the ZIP is reasonable for coverage, but it's premature without addressing the concern."
+  },
+  {
+   "id": "g094",
+   "text": "vents upstairs barely blow air but downstairs is fine",
+   "tags": [
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue, let's get it sorted out. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply correctly identifies this as an HVAC issue and asks for location, which is needed to confirm the service area. But it is generic. It does not use the specific symptom (weak airflow upstairs only) to ask a more useful diagnostic question, such as whether it's a two-story home with one system or zoned/separate units, or whether the upstairs feels warmer. A question like that would help match the right HVAC company."
+  },
+  {
+   "id": "g095",
+   "text": "fridge is leaking water onto the hardwood and the floor is warping",
+   "tags": [
+    "out_of_scope",
+    "multi_symptom"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I've noted the water damage to your hardwood floor so it isn't lost, but let's get the plumbing problem handled first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "It reasonably routes this as plumbing with water damage and asks for the ZIP to confirm the service area. However, it skips the most useful immediate step: telling the user to stop the active leak by shutting off the fridge's water supply valve and drying the floor. That would limit further warping."
+  },
+  {
+   "id": "g096",
+   "text": "the lights dim when the dryer runs, 95054",
+   "tags": [
+    "ambiguous",
+    "has_location"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an electrical issue. Are you seeing any sparks, a burning smell, or outlets or switches that feel hot?",
+   "action": "ask_qualification",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": "santa_clara",
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The safety screen is reasonable for dimming lights, a possible sign of a loose neutral or service issue, and the reply correctly treats this as an electrician job. It does not acknowledge that 95054 (Santa Clara) is in the service area, though. It also skips the next useful question for routing, such as whether the dimming affects the whole house or just some circuits, or whether the dryer is gas or electric."
+  },
+  {
+   "id": "g097",
+   "text": "dog chewed through a lamp cord, is he ok? cord looks scorched",
+   "tags": [
+    "safety",
+    "not_home_problem"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: if it's safe to reach, switch off the breaker for that circuit and don't touch the outlet or panel. If you see smoke or flames, leave and call 911. I'm sorry you're dealing with an electrical issue. I don't have verified information on that. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "electrical",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "electrical_sparking"
+   ],
+   "events": [
+    "safety_urgent:electrical_sparking",
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The user's main worry is whether the dog is okay after possibly being shocked, and the reply never addresses it. It should point them to a vet or emergency animal hospital and mention signs of electrical injury such as mouth burns or trouble breathing. It treats this as an electrical-repair lead and asks for a ZIP code. A scorched lamp cord just needs the lamp unplugged, not an electrician. Telling them to switch off the breaker without first saying to unplug the lamp is odd.",
+   "label_ok": true
+  },
+  {
+   "id": "g098",
+   "text": "toliet clogged plunger not working",
+   "tags": [
+    "typos",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply skips past what the user actually said (a clogged toilet where the plunger hasn't worked) and goes straight to a generic location question. Asking for a ZIP makes sense for checking service area, but a more useful first step would acknowledge the details and ask the key triage question: is the toilet overflowing or water backing up elsewhere, and are other drains also slow or clogged? That tells us whether it's an urgent or main-line issue and lets us offer simple safety advice, like turning off the toilet's supply valve if it's overflowing."
+  },
+  {
+   "id": "g099",
+   "text": "my house keeps getting dusty no matter how much i clean",
+   "tags": [
+    "ambiguous",
+    "out_of_scope"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To point you to the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply ignores what the user actually reported (persistent dust) and falls back on a generic category list that doesn't fit it. Persistent dust usually points to HVAC: dirty or poor filters, leaky ductwork, or air circulation. The assistant should have connected the dust to HVAC and asked a targeted question, such as whether there's central heating/air and when the filter was last changed. If the cause turned out not to be HVAC, it should have said honestly that general cleaning or air quality is out of scope."
+  },
+  {
+   "id": "g100",
+   "text": "sewage smell in the backyard near the cleanout",
+   "tags": [
+    "safety",
+    "clear"
+   ],
+   "expect": "safety_guidance",
+   "reply": "For safety: avoid contact with the sewage water, keep kids and pets away, and don't use sinks, toilets, or showers until it's fixed. I'm sorry you're dealing with a plumbing problem. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [
+    "sewage_backup"
+   ],
+   "events": [
+    "safety_urgent:sewage_backup"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The safety advice assumes visible sewage water and a full fixture shutdown, but the user only reported a smell near the cleanout. The reply should first ask whether there's overflow, pooling, or indoor backup. Asking for the ZIP code is reasonable for checking the service area but doesn't resolve the main unknown.",
+   "label_ok": true
+  },
+  {
+   "id": "g101",
+   "text": "roof leak I guess? it only drips when the AC is on",
+   "tags": [
+    "wrong_diagnosis"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "The reply re-asks for the issue category even though the user already described it: a drip that happens only when the AC runs. That pattern points to an AC condensate problem, such as a clogged drain line or an overflowing drain pan, which is an HVAC job rather than a roof leak. The reply should have picked up on that and asked a targeted follow-up, like where the drip is coming from or whether the indoor unit or its drain pan looks full."
+  },
+  {
+   "id": "g102",
+   "text": "Front door lock is broken and won't turn",
+   "tags": [
+    "out_of_scope",
+    "clear"
+   ],
+   "expect": "unsupported",
+   "reply": "Sorry about the trouble. This assistant currently covers plumbing, water damage, roofing, heating/cooling, and electrical only, so I can't match a provider for locksmith. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 5,
+   "judge_issue": "",
+   "label_ok": true
+  },
+  {
+   "id": "g103",
+   "text": "furnace wont turn on and the house is 55 degrees, kids are freezing",
+   "tags": [
+    "emotional",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with an HVAC issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "The reply refers to the problem only generically as an \"HVAC issue\" and ignores the urgency of a 55\u00b0F house with cold kids. Asking for the ZIP to confirm service area is a reasonable step. A better reply would acknowledge the urgency, offer quick safety or warmth guidance (e.g., warming the kids safely, no gas oven for heat), and ask a targeted question, such as whether it's a gas furnace, whether there's any gas smell, or whether the thermostat is getting power. That would help triage and point to the most useful next step."
+  },
+  {
+   "id": "g104",
+   "text": "faucet drips",
+   "tags": [
+    "short",
+    "clear"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with a plumbing issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "Asking for the ZIP code is a reasonable way to confirm the service area. However, the reply is generic. It restates the problem only as a 'plumbing issue' and doesn't engage with the dripping faucet (e.g., which faucet, how bad, how long) or note that it isn't urgent."
+  },
+  {
+   "id": "g105",
+   "text": "The internet and the power both went out in our neighborhood in Rose Garden, any idea when it's back?",
+   "tags": [
+    "utility",
+    "has_location",
+    "out_of_scope"
+   ],
+   "expect": "utility_redirect",
+   "reply": "Sorry about the outage. I don't have verified information on that, and this assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for a neighborhood power and internet outage. If you also have one of those issues, I'm happy to help with it.",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 4,
+   "judge_issue": "The out-of-scope answer is honest, but it gives no practical pointer to the utility (PG&E outage map) or the ISP's status page, and skips basic safety tips for a power outage. Rose Garden is in San Jose, outside the stated coverage area, which the reply doesn't mention.",
+   "label_ok": false
+  },
+  {
+   "id": "g106",
+   "text": "black stuff growing on the bathroom ceiling",
+   "tags": [
+    "ambiguous",
+    "colloquial"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. To point you to the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "Ignores the specific symptom of black growth on the ceiling, which suggests mold or moisture, and falls back on a generic category menu. A better reply would ask a targeted question about the moisture source, such as whether there's a leak or water stain from above (roof or upstairs plumbing) versus shower condensation and poor ventilation. It should also note that mold remediation itself may be out of scope unless tied to water damage."
+  },
+  {
+   "id": "g107",
+   "text": "can u guys come today or what",
+   "tags": [
+    "short",
+    "colloquial"
+   ],
+   "expect": "no_symptom",
+   "reply": "I'm sorry you're dealing with this. I haven't matched a provider yet, but once I do, I can share what I know about them. Can you tell me a bit about what's going on, like a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "ask_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:availability"
+   ],
+   "generic_menu": true,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g108",
+   "text": "My electricity bill went way up and I hear the water heater running constantly. Also the pressure valve dripped a little.",
+   "tags": [
+    "multi_symptom",
+    "ambiguous"
+   ],
+   "expect": null,
+   "reply": "I'm sorry you're dealing with this. I've noted the other issue, your significantly higher electricity bill, so it won't get lost, but let's handle the plumbing problem first. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "plumbing",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 2,
+   "judge_issue": "The reply treats the high electricity bill as a separate issue, when it is almost certainly caused by the constantly running water heater. It also gives no safety guidance on the dripping pressure-relief valve, which can signal overheating or overpressure (for example, don't cap or plug it, and consider turning down or off the heater). It jumps straight to asking for a ZIP code instead of first clarifying the heater type or how urgent this is."
+  },
+  {
+   "id": "g109",
+   "text": "Who won the Sharks game last night",
+   "tags": [
+    "not_home_problem",
+    "short"
+   ],
+   "expect": "not_home_problem",
+   "reply": "Sorry, I don't have verified information on that. This assistant only covers plumbing, water damage, roofing, heating/cooling, and electrical, so I can't match a provider for sports information. Do you have an issue with one of those that I can help with?",
+   "action": "unsupported_category",
+   "outcome": "unsupported_category",
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [
+    "user_question:other"
+   ],
+   "generic_menu": false,
+   "violations": [],
+   "label_ok": true
+  },
+  {
+   "id": "g110",
+   "text": "Hi, I have water issue. There is no water in my home",
+   "tags": [
+    "utility",
+    "ambiguous",
+    "short"
+   ],
+   "expect": "utility_check",
+   "reply": "I'm sorry you're dealing with this. To get you the right kind of pro, can you tell me a bit more: is it a leak, a heating or cooling problem, an electrical issue, or something with the roof?",
+   "action": "clarify_category",
+   "outcome": null,
+   "category": null,
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": true,
+   "violations": [],
+   "judge_score": 1,
+   "judge_issue": "The user already said they have no water at all. The reply ignores that and offers generic categories (leak, HVAC, electrical, roof) that don't fit. A better reply would ask a targeted question, such as whether neighbors or the street are also affected, which points to a utility outage. It could also ask whether the problem is on their own supply line, shutoff valve, or well pump, which is a plumbing matter.",
+   "label_ok": false
+  },
+  {
+   "id": "g111",
+   "text": "Hi My home AC doesn't work",
+   "tags": [
+    "clear",
+    "short"
+   ],
+   "expect": null,
+   "reply": "Sorry you're dealing with an HVAC issue. What's the property address? Just the ZIP code is fine if that's easier.",
+   "action": "ask_location",
+   "outcome": null,
+   "category": "hvac",
+   "provider": null,
+   "pilot_area": null,
+   "safety_flags": [],
+   "events": [],
+   "generic_menu": false,
+   "violations": [],
+   "judge_score": 3,
+   "judge_issue": "Asking for location is reasonable since service area matters, but the reply is generic. It asks nothing about the AC problem itself, such as whether it's running but not cooling or not turning on at all, any burning smell, or breaker trips. A more targeted question or a quick safety check would have used what the user said."
+  }
+ ],
+ "llm_usage": {
+  "by_call_type": {
+   "extraction": {
+    "calls": 112,
+    "errors": 0,
+    "input_tokens": 21725,
+    "output_tokens": 34846,
+    "cache_read_tokens": 424530,
+    "cache_write_tokens": 24030,
+    "cost_usd": 0.5369,
+    "server_fallbacks": 0,
+    "avg_latency_ms": 2697,
+    "p95_latency_ms": 3491
+   },
+   "response": {
+    "calls": 109,
+    "errors": 0,
+    "input_tokens": 56858,
+    "output_tokens": 7064,
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "cost_usd": 0.1844,
+    "server_fallbacks": 0,
+    "avg_latency_ms": 1462,
+    "p95_latency_ms": 2831
+   },
+   "rerank": {
+    "calls": 2,
+    "errors": 0,
+    "input_tokens": 2054,
+    "output_tokens": 492,
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "cost_usd": 0.009,
+    "server_fallbacks": 0,
+    "avg_latency_ms": 3130,
+    "p95_latency_ms": 3193
+   },
+   "judge": {
+    "calls": 104,
+    "errors": 0,
+    "input_tokens": 66728,
+    "output_tokens": 14228,
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "cost_usd": 0.5515,
+    "server_fallbacks": 0,
+    "avg_latency_ms": 2621,
+    "p95_latency_ms": 4238
+   }
+  },
+  "total_cost_usd": 1.2817,
+  "total_calls": 327,
+  "deterministic_fallbacks": {}
+ }
+}
