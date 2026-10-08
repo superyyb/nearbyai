@@ -134,7 +134,9 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
     # Utility outage: the signal sticks once seen; the scope is latest-wins ("actually it's only my house").
     if up.utility_signal and state.utility_signal is None:
         state.utility_signal = up.utility_signal
-    if up.outage_scope is not None:
+    # "unknown" only counts as an answer when we just asked about the outage scope. Unprompted, it usually means
+    # "I don't know what's wrong" (found by manual testing), and accepting it skipped the scope question.
+    if up.outage_scope is not None and (up.outage_scope != "unknown" or state.last_question_field == "outage_scope"):
         state.outage_scope = up.outage_scope
 
     # Consent is always latest-wins: a revocation must apply even after a lead is prepared,

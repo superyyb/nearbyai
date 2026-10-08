@@ -71,3 +71,42 @@ def test_rules_backend_detects_outage_and_scope():
     assert r.action.type == "clarify_outage"
     r = handle_turn(state, "my neighbors have no water too", RulesLLM(), ["no water in the whole house"])
     assert state.outcome == "utility_redirect"
+
+
+# Found by manual testing: "there is no electricity in my house. I don't know what is going wrong" was extracted
+# with outage_scope="unknown", which skipped the scope question and sent the lead straight to an electrician.
+
+def test_unprompted_unknown_scope_does_not_skip_the_scope_question():
+    state, results = converse([("there is no electricity in my house. I don't know what is going wrong",
+                                {"utility_signal": "power", "outage_scope": "unknown",
+                                 "issue_summary": "No power in the whole house"})])
+    assert results[-1].action.type == "clarify_outage" and state.outage_scope is None
+
+
+def test_unprompted_unknown_scope_for_water_is_ignored_too():
+    state, results = converse([("no water at all, no idea why", {**NO_WATER, "outage_scope": "unknown"})])
+    assert results[-1].action.type == "clarify_outage"
+
+
+def test_scope_is_asked_before_any_provider_and_only_once():
+    state, results = converse([("no power in the house, not sure what's wrong",
+                                {"utility_signal": "power", "outage_scope": "unknown", "city": "Santa Clara"}),
+                               ("no sparks or anything", {"hazard_present": False})])
+    assert results[0].action.type == "clarify_outage" and results[0].provider is None
+    # The user didn't answer the scope question; it is asked once, then the electrical funnel continues.
+    assert state.asked_fields.count("outage_scope") == 1 and state.service_category == "electrical"
+
+
+def test_unknown_after_being_asked_is_accepted_and_continues():
+    state, results = converse([("no power in the house", {"utility_signal": "power"}),
+                               ("I don't know if the neighbors have power", {"outage_scope": "unknown"})])
+    assert state.outage_scope == "unknown" and results[-1].action.type != "clarify_outage"
+
+
+def test_volunteered_unknown_qualification_fact_is_still_accepted():
+    # Different from outage scope: "I'm not home, I can't check if water is still coming in" is a real answer
+    # even when volunteered, so unknown_facts are accepted without the question being asked first.
+    state, _ = converse([("neighbor says water is pooling in my basement, I can't check if it's still coming in",
+                          {"service_category": "water_damage_restoration", "issue_summary": "Water pooling in basement",
+                           "unknown_facts": ["water_still_active"]})])
+    assert "water_still_active" in state.asked_fields

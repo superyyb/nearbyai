@@ -67,7 +67,8 @@ Rules:
 - utility_signal: "possible_water_outage" if the WHOLE home has no water (or pressure dropped everywhere);
   "possible_power_outage" if the WHOLE home lost power. Not for one fixture, one circuit, or half the house.
   outage_scope: "neighbors_affected" if the user says nearby homes/street/area are affected too, "home_only" if
-  they say neighbors are fine or it's only their home, "unknown" if they don't know; else "not_mentioned".
+  they say neighbors are fine or it's only their home, "unknown" only if they say they don't know whether nearby
+  homes are affected (not knowing what's wrong is NOT unknown scope); else "not_mentioned".
   When utility_signal is set and outage_scope is unknown, suggested_question should ask whether it's only their
   home or nearby homes too.
 - If the user mentions several unrelated problems, pick the most urgent as service_category and put the others in
