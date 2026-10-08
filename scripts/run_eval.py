@@ -38,7 +38,9 @@ def main() -> None:
     ap.add_argument("--backend", choices=["rules", "anthropic"], default="rules")
     ap.add_argument("--simulator", choices=["structured", "claude"], default="structured")
     ap.add_argument("--cases", help="comma-separated case ids")
-    ap.add_argument("--judge", action="store_true", help="run the provider-perspective LLM judge")
+    ap.add_argument("--judge", action="store_true",
+                    help="milestone only: provider-perspective Opus judge on the generated leads + paired controls")
+    ap.add_argument("--judge-controls", type=int, default=6, help="number of paired degraded controls")
     ap.add_argument("--repeat", type=int, default=1, help="extra runs for cases with --repeat-tags")
     ap.add_argument("--repeat-tags", default="", help="tags of high-risk cases to repeat")
     args = ap.parse_args()
@@ -79,9 +81,10 @@ def main() -> None:
     metrics = compute_metrics(runs)
     judge_report = None
     if args.judge:
-        from app.evaluation.provider_judge import ClaudeJudge, run_judge
+        from app.evaluation.provider_judge import ClaudeJudge, run_provider_judge
 
-        judge_report = run_judge(ClaudeJudge(client, model), [r.lead for r in runs if r.lead])
+        # The judge is a different, fixed model from the agent (Opus vs. Sonnet).
+        judge_report = run_provider_judge(ClaudeJudge(client), [r.lead for r in runs if r.lead], args.judge_controls)
 
     usage = TELEMETRY.summary()
     usage["fallback_rates"] = fallback_rates(usage)
@@ -140,8 +143,8 @@ def print_report(args, metrics, runs, judge_report, stability, usage) -> None:
         for cid, s in stability.items():
             print(f"  - {cid}: {'stable' if s['stable'] else 'VARIES'} {s['outcomes']}")
     if judge_report:
-        print("\n Provider-perspective judge:")
-        for k, v in judge_report.items():
+        print("\n Provider-perspective judge (soft quality only; hard rules are checked by code):")
+        for k, v in judge_report.get("summary", judge_report).items():
             print(f"  {k}: {v}")
     elif not args.judge:
         print("\n Provider judge: skipped (run with --judge; needs ANTHROPIC_API_KEY)")
