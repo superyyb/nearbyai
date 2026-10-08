@@ -142,6 +142,7 @@ class LeadState(BaseModel):
     # Safety
     safety_flags: list[str] = Field(default_factory=list)
     safety_guidance_given: bool = False
+    mitigation_given: list[str] = Field(default_factory=list)  # fixed damage-limiting tips already shown
 
     # Matching (candidate_provider_ids is kept in ranked order)
     candidate_provider_ids: list[str] = Field(default_factory=list)

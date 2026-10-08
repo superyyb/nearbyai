@@ -15,7 +15,16 @@ import logging
 from dataclasses import dataclass, field
 
 from app.domain import CATEGORY_LABELS, TERMINAL_OUTCOMES, LeadState, NextAction, Outcome, Provider
-from app.services import ambiguity, answers, clarification, next_action, provider_intents, safety, templates
+from app.services import (
+    ambiguity,
+    answers,
+    clarification,
+    mitigation,
+    next_action,
+    provider_intents,
+    safety,
+    templates,
+)
 from app.services.lead_packet import build_packet
 from app.services.lead_validator import validate_lead
 from app.services.llm import ExtractionFailed, guardrail_violations
@@ -256,8 +265,17 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     if action.type == "ask_timing":
         state.last_question_field = "urgency"
 
-    # 7. wording
-    reference = " ".join(prefixes + [templates.render(action, state, provider)])
+    # A fixed damage-limiting tip (at most once), kept verbatim like safety copy.
+    mitigation_text = ""
+    if action.type not in ("safety_redirect", "utility_redirect", "unsupported_category", "already_closed"):
+        tip = mitigation.tip_for(state, conversation_text)
+        if tip:
+            state.mitigation_given.append(tip[0])
+            mitigation_text = tip[1]
+            events.append(f"mitigation:{tip[0]}")
+
+    # 7. wording (order: acknowledgement -> fixed tip -> next question; the tip must survive verbatim)
+    reference = " ".join(prefixes + ([mitigation_text] if mitigation_text else []) + [templates.render(action, state, provider)])
     body, source = reference, "template"
     if hasattr(llm, "write") and action.type != "safety_redirect":
         shown = [p for p in (provider, alternative) if p]
@@ -269,6 +287,9 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             "provider_facts": provider.model_dump(include={"name", "phone", "website"}) if provider else None,
             "provider_coverage": state.selected_provider_coverage,
             "safety_guidance_already_shown": bool(safety_text),
+            "damage_tip_verbatim": mitigation_text or None,
+            "user_situation": state.issue_summary,
+            "observed_impacts": state.observed_impacts,
             "is_first_reply": state.user_turns == 1,
             "previous_assistant_message": state.last_agent_message,
         }
@@ -279,6 +300,8 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             violations = guardrail_violations(
                 candidate, allowed_phones, allowed_urls, state.selected_provider_coverage == "provisional"
             )
+            if mitigation_text and mitigation_text not in candidate:
+                violations.append("damage tip dropped or altered")
             if clarification.is_category_menu(candidate) and not clarification.is_category_menu(reference):
                 violations.append("rewrote a targeted question into a category menu")
             if violations:

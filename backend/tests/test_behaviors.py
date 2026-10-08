@@ -382,3 +382,57 @@ def test_lead_packet_lists_observed_impact():
         "zip_code": "95050"})])
     packet = build_packet(state, get_provider(state.selected_provider_id or "plumbing-point-inc"), 90)
     assert "Observed impact: kitchen floor soaked" in render_text(packet)
+
+
+# ---------- fixed damage-limiting tips (not troubleshooting) ----------
+
+from app.services import mitigation  # noqa: E402
+
+
+def test_overflowing_toilet_gets_the_fixed_tip_once():
+    state, results = converse([("FIX MY TOILET NOW ITS OVERFLOWING", {
+        "service_category": "plumbing", "issue_summary": "Toilet overflowing"}),
+        ("95050", {"zip_code": "95050"})])
+    first, second = results
+    assert mitigation.TIPS["toilet_overflow"] in first.message
+    assert mitigation.TIPS["toilet_overflow"] not in second.message and state.mitigation_given == ["toilet_overflow"]
+    assert first.action.type == "ask_location"  # the tip doesn't replace the funnel
+
+
+def test_active_pipe_leak_gets_main_shutoff_tip():
+    state, results = converse([("a pipe burst under the sink and it's spraying everywhere", {
+        "service_category": "plumbing", "issue_summary": "Burst pipe spraying under the sink"})])
+    assert mitigation.TIPS["active_pipe_leak"] in results[-1].message
+
+
+@pytest.mark.parametrize("message,extraction", [
+    ("my water heater is leaking from the bottom", {"service_category": "plumbing", "issue_summary": "Water heater leaking"}),
+    ("AC is running but blowing warm air", {"service_category": "hvac", "issue_summary": "AC blowing warm air"}),
+    ("roof is leaking into the bedroom", {"service_category": "roofing", "issue_summary": "Roof leak"}),
+    ("basement flooded after the storm and it's still coming in",
+     {"service_category": "water_damage_restoration", "issue_summary": "Storm water in basement", "water_still_active": True}),
+])
+def test_no_tip_without_a_clear_low_risk_trigger(message, extraction):
+    state, results = converse([(message, extraction)])
+    assert not any(tip in results[-1].message for tip in mitigation.TIPS.values())
+
+
+def test_writer_that_alters_the_damage_tip_is_rejected():
+    class LooseWriter:
+        name = "loose"
+
+        def __init__(self):
+            from tests.helpers import ScriptedLLM
+            self.inner = ScriptedLLM([{"service_category": "plumbing", "issue_summary": "Toilet overflowing"}])
+
+        def extract(self, *a):
+            return self.inner.extract(*a)
+
+        def write(self, reference, context):
+            return "Sorry about the toilet! Try jiggling the handle. What's your ZIP?"
+
+    from app.domain import LeadState
+    from app.services.agent import handle_turn
+    r = handle_turn(LeadState(conversation_id="x"), "toilet overflowing", LooseWriter(), [])
+    assert mitigation.TIPS["toilet_overflow"] in r.message and r.wording_source == "template"
+    assert any("damage tip dropped or altered" in e for e in r.events)
