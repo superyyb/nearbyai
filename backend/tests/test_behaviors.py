@@ -490,3 +490,14 @@ def test_location_question_asks_where_service_is_needed():
     from tests.helpers import converse as talk
     _, results = talk([("my toilet is leaking", {"service_category": "plumbing", "issue_summary": "Toilet leaking"})])
     assert "What's the address where you need service?" in results[-1].message
+
+
+@pytest.mark.parametrize("text,flagged", [
+    ("SERVPRO of Santa Clara looks like a good fit for this.", True),
+    ("They're a reliable, trusted local company.", True),
+    ("Plumbing Point Inc. is a great choice.", True),
+    ("I can't say whether they're a good fit beyond what their official site lists.", False),
+    ("SERVPRO of Santa Clara handles water damage restoration and lists Santa Clara in its service area.", False),
+])
+def test_guardrail_rejects_unsupported_endorsements(text, flagged):
+    assert ("unsupported endorsement" in guardrail_violations(text, set(), set(), False)) is flagged

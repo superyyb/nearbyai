@@ -110,6 +110,8 @@ Rules:
   exactly (including any "I don't have verified ..." statements) and add no new facts, then ask the question.
 - Keep it under 60 words. Plain text, no lists, no markdown.
 - Do not mention any business, phone number, website, or fact that is not in the reference message or provider facts.
+- Describe a provider only by the facts given (its trade and service area). No endorsements or sales language
+  ("a good fit", "reliable", "trusted", "a great choice"): there is no data on provider quality.
 - Never say a provider has been contacted, dispatched, booked, scheduled, or will arrive at a certain time.
 - If provider coverage is 'provisional', do not say they serve the user's area; say they are located nearby.
 - Express sympathy at most once per conversation: only when is_first_reply is true. Otherwise get straight to the point.
@@ -346,6 +348,12 @@ UNVERIFIED_PROVIDER_CLAIMS = re.compile(
     r"\b(is|are|fully) (licensed|insured|bonded)\b|\blicensed and insured\b",
     re.I,
 )
+# Quality endorsements have no basis in the dataset (it has no quality signals), so they count as invented too.
+ENDORSEMENTS = re.compile(
+    r"\b(good|great|perfect|ideal|strong) (fit|choice|option|match)\b|\b(reliable|trusted|trustworthy|reputable|"
+    r"highly recommended|top choice|best option|well[- ]known)\b",
+    re.I,
+)
 INTERNAL_DETAILS = re.compile(
     r"\b(system prompt|LeadState|asked_fields|reference_message|next_step|provider_facts|guardrail|"
     r"extraction|json|my instructions)\b|[{}]",
@@ -367,6 +375,8 @@ def guardrail_violations(text: str, allowed_phones: set[str], allowed_urls: set[
         issues.append("forbidden claim")
     if INTERNAL_DETAILS.search(text):
         issues.append("internal details")
+    if affirmed(ENDORSEMENTS, text):
+        issues.append("unsupported endorsement")
     if affirmed(UNVERIFIED_PROVIDER_CLAIMS, text):
         issues.append("unverified provider claim (price/rating/license)")
     digits_allowed = {re.sub(r"\D", "", p) for p in allowed_phones}
