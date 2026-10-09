@@ -97,4 +97,6 @@ def answer_request(action: str, provider: Provider | None) -> str:
                 f"confirms the schedule with you.{reach}")
     if action == "guarantee":
         return "I can't guarantee timing or availability; the provider confirms that directly."
-    return f"That's not something I can do here.{reach}"
+    # "unclear" means the request didn't fit a known kind - not that it's impossible.
+    return ("I'm not sure I understood. Do you want to change something in the request, ask about the provider, "
+            "or something else?")

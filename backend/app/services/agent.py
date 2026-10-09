@@ -19,6 +19,7 @@ from app.services import (
     ambiguity,
     answers,
     clarification,
+    edits,
     mitigation,
     next_action,
     provider_intents,
@@ -87,7 +88,7 @@ def _trim(message: str) -> str:
 MATERIAL_FIELDS = {
     "service_category", "unsupported_service", "zip_code", "city", "street_address", "pilot_area", "urgency",
     "preferred_time", "customer_name", "contact_value", "consent_to_share", "selected_provider_id",
-    "excluded_provider_ids", "service_details", "utility_signal", "outage_scope",
+    "excluded_provider_ids", "service_details", "utility_signal", "outage_scope", "pending_edit",
 }
 
 
@@ -161,9 +162,30 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             f"{CATEGORY_LABELS_SHORT[state.service_category]} problem handled first."
         )
 
+    up = extraction.updates if extraction else None
+
+    # A field edit announced without the new value: hold the request and ask for the value.
+    edit_action = None
+    edit_completed = False  # a pending edit got its new value this turn
+    if up and up.edit_field and up.edit_kind and not screen.is_redirect:
+        if edits.value_provided(up.edit_field, up):
+            events.append(f"edit_applied:{up.edit_field}")  # the value came in the same message
+        else:
+            if up.edit_kind == "current_value_wrong":
+                edits.invalidate(state, up.edit_field)
+            state.pending_edit, state.pending_edit_turn = up.edit_field, state.user_turns
+            edit_action = NextAction(type="ask_edit", field=f"edit:{up.edit_field}",
+                                     note=edits.QUESTIONS[(up.edit_field, up.edit_kind)])
+            events.append(f"edit_requested:{up.edit_field}:{up.edit_kind}")
+    elif state.pending_edit and state.user_turns > state.pending_edit_turn:
+        # The turn after the edit request: either the new value arrived (merged as a correction above), or the
+        # user moved on - a kept old value stands, a cleared one is asked for by the normal funnel.
+        edit_completed = bool(up and edits.value_provided(state.pending_edit, up))
+        events.append(f"edit_resolved:{state.pending_edit}:{'value' if edit_completed else 'none'}")
+        state.pending_edit = None
+
     # Explicit intent about providers outranks the next funnel question.
     intent_turn = False  # user spent this turn on something other than our last question
-    up = extraction.updates if extraction else None
     intent = provider_intents.handle(state, up) if up and not screen.is_redirect else None
     if intent is None and state.offered_provider_id and not screen.is_redirect:
         intent = provider_intents.reoffer(state)  # the offer wasn't answered; ask once more
@@ -175,11 +197,12 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             prefixes.append(intent.prefix)
 
     # Questions and requests the system can't fulfil: answer first, then resume the funnel.
-    if up and (up.question_topics or up.requested_action) and not screen.is_redirect:
+    if up and (up.question_topics or up.requested_action) and not screen.is_redirect and not edit_action:
         intent_turn = True
         current = get_provider(state.selected_provider_id) if state.selected_provider_id else None
         # Answer every question in the message (a user asking "are they good? how much?" expects both).
-        for topic in list(dict.fromkeys(up.question_topics))[:MAX_ANSWERS_PER_TURN]:
+        topics = [t for t in dict.fromkeys(up.question_topics) if not (t == "other" and up.requested_action == "unclear")]
+        for topic in topics[:MAX_ANSWERS_PER_TURN]:
             prefixes.append(answers.answer_question(topic, up.question_info_field, state, current))
             events.append(f"user_question:{topic}")
         if up.requested_action:
@@ -191,7 +214,9 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         if not changed and not screen.is_redirect:
             action = NextAction(type="already_closed")
             provider = get_provider(state.selected_provider_id) if state.selected_provider_id else None
-            message_out = " ".join(prefixes + [templates.render(action, state, provider)])
+            # An unclear request gets the clarifying question alone, not "your request is ready" tacked on.
+            closing = [] if (up and up.requested_action == "unclear") else [templates.render(action, state, provider)]
+            message_out = " ".join(prefixes + closing)
             state.last_agent_message = message_out
             return TurnResult(message_out, action, state, None, provider, None, events)
         state.outcome = None
@@ -208,7 +233,10 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         state.service_category = rule.candidates[0]
         if state.issue_summary is None:
             state.issue_summary = message[:240]
-    if intent and intent.action:
+    if edit_action:
+        action = edit_action  # ask for the new value; the funnel resumes next turn
+        intent_turn = True
+    elif intent and intent.action:
         action = intent.action  # e.g. list options or a provisional offer; the funnel resumes next turn
     else:
         action = next_action.decide(
@@ -251,8 +279,15 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             events.append(f"validation_failed:{result.missing_fields + result.errors}")
             action = NextAction(type="ask_contact", field="customer_name,contact_value")
 
+    if edit_completed and lead and not lead_withdrawn:
+        prefixes.insert(0, "I've updated your request.")
     if lead_withdrawn:
-        prefixes.insert(0, "I've updated your request." if lead else "I've withdrawn the request I prepared earlier.")
+        if lead:
+            prefixes.insert(0, "I've updated your request.")
+        elif action.type == "ask_edit":
+            prefixes.insert(0, "I'll hold your request until it's updated.")
+        else:
+            prefixes.insert(0, "I've withdrawn the request I prepared earlier.")
 
     if action.type in OUTCOME_FOR_ACTION:
         state.outcome = OUTCOME_FOR_ACTION[action.type]

@@ -81,6 +81,11 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
     notes: list[str] = []
     up = result.updates
     corrections = set(result.corrections)
+    # While an edit is pending (or announced this turn), its new value overrides the old one.
+    from app.services.edits import VALUE_FIELDS
+
+    for field in {state.pending_edit, up.edit_field} - {None}:
+        corrections |= VALUE_FIELDS[field]
     if corrections:
         state.corrections_seen += 1
 

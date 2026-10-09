@@ -39,6 +39,16 @@ WHOLE_HOME_NO_POWER = re.compile(r"\b(no power|power(?:'s| is)? out|lost power|n
 PARTIAL = re.compile(r"\b(half|some|one|part of|outside faucet|kitchen only|in the (kitchen|bathroom|shower))\b", re.I)
 NEIGHBORS_AFFECTED = re.compile(r"\bneighbou?rs?\b.{0,30}\b(too|also|as well|same|out|dark|no (water|power))\b|\bwhole (street|block|neighborhood)\b|\b(street|block|neighborhood) (is|went|lost)\b", re.I)
 HOME_ONLY = re.compile(r"\bneighbou?rs?\b.{0,30}\b(fine|ok|okay|have (water|power)|lights (are )?on)\b|\b(only|just) (my|our) (house|home|place)\b|\bonly (us|me)\b", re.I)
+EDIT_TARGETS = [
+    ("phone", re.compile(r"\b(phone|number|cell)\b", re.I)),
+    ("zip_code", re.compile(r"\bzip\b", re.I)),
+    ("street_address", re.compile(r"\baddress\b", re.I)),
+    ("name", re.compile(r"\bname\b", re.I)),
+    ("timing", re.compile(r"\b(time|timing|day|date|when)\b", re.I)),
+    ("issue", re.compile(r"\b(problem|issue)\b", re.I)),
+]
+WANTS_CHANGE_RE = re.compile(r"\b(change|update|edit|switch|different)\b", re.I)
+WRONG_VALUE_RE = re.compile(r"\b(wrong|incorrect|not my|typo|mistake|misspel\w*|isn'?t right)\b", re.I)
 QUESTION_TOPICS = [
     ("sponsorship", re.compile(r"\b(sponsor\w*|paid (placement|ads?)|affiliat\w*|get paid|kickback)\b", re.I)),
     ("is_this_a_person", re.compile(r"\b(real person|human|a bot|are you (an? )?(ai|robot))\b", re.I)),
@@ -236,6 +246,17 @@ class RulesLLM:
                 up.provider_feedback, up.named_provider = "choose_named", named.name
             elif ALTERNATIVE_RE.search(msg):
                 up.provider_feedback = "want_alternative"
+
+        # Field edits announced without the new value
+        target = next((f for f, rx in EDIT_TARGETS if rx.search(msg)), None)
+        if target and (WRONG_VALUE_RE.search(msg) or WANTS_CHANGE_RE.search(msg)) and state.outcome is not None \
+                or target and WRONG_VALUE_RE.search(msg):
+            up.edit_field = target
+            up.edit_kind = "current_value_wrong" if WRONG_VALUE_RE.search(msg) else "wants_change"
+        if last_question_field and last_question_field.startswith("edit:name") and not up.customer_name:
+            head = re.split(r"[,;\n]", PHONE_RE.sub(",", msg))[0].strip()
+            if head and not re.search(r"\d", head) and len(head.split()) <= 3:
+                up.customer_name = head.title()
 
         # Questions and requests the system can't fulfil
         if QUESTION_RE.search(msg):

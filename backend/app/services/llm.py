@@ -97,8 +97,13 @@ Rules:
   availability, hours/24-7, distance, license/insurance, why do you need some info, data privacy, are you a person,
   are recommendations sponsored/paid, has my request been sent; "other" for any other question); [] if none.
   For why_need_info also set question_info_field to the info they asked about; otherwise "none".
+- edit_field / edit_kind: when the user wants to change a detail they gave earlier but this message does NOT
+  contain the new value: "Can I change my address?" -> street_address, wants_change; "I gave you the wrong phone
+  number" / "that's not my number" -> phone, current_value_wrong. Use issue for the problem/trade, timing for when
+  they want help. If the new value IS in the message, extract it normally (with corrections) and use "none".
 - requested_action: if the user asks the assistant to call/text the provider, book or schedule an appointment,
-  send the request right now, or guarantee timing, classify it; else "none".
+  send the request right now, or guarantee timing, classify it. Use "unclear" when the user seems to want
+  something but you can't tell what (never for a plain thanks or an answer); else "none".
 - A message can contain both a question and facts; extract both."""
 
 WRITER_SYSTEM = """You write the next assistant message for a home-service intake chat.
@@ -188,7 +193,9 @@ class LLMExtraction(BaseModel):
         "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present",
         "consent", "other", "none",
     ]
-    requested_action: Literal["call_provider", "book_appointment", "send_now", "guarantee", "other", "none"]
+    requested_action: Literal["call_provider", "book_appointment", "send_now", "guarantee", "unclear", "none"]
+    edit_field: Literal["street_address", "zip_code", "phone", "name", "timing", "issue", "none"]
+    edit_kind: Literal["wants_change", "current_value_wrong", "none"]
     corrections: list[CorrectableField]
 
     def to_result(self) -> ExtractionResult:

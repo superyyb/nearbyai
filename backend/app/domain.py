@@ -89,7 +89,9 @@ InfoField = Literal[
     "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present", "consent", "other",
 ]
 ProviderFeedback = Literal["reject", "want_alternative", "show_options", "choose_named", "accept_offer", "decline_offer"]
-RequestedAction = Literal["call_provider", "book_appointment", "send_now", "guarantee", "other"]
+RequestedAction = Literal["call_provider", "book_appointment", "send_now", "guarantee", "unclear"]
+EditField = Literal["street_address", "zip_code", "phone", "name", "timing", "issue"]
+EditKind = Literal["wants_change", "current_value_wrong"]
 
 
 class ServiceDetails(BaseModel):
@@ -157,6 +159,8 @@ class LeadState(BaseModel):
 
     # Funnel bookkeeping
     last_question_field: str | None = None
+    pending_edit: str | None = None  # field the user wants to change; the new value hasn't arrived yet
+    pending_edit_turn: int = 0
     last_agent_message: str | None = None
     asked_fields: list[str] = Field(default_factory=list)
     declined_fields: list[str] = Field(default_factory=list)
@@ -236,6 +240,10 @@ class ExtractedFields(BaseModel):
         default_factory=list, description="Every question the user asked in this message, in order."
     )
     question_info_field: InfoField | None = None
+    edit_field: EditField | None = Field(
+        default=None, description="A detail the user wants to change without giving the new value yet."
+    )
+    edit_kind: EditKind | None = None
     requested_action: RequestedAction | None = Field(
         default=None, description="Something the user asked the system to do that it cannot (call, book, ...)."
     )
@@ -275,6 +283,7 @@ ActionType = Literal[
     "ask_qualification",
     "match_provider",
     "present_options",
+    "ask_edit",
     "offer_provisional",
     "no_match",
     "present_provider_ask_timing",
