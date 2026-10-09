@@ -194,9 +194,8 @@ rerank). Caching the fixed system prompts halved extraction cost. A turn takes a
 
 ### Changes after the final run
 
-The metrics above are for `ea4d1e2`. Two wording fixes came later from manual testing. Each was checked with
-deterministic tests and a three-conversation Claude smoke run (the manual conversation replayed, a burst pipe, and
-a provider rejection, all passing), not a full re-run:
+The metrics above are for `ea4d1e2`. Four wording fixes came later from manual testing. Each was checked with
+deterministic tests and a short Claude smoke run (three conversations per fix, all passing), not a full re-run:
 
 - **Acknowledge new facts once.** Replies had restated the situation every turn ("Since the water started…",
   "Since your basement floor is still wet…"). The writer now gets the situation only on the first reply or when a
@@ -204,6 +203,10 @@ a provider rejection, all passing), not a full re-run:
   previous reply's opening.
 - **Inferred source labeled as suspected.** The lead now says "Suspected source: storm-related water intrusion
   (exact source not confirmed)" instead of "Likely source: exterior / storm water".
+- **No provider endorsements.** The writer occasionally added "looks like a good fit" (2 of 95 replies in the final
+  run). The dataset has no quality signals, so endorsements ("good fit", "reliable", "trusted") are now a guardrail
+  violation, and the reply falls back to the template.
+- **Plainer location question.** "What's the address where you need service?" replaces "What's the property address?".
 
 ### What the evaluation taught, and what I did not change
 
