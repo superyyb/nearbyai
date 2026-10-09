@@ -254,8 +254,8 @@ def test_lead_packet_says_unknown_instead_of_guessing():
 def test_wire_schema_maps_unknown():
     from tests.helpers import wire_defaults
 
-    up = wire_defaults(water_still_active="unknown", hazard_present="yes").to_result().updates
-    assert up.water_still_active is None and up.unknown_facts == ["water_still_active"] and up.hazard_present is True
+    up = wire_defaults(water_still_active="unknown", sparks_present="yes").to_result().updates
+    assert up.water_still_active is None and up.unknown_facts == ["water_still_active"] and up.sparks_present is True
 
 
 # ---------- provider rejection / alternatives (found by manual testing) ----------

@@ -148,7 +148,7 @@ def test_unsupported_then_supported_issue_continues():
 ELECTRICAL_SUNNYVALE = [
     ("my kitchen outlets stopped working", {"service_category": "electrical", "issue_summary": "Kitchen outlets dead"}),
     ("Sunnyvale", {"city": "Sunnyvale"}),
-    ("no sparks", {"hazard_present": False}),
+    ("no sparks", {"sparks_present": False}),
 ]  # Sunnyvale electrical: 3 verified + 2 provisional providers in the dataset
 
 

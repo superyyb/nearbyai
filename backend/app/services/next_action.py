@@ -15,6 +15,7 @@ from app.domain import (
     TERMINAL_OUTCOMES,
     LeadState,
     NextAction,
+    question_answered,
 )
 from app.services import timing
 from app.services.ambiguity import AmbiguityRule
@@ -82,7 +83,7 @@ def decide(
 
     # --- category-specific qualification (each asked at most once) ---
     for field in BLOCKING_QUALIFICATION[state.service_category]:
-        if getattr(state.service_details, field) is None and asked(state, field) == 0:
+        if not question_answered(state.service_details, field) and asked(state, field) == 0:
             return NextAction(type="ask_qualification", field=field)
 
     # --- provider ---

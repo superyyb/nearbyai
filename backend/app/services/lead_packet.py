@@ -1,22 +1,60 @@
 """Provider-facing lead packet: what a real business would receive."""
 
-from app.domain import CATEGORY_LABELS, PILOT_AREAS, LeadState, Provider
-from app.services import timing
+from app.domain import (
+    BLOCKING_QUALIFICATION,
+    CATEGORY_LABELS,
+    ELECTRICAL_FACTS,
+    PILOT_AREAS,
+    Category,
+    LeadState,
+    Provider,
+    question_answered,
+)
+from app.services import safety, timing
 
 URGENCY_LABELS = {
-    "emergency": "As soon as possible (customer reports urgent need)",
+    "emergency": "As soon as possible — customer requested urgent service",
     "same_day": "Same-day service preferred",
     "within_week": "Within the next few days",
     "flexible": "Flexible timing",
 }
+YES_NO = {True: "Yes", False: "No"}
 DETAIL_LABELS = {
-    "water_still_active": ("Water still entering", {True: "Yes", False: "No"}),
-    "active_leak": ("Actively leaking", {True: "Yes", False: "No"}),
-    "hazard_present": ("Sparks / burning smell / hot fixtures", {True: "Yes — safety guidance given", False: "No"}),
+    "water_still_active": ("Water still entering", YES_NO),
+    "active_leak": ("Actively leaking", YES_NO),
+    "sparks_present": ("Sparks observed", YES_NO),
+    "burning_smell_present": ("Burning smell", YES_NO),
+    "hot_fixture_present": ("Hot outlet, switch, or fixture", YES_NO),
     # The source is inferred from the user's words ("after the storm"), not diagnosed, so the lead says so.
     "likely_source": ("Suspected source", {"storm_exterior": "Storm-related water intrusion (exact source not confirmed)",
                                            "plumbing": "Plumbing (not confirmed)", "unknown": "Unknown"}),
 }
+
+
+# Only the facts that matter to the matched trade, plus electrical observations for any trade (a safety fact).
+TRADE_DETAILS = {
+    Category.WATER_DAMAGE: ["water_still_active", "likely_source"],
+    Category.PLUMBING: ["active_leak", "water_still_active"],
+    Category.ROOFING: ["active_leak", "likely_source"],
+    Category.HVAC: [],
+    Category.ELECTRICAL: [],
+}
+UNKNOWN_LABELS = {"electrical_symptoms": "Sparks, burning smell, or heat"}
+
+
+def _details(state: LeadState) -> dict:
+    details = {}
+    for field in TRADE_DETAILS[state.service_category] + ELECTRICAL_FACTS:
+        value = getattr(state.service_details, field)
+        if value is not None:
+            label, values = DETAIL_LABELS[field]
+            details[label] = values.get(value, str(value))
+    # A blocking question that was asked but couldn't be answered: say so instead of leaving it out.
+    for question in BLOCKING_QUALIFICATION[state.service_category]:
+        if question in state.asked_fields and not question_answered(state.service_details, question):
+            label = UNKNOWN_LABELS.get(question) or DETAIL_LABELS[question][0]
+            details[label] = "Unknown — customer could not confirm"
+    return details
 
 
 def build_packet(state: LeadState, provider: Provider, completeness_score: float) -> dict:
@@ -29,13 +67,7 @@ def build_packet(state: LeadState, provider: Provider, completeness_score: float
         address = (f"Pending — customer provided {location}; "
                    + ("prefers to share the street address directly." if withheld
                       else "exact address to be confirmed by provider."))
-    details = {}
-    for field, (label, values) in DETAIL_LABELS.items():
-        value = getattr(state.service_details, field)
-        if value is not None:
-            details[label] = values.get(value, str(value))
-        elif field in state.asked_fields:
-            details[label] = "Unknown — customer could not confirm"
+    details = _details(state)
     if state.utility_signal:
         details["Nearby homes also affected"] = {"home_only": "No — only this home", "unknown": "Customer unsure"}.get(
             state.outage_scope, "Not asked")
@@ -60,7 +92,7 @@ def build_packet(state: LeadState, provider: Provider, completeness_score: float
             "details": details,
             "observed_impacts": state.observed_impacts,
             "secondary_issues": state.secondary_issues,
-            "safety_flags": state.safety_flags,
+            "safety_priority": safety.priority_text(state),
         },
         "timing": {
             "preference": timing.provider_label(state),
@@ -105,8 +137,8 @@ def render_text(packet: dict) -> str:
         lines.append(f"Observed impact: {'; '.join(s['observed_impacts'])}")
     if s["secondary_issues"]:
         lines.append(f"Also mentioned (not part of this lead): {'; '.join(s['secondary_issues'])}")
-    if s["safety_flags"]:
-        lines.append(f"Safety flags: {', '.join(s['safety_flags'])}")
+    if s.get("safety_priority"):
+        lines.append(f"Safety priority: {s['safety_priority']}")
     lines += [
         "",
         f"Timing: {t['preference']} (availability {t['availability'].lower()})",

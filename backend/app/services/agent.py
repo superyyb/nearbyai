@@ -152,8 +152,7 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         elif new_flags and not state.safety_guidance_given:
             safety_text = screen.guidance()
             state.safety_guidance_given = True
-            if state.urgency is None:
-                state.urgency = "emergency"
+            # The risk is recorded in safety_flags; it is never written into the customer's timing preference.
             events.append(f"safety_urgent:{','.join(new_flags)}")
 
     if prior_category and state.service_category != prior_category:

@@ -21,7 +21,7 @@ WHY_NEED = {
     "timing": "Your timing preference tells the provider how urgent the job is; it isn't a booked appointment.",
     "water_still_active": "Whether water is still coming in changes how quickly a provider needs to respond.",
     "active_leak": "Whether it's actively leaking changes how quickly a provider needs to respond.",
-    "hazard_present": "Sparks, a burning smell, or hot fixtures can be a fire risk, so I check for safety first.",
+    "electrical_symptoms": "Sparks, a burning smell, or hot fixtures can be a fire risk, so I check for safety first.",
     "consent": "I only share your details with a provider if you explicitly say yes.",
 }
 

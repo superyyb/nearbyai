@@ -42,7 +42,7 @@ def test_unknown_scope_after_asking_continues_and_lead_says_unsure():
     turns = [("no power in the house", {"utility_signal": "power", "issue_summary": "Whole home has no power"}),
              ("no idea", {"outage_scope": "unknown"}),
              ("95054", {"zip_code": "95054"}),
-             ("no sparks", {"hazard_present": False}),
+             ("no sparks", {"sparks_present": False}),
              ("today", {"urgency": "same_day"}),
              ("Sam 408-555-0100", {"customer_name": "Sam", "contact_value": "408-555-0100"}),
              ("yes", {"consent_to_share": True})]
@@ -91,7 +91,7 @@ def test_unprompted_unknown_scope_for_water_is_ignored_too():
 def test_scope_is_asked_before_any_provider_and_only_once():
     state, results = converse([("no power in the house, not sure what's wrong",
                                 {"utility_signal": "power", "outage_scope": "unknown", "city": "Santa Clara"}),
-                               ("no sparks or anything", {"hazard_present": False})])
+                               ("no sparks or anything", {"sparks_present": False, "burning_smell_present": False, "hot_fixture_present": False})])
     assert results[0].action.type == "clarify_outage" and results[0].provider is None
     # The user didn't answer the scope question; it is asked once, then the electrical funnel continues.
     assert state.asked_fields.count("outage_scope") == 1 and state.service_category == "electrical"

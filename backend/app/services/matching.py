@@ -9,6 +9,7 @@ The LLM can only return an ID from the candidate list; anything else is ignored.
 import re
 
 from app.domain import LeadState, Provider
+from app.services import safety
 from app.services.provider_search import search
 from app.services.telemetry import TELEMETRY
 
@@ -18,7 +19,9 @@ URGENT = {"emergency", "same_day"}
 def deterministic_rank(state: LeadState, candidates: list[Provider]) -> tuple[list[Provider], str]:
     """Keyword overlap between the job and the provider evidence, plus 24/7 when urgent."""
     job_words = set(re.findall(r"[a-z]+", (state.issue_summary or "").lower())) - {"the", "a", "my", "and", "in", "is", "it", "of"}
-    urgent = state.urgency in URGENT or state.service_details.water_still_active or state.service_details.active_leak
+    # 24/7 matters when the customer asked for urgent help or the system sees a safety risk; the two stay separate.
+    urgent = (state.urgency in URGENT or state.service_details.water_still_active or state.service_details.active_leak
+              or bool(safety.urgent_risks(state)))
 
     def score(p: Provider) -> int:
         s = len(job_words & set(re.findall(r"[a-z]+", p.coverage_evidence.lower())))
@@ -40,6 +43,7 @@ def _rank(state: LeadState, candidates: list[Provider], llm) -> tuple[list[Provi
             "category": state.service_category.value,
             "issue_summary": state.issue_summary,
             "urgency": state.urgency,
+            "safety_risk": [safety.SAFETY_DISPLAY[f] for f in safety.urgent_risks(state)],
             "details": state.service_details.model_dump(exclude_none=True),
         }
         result = llm.rerank(job, candidates)

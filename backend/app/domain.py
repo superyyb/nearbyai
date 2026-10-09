@@ -73,9 +73,23 @@ BLOCKING_QUALIFICATION = {
     Category.PLUMBING: [],
     Category.ROOFING: ["active_leak"],
     Category.HVAC: [],
-    Category.ELECTRICAL: ["hazard_present"],
+    Category.ELECTRICAL: ["electrical_symptoms"],
 }
-QUALIFICATION_FIELDS = {"water_still_active", "likely_source", "active_leak", "hazard_present"}
+# Each qualification question and the observed facts its answer fills. The electrical question asks about three
+# separate facts, so "no sparks" never stands in for "no burning smell" (or for the hazard itself).
+ELECTRICAL_FACTS = ["sparks_present", "burning_smell_present", "hot_fixture_present"]
+QUESTION_FACTS = {
+    "water_still_active": ["water_still_active"],
+    "active_leak": ["active_leak"],
+    "electrical_symptoms": ELECTRICAL_FACTS,
+}
+FACT_QUESTION = {fact: q for q, facts in QUESTION_FACTS.items() for fact in facts}
+OBSERVED_FACTS = {"water_still_active", "active_leak", *ELECTRICAL_FACTS}  # what the user reports seeing
+QUALIFICATION_FIELDS = OBSERVED_FACTS | {"likely_source"}
+
+
+def question_answered(details: "ServiceDetails", question: str) -> bool:
+    return any(getattr(details, f) is not None for f in QUESTION_FACTS[question])
 
 Urgency = Literal["emergency", "same_day", "within_week", "flexible"]
 # The day the user wants the visit. "other" = a period code doesn't turn into a date ("this weekend").
@@ -90,7 +104,8 @@ QuestionTopic = Literal[
     "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other",
 ]
 InfoField = Literal[
-    "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present", "consent", "other",
+    "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "electrical_symptoms", "consent",
+    "other",
 ]
 ProviderFeedback = Literal["reject", "want_alternative", "show_options", "choose_named", "accept_offer", "decline_offer"]
 RequestedAction = Literal["call_provider", "book_appointment", "send_now", "guarantee", "unclear"]
@@ -102,7 +117,9 @@ class ServiceDetails(BaseModel):
     water_still_active: bool | None = None
     likely_source: LikelySource | None = None
     active_leak: bool | None = None
-    hazard_present: bool | None = None
+    sparks_present: bool | None = None
+    burning_smell_present: bool | None = None
+    hot_fixture_present: bool | None = None
 
 
 class LeadState(BaseModel):
@@ -243,7 +260,9 @@ class ExtractedFields(BaseModel):
     water_still_active: bool | None = None
     likely_source: LikelySource | None = None
     active_leak: bool | None = None
-    hazard_present: bool | None = None
+    sparks_present: bool | None = None
+    burning_smell_present: bool | None = None
+    hot_fixture_present: bool | None = None
     provider_feedback: ProviderFeedback | None = Field(
         default=None, description="What the user wants regarding the recommended provider."
     )

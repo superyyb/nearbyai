@@ -5,7 +5,7 @@ Completeness score = interpretable 0-100 measure of how many of the fields a pro
 a judgment of lead quality; whether a provider would act on the lead is measured by the provider-perspective judge.
 """
 
-from app.domain import BLOCKING_QUALIFICATION, LeadState, Provider, ValidationResult
+from app.domain import BLOCKING_QUALIFICATION, LeadState, Provider, ValidationResult, question_answered
 from app.services import timing
 from app.services.state_manager import normalize_contact
 
@@ -24,15 +24,15 @@ def validate_lead(state: LeadState, provider: Provider | None) -> ValidationResu
     if state.service_category is not None:
         for field in BLOCKING_QUALIFICATION[state.service_category]:
             # Asked-but-unknown is acceptable: the provider can confirm on the call.
-            if getattr(state.service_details, field) is None and field not in state.asked_fields:
+            if not question_answered(state.service_details, field) and field not in state.asked_fields:
                 missing.append(field)
 
     # Location
     if state.pilot_area is None:
         missing.append("zip_code")
 
-    # Timing
-    if not timing.has_timing(state):
+    # Timing: asked but not given is acceptable, like an unknown qualification fact; the lead says "not stated".
+    if not timing.has_timing(state) and "timing" not in state.asked_fields:
         missing.append("urgency")
 
     # Contact
@@ -77,7 +77,7 @@ def completeness_score(state: LeadState, provider: Provider | None) -> tuple[flo
         issue += 15
     qual_fields = BLOCKING_QUALIFICATION.get(state.service_category, []) if state.service_category else []
     if qual_fields:
-        known = sum(getattr(state.service_details, f) is not None for f in qual_fields)
+        known = sum(question_answered(state.service_details, q) for q in qual_fields)
         issue += 10 * known / len(qual_fields)
     elif state.service_category:
         issue += 10

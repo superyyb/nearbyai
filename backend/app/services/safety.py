@@ -137,6 +137,30 @@ def affirmed(rx: re.Pattern, message: str) -> bool:
         if not NEGATION.search(clause) and not NEGATION.search(m.group(0)):
             return True
     return False
+# Provider-facing wording for each warn-and-continue flag; internal flag names never reach the lead.
+SAFETY_DISPLAY = {
+    "electrical_buzzing": "buzzing or crackling from the panel, an outlet, or a switch",
+    "electrical_sparking": "sparks, arcing, or a burning smell from electrical equipment",
+    "water_near_electrical": "water near an electrical fixture, outlet, or panel",
+    "overheating_burning": "an outlet, switch, cord, or appliance is hot or smells burnt",
+    "hvac_burning_smell": "a burning smell from the heating or cooling system",
+    "sewage_backup": "sewage backup (contamination risk)",
+    "ceiling_sagging": "a sagging, water-filled ceiling",
+    "tree_on_house": "a tree has damaged the structure",
+}
+
+
+def urgent_risks(state) -> list[str]:
+    """The system's risk assessment, derived from the safety flags. It is not the customer's timing preference."""
+    return [f for f in state.safety_flags if f in URGENT_GUIDANCE]
+
+
+def priority_text(state) -> str | None:
+    risks = urgent_risks(state)
+    if not risks:
+        return None
+    what = "; ".join(SAFETY_DISPLAY[f] for f in risks)
+    return f"Urgent — {what[0].upper()}{what[1:]}. Safety guidance was given to the customer."
 
 
 # The extractor may only pick from these families; each maps to a fixed flag and fixed guidance above.

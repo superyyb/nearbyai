@@ -14,7 +14,7 @@ from typing import Literal, Protocol
 from pydantic import BaseModel
 
 from app.config import settings
-from app.domain import ExtractedFields, ExtractionResult, LeadState, Provider
+from app.domain import OBSERVED_FACTS, ExtractedFields, ExtractionResult, LeadState, Provider
 from app.services.rules_llm import RulesLLM
 from app.services.safety import affirmed
 from app.services.telemetry import TELEMETRY
@@ -82,7 +82,9 @@ Rules:
   address they gave earlier ("don't share my address until they call").
 - contact_preferences: how or when the provider should contact them, or whose number it is ("calls only, no texts",
   "after 5pm", "this is my wife's number"); else "".
-- urgency: emergency (needs help immediately), same_day (today), within_week, flexible.
+- urgency: the timing the USER asks for: emergency ("ASAP", "right away", "I need someone now"), same_day (today),
+  within_week, flexible. Never infer it from how serious or dangerous the problem sounds; a hazard goes in
+  hazard_categories, and urgency stays "none" until the user says when they want help.
 - When the provider should COME: preferred_time = the user's own words for it, briefly ("this afternoon after
   2pm", "Saturday morning", "this weekend"), else ""; preferred_day = today (incl. "this afternoon", "tonight"),
   tomorrow, a weekday name, or "other" for a period or date that isn't one of those ("this weekend", "next week",
@@ -92,9 +94,14 @@ Rules:
   "after 5pm", preferred_window "". If the user changes the visit time they gave earlier, list urgency in
   corrections.
 - If the user answers yes/no, interpret it against the assistant's last question field.
-- water_still_active / active_leak / hazard_present: "yes"/"no" only when the user states the current situation
-  directly. Second-hand or ambiguous reports (e.g. "my neighbor says water is pooling") are "not_mentioned".
-  Use "unknown" when the user says they don't know or can't check.
+- water_still_active / active_leak / sparks_present / burning_smell_present / hot_fixture_present: "yes"/"no" only
+  when the user states that exact fact about the current situation directly. Second-hand or ambiguous reports
+  (e.g. "my neighbor says water is pooling") are "not_mentioned". Use "unknown" when the user says they don't
+  know or can't check. These are what the user observes, not your risk judgment: water dripping into a light that
+  is on is a hazard (hazard_categories), but sparks_present stays "not_mentioned" unless they mention sparks. "No
+  sparks" sets only sparks_present "no". If the assistant's last question was electrical_symptoms (sparks, a
+  burning smell, or hot outlets/switches) and the user answers a plain "no, nothing like that", set all three
+  to "no".
 - provider_feedback (about providers the assistant recommended or offered):
   "reject" — turns down a provider (dislikes them, bad past experience, doesn't want them);
   "want_alternative" — asks for someone else without rejecting ("anyone else?", "is that my only option?");
@@ -154,7 +161,7 @@ CategoryOrNone = Literal["water_damage_restoration", "plumbing", "roofing", "hva
 YesNo = Literal["yes", "no", "unknown", "not_mentioned"]
 CorrectableField = Literal[
     "service_category", "zip_code", "city", "street_address", "urgency", "customer_name", "contact_value",
-    "water_still_active", "active_leak", "hazard_present",
+    "water_still_active", "active_leak", "sparks_present", "burning_smell_present", "hot_fixture_present",
 ]
 
 
@@ -193,7 +200,9 @@ class LLMExtraction(BaseModel):
     insurance_intent: str
     water_still_active: YesNo
     active_leak: YesNo
-    hazard_present: YesNo
+    sparks_present: YesNo
+    burning_smell_present: YesNo
+    hot_fixture_present: YesNo
     likely_source: Literal["storm_exterior", "plumbing", "unknown", "not_mentioned"]
     declined_fields: list[Literal["street_address", "contact"]]
     provider_feedback: Literal[
@@ -206,7 +215,7 @@ class LLMExtraction(BaseModel):
         "why_need_info", "data_privacy", "is_this_a_person", "sponsorship", "request_status", "other",
     ]]
     question_info_field: Literal[
-        "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "hazard_present",
+        "zip_or_address", "phone", "name", "timing", "water_still_active", "active_leak", "electrical_symptoms",
         "consent", "other", "none",
     ]
     requested_action: Literal["call_provider", "book_appointment", "send_now", "guarantee", "unclear", "none"]
@@ -221,7 +230,7 @@ class LLMExtraction(BaseModel):
         for name, value in self.model_dump().items():
             if name in ("corrections",):
                 continue
-            if name in ("water_still_active", "active_leak", "hazard_present", "consent_to_share"):
+            if name in OBSERVED_FACTS or name == "consent_to_share":
                 data[name] = yes_no.get(value)
                 if value == "unknown" and name != "consent_to_share":
                     data["unknown_facts"].append(name)

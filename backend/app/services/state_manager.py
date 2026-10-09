@@ -11,6 +11,8 @@ Rules:
 import re
 
 from app.domain import (
+    FACT_QUESTION,
+    OBSERVED_FACTS,
     PILOT_CITIES,
     PILOT_ZIPS,
     QUALIFICATION_FIELDS,
@@ -200,7 +202,9 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
         new = getattr(up, field)
         if new is None:
             continue
-        if getattr(state.service_details, field) is None or field in corrections:
+        # What the user observes now is latest-wins, one fact at a time ("no sparks" after "water in the light"
+        # changes sparks_present only). The inferred source is kept unless corrected.
+        if field in OBSERVED_FACTS or getattr(state.service_details, field) is None or field in corrections:
             setattr(state.service_details, field, new)
 
     # "I can't tell" overrides an earlier inference and counts as asked, so it is not re-asked
@@ -208,8 +212,9 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
     for field in up.unknown_facts:
         if field in QUALIFICATION_FIELDS:
             setattr(state.service_details, field, None)
-            if field not in state.asked_fields:
-                state.asked_fields.append(field)
+            question = FACT_QUESTION.get(field, field)
+            if question not in state.asked_fields:
+                state.asked_fields.append(question)
 
     for field in up.declined_fields:
         if field not in state.declined_fields:

@@ -55,7 +55,8 @@ def test_llm_hazard_flows_through_the_turn_with_fixed_copy():
     r = results[-1]
     assert r.message.startswith(safety.URGENT_GUIDANCE["overheating_burning"])
     assert "safety_llm:overheating_burning:getting really toasty" in r.events
-    assert state.urgency == "emergency" and r.action.type == "ask_location"  # warn, then continue the lead
+    assert r.action.type == "ask_location"  # warn, then continue the lead
+    assert state.urgency is None  # the risk is not the customer's timing preference
 
 
 def test_llm_gas_flag_redirects_but_can_reopen():

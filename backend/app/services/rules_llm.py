@@ -7,8 +7,9 @@ intentionally simple; it is not meant to match Claude on messy language.
 
 import re
 
-from app.domain import Category, ExtractedFields, ExtractionResult, LeadState
+from app.domain import ELECTRICAL_FACTS, Category, ExtractedFields, ExtractionResult, LeadState
 from app.services.provider_search import find_by_name
+from app.services.safety import affirmed
 
 CATEGORY_KEYWORDS: list[tuple[Category, re.Pattern]] = [
     (Category.WATER_DAMAGE, re.compile(r"\b(flood(ed|ing)?|basement.*water|water.*basement|water damage|standing water|soaked|mold)\b", re.I)),
@@ -120,6 +121,11 @@ def _visit_time(msg: str) -> tuple[str | None, str | None]:
     return day, window
 
 
+ELECTRICAL_FACT_RES = {
+    "sparks_present": re.compile(r"\bspark\w*\b", re.I),
+    "burning_smell_present": re.compile(r"\b(burning smell|smells? (like )?burn\w*|smoke)\b", re.I),
+    "hot_fixture_present": re.compile(r"\bhot to the touch\b", re.I),
+}
 APPLIANCE_RE = re.compile(r"\b(dishwasher|washing machine|washer|dryer|fridge|refrigerator|oven|stove|microwave)\b", re.I)
 LEAK_RE = re.compile(r"\b(leak\w*|water (on|all over)|flood\w*|dripping)\b", re.I)
 
@@ -198,7 +204,7 @@ class RulesLLM:
             phone_text = ZIP_RE.sub("", msg) if up.zip_code else msg
             if p := PHONE_RE.search(phone_text):
                 up.contact_method, up.contact_value = "phone", p.group(0)
-        if n := NAME_RE.search(msg):
+        if (n := NAME_RE.search(msg)) and not DONT_KNOW_RE.search(n.group(0)):  # "I'm not sure" isn't a name
             up.customer_name = n.group(1).title()
         elif last_question_field and "customer_name" in last_question_field:
             # "Test User, 408-555-0142" / "Pat Lee 6505550199" style answers.
@@ -231,10 +237,12 @@ class RulesLLM:
             up.water_still_active = yn
         if last_question_field == "active_leak" and yn is not None:
             up.active_leak = yn
-        if last_question_field == "hazard_present" and yn is not None:
-            up.hazard_present = yn
-        if last_question_field in ("water_still_active", "active_leak", "hazard_present") and DONT_KNOW_RE.search(msg):
+        if last_question_field == "electrical_symptoms" and yn is not None:
+            up.sparks_present = up.burning_smell_present = up.hot_fixture_present = yn
+        if last_question_field in ("water_still_active", "active_leak") and DONT_KNOW_RE.search(msg):
             up.unknown_facts.append(last_question_field)
+        if last_question_field == "electrical_symptoms" and DONT_KNOW_RE.search(msg):
+            up.unknown_facts += ELECTRICAL_FACTS
         if re.search(r"\b(still (coming|leaking|dripping|flowing)|getting worse|won'?t stop)\b", msg, re.I):
             up.water_still_active = True
             up.active_leak = True
@@ -242,8 +250,9 @@ class RulesLLM:
             up.water_still_active = False
         if re.search(r"\b(storm|rain(ed|ing)?)\b", msg, re.I) and (cats and Category.WATER_DAMAGE in cats):
             up.likely_source = "storm_exterior"
-        if re.search(r"\b(spark\w*|burning smell|smoke|hot to the touch)\b", msg, re.I):
-            up.hazard_present = True
+        for fact, rx in ELECTRICAL_FACT_RES.items():
+            if rx.search(msg):  # "no sparks" is a fact too: sparks_present = False
+                setattr(up, fact, affirmed(rx, msg))
 
         # Possible utility outage
         if WHOLE_HOME_NO_WATER.search(msg) and not PARTIAL.search(msg):

@@ -18,6 +18,9 @@ PILOT_TZ = ZoneInfo("America/Los_Angeles")  # every pilot area is in this time z
 WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 TIMING_FIELDS = ("urgency", "preferred_time", "preferred_day", "preferred_window")
 SHORT_URGENCY = {"emergency": "ASAP", "same_day": "Same-day", "within_week": "Next few days", "flexible": "Flexible"}
+# What the user sees about their own request; the provider-facing labels live in lead_packet.
+USER_URGENCY = {"emergency": "As soon as possible", "same_day": "Same-day service preferred",
+                "within_week": "Within the next few days", "flexible": "Flexible timing"}
 
 
 def local_today() -> date:
@@ -85,20 +88,18 @@ def provider_label(state: LeadState) -> str:
     from app.services.lead_packet import URGENCY_LABELS
 
     label = URGENCY_LABELS.get(state.urgency) if state.urgency else None
-    return " — ".join(p for p in (label, provider_when(state)) if p) or "Not stated"
+    return " — ".join(p for p in (label, provider_when(state)) if p) or "Not stated by the customer"
 
 
 def progress_label(state: LeadState) -> str | None:
     """Short label for the progress panel, e.g. "Same-day · after 2 PM"."""
-    from app.services.lead_packet import URGENCY_LABELS
-
     when = user_when(state)
     if state.urgency == "same_day" and state.preferred_day == "today":
         when = state.preferred_window  # "Same-day · today after 2 PM" says today twice
     if not state.urgency:
         return when
     if not when:
-        return URGENCY_LABELS[state.urgency]
+        return USER_URGENCY[state.urgency]
     return f"{SHORT_URGENCY[state.urgency]} · {when}"
 
 

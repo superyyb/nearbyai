@@ -9,7 +9,7 @@ from app.domain import CATEGORY_LABELS, PILOT_AREAS, LeadState, NextAction, Prov
 QUALIFICATION_QUESTIONS = {
     "water_still_active": "Is water still actively coming in right now?",
     "active_leak": "Is it actively leaking right now?",
-    "hazard_present": "Are you seeing any sparks, a burning smell, or outlets or switches that feel hot?",
+    "electrical_symptoms": "Are you seeing any sparks, a burning smell, or outlets or switches that feel hot?",
 }
 SUPPORTED_SCOPE = "plumbing, water damage, roofing, heating/cooling, and electrical"
 PILOT_SCOPE = "Santa Clara, Sunnyvale, and North San Jose (95131, 95134)"

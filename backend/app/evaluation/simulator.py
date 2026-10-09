@@ -15,7 +15,7 @@ from app.services.telemetry import TELEMETRY
 QUESTION_FIELD_TO_FACT = {
     "water_still_active": "water_still_active",
     "active_leak": "active_leak",
-    "hazard_present": "hazard_present",
+    "electrical_symptoms": "hazard_present",  # the scenario fact covers the whole question
 }
 
 
