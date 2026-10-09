@@ -160,6 +160,10 @@ class LeadState(BaseModel):
     # Funnel bookkeeping
     last_question_field: str | None = None
     pending_edit: str | None = None  # field the user wants to change; the new value hasn't arrived yet
+    invalid_field: str | None = None  # phone / email / zip_code the user typed but that failed validation
+    invalid_raw: str | None = None
+    invalid_turn: int = 0
+    invalid_attempts: dict[str, int] = Field(default_factory=dict)
     pending_edit_turn: int = 0
     last_agent_message: str | None = None
     asked_fields: list[str] = Field(default_factory=list)
@@ -284,6 +288,7 @@ ActionType = Literal[
     "match_provider",
     "present_options",
     "ask_edit",
+    "ask_correction",
     "offer_provisional",
     "no_match",
     "present_provider_ask_timing",

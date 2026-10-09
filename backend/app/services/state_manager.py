@@ -20,7 +20,6 @@ from app.domain import (
     ServiceDetails,
 )
 
-ZIP_RE = re.compile(r"^\d{5}$")
 PHONE_RE = re.compile(r"\D")
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -89,16 +88,36 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
     if corrections:
         state.corrections_seen += 1
 
-    # Contact is normalized before merge so invalid values never enter state.
+    # Each field is validated on its own: a bad value is kept out of state and marked for correction, and the
+    # other fields in the same message are still saved.
+    from app.services.validation import contact_kind, normalize_zip
+
+    def mark_invalid(field: str, raw: str) -> None:
+        state.invalid_field, state.invalid_raw, state.invalid_turn = field, raw, state.user_turns
+        state.invalid_attempts[field] = state.invalid_attempts.get(field, 0) + 1
+        notes.append(f"invalid {field}: {raw!r}")
+
+    def mark_valid(*fields: str) -> None:
+        for f in fields:
+            state.invalid_attempts.pop(f, None)
+        if state.invalid_field in fields:
+            state.invalid_field = state.invalid_raw = None
+
     if up.contact_value is not None:
         method, value = normalize_contact(up.contact_method, up.contact_value)
         if value is None:
-            notes.append(f"rejected invalid contact value {up.contact_value!r}")
+            mark_invalid(contact_kind(up.contact_value), up.contact_value)
+        else:
+            mark_valid("phone", "email")
         up.contact_method, up.contact_value = method, value
 
-    if up.zip_code is not None and not ZIP_RE.match(up.zip_code.strip()):
-        notes.append(f"rejected invalid zip {up.zip_code!r}")
-        up.zip_code = None
+    if up.zip_code is not None:
+        zip5 = normalize_zip(up.zip_code)
+        if zip5 is None:
+            mark_invalid("zip_code", up.zip_code)
+        else:
+            mark_valid("zip_code")
+        up.zip_code = zip5
 
     # --- category ---
     if up.unsupported_service and up.service_category is None:

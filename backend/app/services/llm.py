@@ -52,6 +52,8 @@ Rules:
 - Extract only what the LATEST user message states or clearly implies. For anything not stated use "" for text,
   "none" / "not_mentioned" / "not_answered" for choices, and [] for lists.
 - Never invent addresses, names, phone numbers, or timing.
+- Copy phone numbers, emails and ZIP codes exactly as the user typed them, even if they look incomplete or wrong;
+  the code validates them.
 - issue_summary: one or two provider-facing sentences combining the current summary with any new problem facts. Keep it factual.
 - service_category is your best guess even when unsure; list every plausible category in candidate_categories.
 - If the right trade can't be decided yet (e.g. a ceiling stain could be roof or plumbing), set
@@ -336,15 +338,9 @@ class ExtractionFailed(Exception):
 
 
 def semantic_problems(result: ExtractionResult) -> list[str]:
-    from app.services.state_manager import normalize_contact
-
-    up = result.updates
-    problems = []
-    if up.zip_code is not None and not re.fullmatch(r"\d{5}", up.zip_code.strip()):
-        problems.append("zip_code must be exactly 5 digits or null")
-    if up.contact_value is not None and normalize_contact(up.contact_method, up.contact_value)[1] is None:
-        problems.append("contact_value must be a 10-digit US phone or an email, or null")
-    return problems
+    # Phone, email and ZIP are deliberately NOT checked here: retrying made the model drop an invalid value, so the
+    # code never learned the user had typed one. They are validated per field in state_manager.merge instead.
+    return []
 
 
 # ---------- Guardrails on generated wording ----------

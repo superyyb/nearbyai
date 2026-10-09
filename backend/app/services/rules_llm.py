@@ -190,6 +190,13 @@ class RulesLLM:
             if head and not re.search(r"\d", head) and len(head.split()) <= 3 and not YES_RE.search(head):
                 up.customer_name = head.title()
 
+        # A digit run that isn't a full phone number is still a phone attempt; code validates it.
+        if up.contact_value is None and last_question_field and ("contact_value" in last_question_field
+                                                                or last_question_field.startswith(("edit:phone", "correct:"))):
+            run = re.search(r"(?<!\d)\d[\d\s().-]{5,14}\d(?!\d)", ZIP_RE.sub("", msg) if up.zip_code else msg)
+            if run:
+                up.contact_method, up.contact_value = "phone", run.group(0)
+
         # Timing
         if u := _urgency(msg):
             up.urgency = u

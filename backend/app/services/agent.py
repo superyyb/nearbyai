@@ -21,6 +21,7 @@ from app.services import (
     clarification,
     edits,
     mitigation,
+    validation,
     next_action,
     provider_intents,
     safety,
@@ -89,6 +90,7 @@ MATERIAL_FIELDS = {
     "service_category", "unsupported_service", "zip_code", "city", "street_address", "pilot_area", "urgency",
     "preferred_time", "customer_name", "contact_value", "consent_to_share", "selected_provider_id",
     "excluded_provider_ids", "service_details", "utility_signal", "outage_scope", "pending_edit",
+    "invalid_field",
 }
 
 
@@ -177,6 +179,9 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             edit_action = NextAction(type="ask_edit", field=f"edit:{up.edit_field}",
                                      note=edits.QUESTIONS[(up.edit_field, up.edit_kind)])
             events.append(f"edit_requested:{up.edit_field}:{up.edit_kind}")
+    invalid_now = bool(state.invalid_field and state.invalid_turn == state.user_turns)
+    if invalid_now and state.pending_edit:
+        pass  # the user tried to give the new value but it's invalid: the edit stays pending
     elif state.pending_edit and state.user_turns > state.pending_edit_turn:
         # The turn after the edit request: either the new value arrived (merged as a correction above), or the
         # user moved on - a kept old value stands, a cleared one is asked for by the normal funnel.
@@ -233,7 +238,15 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
         state.service_category = rule.candidates[0]
         if state.issue_summary is None:
             state.issue_summary = message[:240]
-    if edit_action:
+    if invalid_now and not screen.is_redirect:
+        # Only the invalid field is asked for again; this isn't an unanswered ask and never a refusal.
+        current = get_provider(state.selected_provider_id) if state.selected_provider_id else None
+        attempt = state.invalid_attempts.get(state.invalid_field, 1)
+        action = NextAction(type="ask_correction", field=f"correct:{state.invalid_field}",
+                            note=validation.correction_message(state.invalid_field, state.invalid_raw, attempt, current))
+        events.append(f"invalid_value:{state.invalid_field}:attempt{attempt}")
+        intent_turn = True
+    elif edit_action:
         action = edit_action  # ask for the new value; the funnel resumes next turn
         intent_turn = True
     elif intent and intent.action:
@@ -325,6 +338,8 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     if hasattr(llm, "write") and action.type != "safety_redirect":
         shown = [p for p in (provider, alternative) if p]
         allowed_phones = {p.phone for p in shown} | ({state.contact_value} if state.contact_value else set())
+        if action.type == "ask_correction":
+            allowed_phones.add(validation.EXAMPLES["phone"])
         allowed_urls = {p.website for p in shown} | {p.source_url for p in shown}
         context = {
             "next_step": action.type,

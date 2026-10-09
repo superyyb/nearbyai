@@ -122,13 +122,18 @@ def render(action: NextAction, state: LeadState, provider: Provider | None) -> s
             f"{DEMO_DISCLAIMER} If you want to reach them sooner, their number is {provider.phone}."
         )
     if t == "self_serve":
+        if action.note in ("contact_not_provided", "consent_not_given"):
+            # Not a refusal - we just don't have what we need. Don't put words in the user's mouth.
+            return (f"I don't have the contact details I need to prepare the request yet. You can contact "
+                    f"{provider.name} directly at {provider.phone} ({provider.website}), or send me your name and "
+                    "phone number and I'll prepare it.")
         return (
             f"No problem — I won't share your details. You can contact {provider.name} directly at "
             f"{provider.phone} ({provider.website})."
         )
     if t == "safety_redirect":
         return "Once everyone is safe and the emergency is handled, come back and I can help you find a pro for repairs."
-    if t == "ask_edit":
+    if t in ("ask_edit", "ask_correction"):
         return action.note
     if t == "empty_input":
         return "I didn't catch that — could you tell me again?"
