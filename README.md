@@ -192,6 +192,19 @@ earlier 44-probe version). **Offline scenario baseline:** 19/20 (fails a typo-he
 rerank). Caching the fixed system prompts halved extraction cost. A turn takes about **5.4 s** on average
 (extraction 3.5 s + wording 1.9 s; p95 5.4 s and 4.7 s).
 
+### Changes after the final run
+
+The metrics above are for `ea4d1e2`. Two wording fixes came later from manual testing. Each was checked with
+deterministic tests and a three-conversation Claude smoke run (the manual conversation replayed, a burst pipe, and
+a provider rejection, all passing), not a full re-run:
+
+- **Acknowledge new facts once.** Replies had restated the situation every turn ("Since the water started…",
+  "Since your basement floor is still wet…"). The writer now gets the situation only on the first reply or when a
+  turn adds a structured new fact (trade, impact, qualification fact, secondary issue). It also may not repeat the
+  previous reply's opening.
+- **Inferred source labeled as suspected.** The lead now says "Suspected source: storm-related water intrusion
+  (exact source not confirmed)" instead of "Likely source: exterior / storm water".
+
 ### What the evaluation taught, and what I did not change
 
 The provider judge valued **specific issue context much more than preferred timing**. Exact street address was the
