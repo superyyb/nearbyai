@@ -143,8 +143,8 @@ doing the language work.
 
 The fix moved that work back to the LLM without giving it the business decisions. Extraction now also reports
 conversation intent and proposes the clarifying question. Code decides whether to act and validates what the LLM
-proposed. On the frozen 112 openings, generic fallbacks went from 17.3% to 0% and labeled accuracy from 71.1% to
-84.4% (97.8% in the final version).
+proposed. On the frozen 112-opening benchmark, generic fallbacks fell from **17.3% to 0%**, and labeled accuracy
+improved from **71.1% to 97.8%** in the final version.
 
 ## Evaluation
 
@@ -177,7 +177,7 @@ per-IP rate limit.
 
 ## Known limits and next steps
 
-- **To do:** deployment; eval-candidate export script; masking phone numbers in conversation logs.
+- **Production next steps:** hosted deployment, eval-candidate export, and masking contact information in logs.
 - **Evaluation limits:** 20 scenarios (1 scenario = 5%); a small judge sample with no manual calibration; the
   simulator is more cooperative than real users; the 112-opening set tests only the first turn.
 - **Safety:** regex false alarms on resolved or hypothetical statements ("the buzzing was fixed"). A proposed fix is

@@ -193,7 +193,7 @@ out-of-scope replies as menus), so its checks now have their own tests.
 Conversations are logged (SQLite: `conversations`, `messages`, `leads`, `eval_candidates`). Conversations with
 corrections, provider rejections, no match, unsupported or utility outcomes, extraction failures, guardrail
 rejections, or too many turns are flagged as **eval candidates** for manual promotion. Nothing is added to the
-benchmarks automatically. (An export script is still to do.)
+benchmarks automatically. (An export script is a production next step.)
 
 ## Evaluation limits
 
