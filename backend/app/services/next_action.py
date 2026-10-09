@@ -16,6 +16,7 @@ from app.domain import (
     LeadState,
     NextAction,
 )
+from app.services import timing
 from app.services.ambiguity import AmbiguityRule
 
 MAX_CATEGORY_ASKS = 3
@@ -90,7 +91,7 @@ def decide(
         return NextAction(type="no_match" if searched else "match_provider")
 
     # --- timing ---
-    if state.urgency is None and state.preferred_time is None:
+    if not timing.has_timing(state):
         if asked(state, "timing") < MAX_TIMING_ASKS:
             return NextAction(type="ask_timing", field="urgency")
 

@@ -103,6 +103,23 @@ def _urgency(msg: str) -> str | None:
     return None
 
 
+DAY_RE = re.compile(r"\b(today|tonight|this (?:afternoon|evening|morning)|tomorrow|monday|tuesday|wednesday|thursday|"
+                    r"friday|saturday|sunday)\b", re.I)
+CLOCK_RE = re.compile(r"\b((?:after|before|by|around) \d{1,2}(?::\d{2})? ?(?:am|pm))\b", re.I)
+PART_OF_DAY_RE = re.compile(r"\b(morning|afternoon|evening)\b", re.I)
+
+
+def _visit_time(msg: str) -> tuple[str | None, str | None]:
+    """(day, window) for the visit; the rule-based backend only knows plain days and simple times."""
+    day = window = None
+    if m := DAY_RE.search(msg):
+        word = m.group(1).lower()
+        day = "today" if word in ("today", "tonight") or word.startswith("this ") else word
+    if m := CLOCK_RE.search(msg) or PART_OF_DAY_RE.search(msg):  # the clock time is the more specific one
+        window = re.sub(r"(\d) ?(am|pm)", lambda x: f"{x.group(1)} {x.group(2).upper()}", m.group(1).lower())
+    return day, window
+
+
 APPLIANCE_RE = re.compile(r"\b(dishwasher|washing machine|washer|dryer|fridge|refrigerator|oven|stove|microwave)\b", re.I)
 LEAK_RE = re.compile(r"\b(leak\w*|water (on|all over)|flood\w*|dripping)\b", re.I)
 
@@ -201,6 +218,8 @@ class RulesLLM:
         if u := _urgency(msg):
             up.urgency = u
             up.preferred_time = msg[:80] if last_question_field == "urgency" else None
+            if last_question_field == "urgency":
+                up.preferred_day, up.preferred_window = _visit_time(msg)
         elif last_question_field == "urgency" and _yes_no(msg) is True:
             up.urgency = "same_day"  # answered "yes" to "would you like help today if possible?"
         elif last_question_field == "urgency" and DONT_KNOW_RE.search(msg):

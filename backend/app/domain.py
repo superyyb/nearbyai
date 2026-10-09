@@ -78,6 +78,10 @@ BLOCKING_QUALIFICATION = {
 QUALIFICATION_FIELDS = {"water_still_active", "likely_source", "active_leak", "hazard_present"}
 
 Urgency = Literal["emergency", "same_day", "within_week", "flexible"]
+# The day the user wants the visit. "other" = a period code doesn't turn into a date ("this weekend").
+PreferredDay = Literal[
+    "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "other"
+]
 ContactMethod = Literal["phone", "email"]
 LikelySource = Literal["storm_exterior", "plumbing", "unknown"]
 PropertyRelationship = Literal["homeowner", "tenant", "property_manager", "other"]
@@ -124,7 +128,10 @@ class LeadState(BaseModel):
 
     # Timing
     urgency: Urgency | None = None
-    preferred_time: str | None = None
+    preferred_time: str | None = None  # the user's own words, e.g. "this afternoon after 2pm"
+    preferred_day: PreferredDay | None = None
+    preferred_window: str | None = None  # e.g. "after 2 PM", "morning"
+    preferred_date: str | None = None  # ISO date resolved by code from preferred_day when it was said
 
     # Customer
     customer_name: str | None = None
@@ -220,6 +227,8 @@ class ExtractedFields(BaseModel):
     zip_code: str | None = None
     urgency: Urgency | None = None
     preferred_time: str | None = None
+    preferred_day: PreferredDay | None = None
+    preferred_window: str | None = None
     customer_name: str | None = None
     property_relationship: PropertyRelationship | None = None
     contact_method: ContactMethod | None = None

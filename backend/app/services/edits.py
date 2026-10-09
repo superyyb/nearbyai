@@ -24,7 +24,7 @@ VALUE_FIELDS = {
     "zip_code": {"zip_code", "city", "street_address"},
     "phone": {"contact_value", "contact_method"},
     "name": {"customer_name"},
-    "timing": {"urgency", "preferred_time"},
+    "timing": {"urgency", "preferred_time", "preferred_day", "preferred_window"},
     "issue": {"service_category", "issue_summary"},
 }
 # Funnel ask-counters to reset when a field is invalidated, so asking again doesn't count against ask limits.
@@ -69,6 +69,8 @@ def invalidate(state: LeadState, field: str) -> None:
     elif field == "name":
         state.customer_name = None
     elif field == "timing":
-        state.urgency = state.preferred_time = None
+        from app.services import timing
+
+        timing.clear(state)
     state.asked_fields = [f for f in state.asked_fields if f not in ASK_KEYS[field]]
     state.declined_fields = [f for f in state.declined_fields if f != field]

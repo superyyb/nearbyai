@@ -6,6 +6,7 @@ a judgment of lead quality; whether a provider would act on the lead is measured
 """
 
 from app.domain import BLOCKING_QUALIFICATION, LeadState, Provider, ValidationResult
+from app.services import timing
 from app.services.state_manager import normalize_contact
 
 ELIGIBLE_COVERAGE = {"verified", "provisional"}
@@ -31,7 +32,7 @@ def validate_lead(state: LeadState, provider: Provider | None) -> ValidationResu
         missing.append("zip_code")
 
     # Timing
-    if state.urgency is None and state.preferred_time is None:
+    if not timing.has_timing(state):
         missing.append("urgency")
 
     # Contact
@@ -93,7 +94,7 @@ def completeness_score(state: LeadState, provider: Provider | None) -> tuple[flo
     b["location"] = 20.0 if state.street_address and state.pilot_area else (12.0 if state.pilot_area else 0.0)
 
     # 15 — timing
-    b["timing"] = 15.0 if (state.urgency or state.preferred_time) else 0.0
+    b["timing"] = 15.0 if timing.has_timing(state) else 0.0
 
     # 15 — contact readiness
     contact = 0.0

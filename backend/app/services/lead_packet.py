@@ -1,6 +1,7 @@
 """Provider-facing lead packet: what a real business would receive."""
 
 from app.domain import CATEGORY_LABELS, PILOT_AREAS, LeadState, Provider
+from app.services import timing
 
 URGENCY_LABELS = {
     "emergency": "As soon as possible (customer reports urgent need)",
@@ -62,7 +63,9 @@ def build_packet(state: LeadState, provider: Provider, completeness_score: float
             "safety_flags": state.safety_flags,
         },
         "timing": {
-            "preference": URGENCY_LABELS.get(state.urgency, state.preferred_time or "Not stated"),
+            "preference": timing.provider_label(state),
+            "preferred_date": state.preferred_date,
+            "customer_words": state.preferred_time,
             "availability": "Not confirmed",
         },
         "matched_provider": {

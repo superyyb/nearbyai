@@ -26,6 +26,7 @@ from app.services import (
     provider_intents,
     safety,
     templates,
+    timing,
 )
 from app.services.lead_packet import build_packet
 from app.services.lead_validator import validate_lead
@@ -88,7 +89,7 @@ def _trim(message: str) -> str:
 # Fields whose change makes a finished conversation worth reopening.
 MATERIAL_FIELDS = {
     "service_category", "unsupported_service", "zip_code", "city", "street_address", "pilot_area", "urgency",
-    "preferred_time", "customer_name", "contact_value", "consent_to_share", "selected_provider_id",
+    "preferred_time", "preferred_day", "preferred_window", "customer_name", "contact_value", "consent_to_share", "selected_provider_id",
     "excluded_provider_ids", "service_details", "utility_signal", "outage_scope", "pending_edit",
     "invalid_field",
 }
@@ -126,6 +127,7 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     prior_secondary = list(state.secondary_issues)
     prior_impacts = list(state.observed_impacts)
     prior_details = state.service_details.model_dump()
+    prior_when = timing.user_when(state)
     extraction = None
     try:
         extraction = llm.extract(state, message, state.last_question_field)
@@ -315,6 +317,14 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     if action.type == "ask_timing":
         state.last_question_field = "urgency"
 
+    # A specific visit time is confirmed back once, when it's given, without implying it's booked.
+    timing_note = ""
+    if (timing.is_specific(state) and timing.user_when(state) != prior_when
+            and action.type not in ("safety_redirect", "utility_redirect", "unsupported_category")):
+        timing_note = timing.confirmation(state)
+        prefixes.append(timing_note)
+        events.append("timing_confirmed")
+
     # A fixed damage-limiting tip (at most once), kept verbatim like safety copy.
     mitigation_text = ""
     if action.type not in ("safety_redirect", "utility_redirect", "unsupported_category", "already_closed"):
@@ -364,6 +374,8 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             )
             if mitigation_text and mitigation_text not in candidate:
                 violations.append("damage tip dropped or altered")
+            if timing_note and not timing.confirmation_kept(candidate, state):
+                violations.append("preferred time dropped or not marked as unconfirmed")
             if clarification.is_category_menu(candidate) and not clarification.is_category_menu(reference):
                 violations.append("rewrote a targeted question into a category menu")
             if violations:

@@ -28,8 +28,6 @@ SIMPLE_FIELDS = [
     "street_address",
     "city",
     "zip_code",
-    "urgency",
-    "preferred_time",
     "customer_name",
     "property_relationship",
     "contact_method",
@@ -154,6 +152,26 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
             if old is not None and old != new and field in AREA_FIELDS:
                 location_inputs_changed = True
             setattr(state, field, new)
+
+    # --- timing: urgency, the user's words, day and time window change together ---
+    from app.services import timing
+
+    timing_new = {f: getattr(up, f) for f in timing.TIMING_FIELDS if getattr(up, f) is not None}
+    if timing_new:
+        prior_day = state.preferred_day
+        if corrections & set(timing.TIMING_FIELDS):
+            new_day = up.preferred_day is not None and up.preferred_day != state.preferred_day
+            new_urgency = up.urgency is not None and up.urgency != state.urgency
+            if new_day or new_urgency:
+                timing.clear(state)  # "actually tomorrow morning" replaces "today after 2pm" as a whole
+            else:
+                # "make it after 4pm instead" changes the time of day; the day and urgency still hold.
+                state.preferred_window = state.preferred_time = None
+        for f, value in timing_new.items():
+            if getattr(state, f) is None:
+                setattr(state, f, value)
+        if state.preferred_day != prior_day or state.preferred_date is None:
+            timing.anchor(state)  # the date is fixed when the day is said, not recomputed on later turns
 
     # Utility outage: the signal sticks once seen; the scope is latest-wins ("actually it's only my house").
     if up.utility_signal and state.utility_signal is None:

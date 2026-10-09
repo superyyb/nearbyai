@@ -83,6 +83,14 @@ Rules:
 - contact_preferences: how or when the provider should contact them, or whose number it is ("calls only, no texts",
   "after 5pm", "this is my wife's number"); else "".
 - urgency: emergency (needs help immediately), same_day (today), within_week, flexible.
+- When the provider should COME: preferred_time = the user's own words for it, briefly ("this afternoon after
+  2pm", "Saturday morning", "this weekend"), else ""; preferred_day = today (incl. "this afternoon", "tonight"),
+  tomorrow, a weekday name, or "other" for a period or date that isn't one of those ("this weekend", "next week",
+  "Oct 12"), else "none"; preferred_window = the time of day in short form ("after 2 PM", "before noon",
+  "between 9 and 11 AM", "morning", "evening"), else "". Never work out dates; code does that.
+- When to CALL or TEXT the user is contact_preferences, not a visit time: "call me after 5pm" -> contact_preferences
+  "after 5pm", preferred_window "". If the user changes the visit time they gave earlier, list urgency in
+  corrections.
 - If the user answers yes/no, interpret it against the assistant's last question field.
 - water_still_active / active_leak / hazard_present: "yes"/"no" only when the user states the current situation
   directly. Second-hand or ambiguous reports (e.g. "my neighbor says water is pooling") are "not_mentioned".
@@ -120,6 +128,8 @@ Rules:
 - Describe a provider only by the facts given (its trade and service area). No endorsements or sales language
   ("a good fit", "reliable", "trusted", "a great choice"): there is no data on provider quality.
 - Never say a provider has been contacted, dispatched, booked, scheduled, or will arrive at a certain time.
+- If the reference notes the user's preferred time, keep that time word for word and keep that the provider
+  still needs to confirm it.
 - If provider coverage is 'provisional', do not say they serve the user's area; say they are located nearby.
 - Express sympathy at most once per conversation: only when is_first_reply is true. Otherwise get straight to the point.
 - user_situation is set only when there is something new to acknowledge. Then acknowledge it briefly in concrete
@@ -170,6 +180,10 @@ class LLMExtraction(BaseModel):
     zip_code: str
     urgency: Literal["emergency", "same_day", "within_week", "flexible", "none"]
     preferred_time: str
+    preferred_day: Literal[
+        "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "other", "none"
+    ]
+    preferred_window: str
     customer_name: str
     property_relationship: Literal["homeowner", "tenant", "property_manager", "other", "none"]
     contact_method: Literal["phone", "email", "none"]
@@ -246,7 +260,7 @@ class ClaudeLLM:
         context = {
             "current_state": state.model_dump(
                 include={"service_category", "issue_summary", "zip_code", "city", "street_address", "urgency",
-                         "customer_name", "contact_value", "service_details", "secondary_issues",
+                         "preferred_time", "customer_name", "contact_value", "service_details", "secondary_issues",
                          "observed_impacts"},
                 mode="json",
             ),
