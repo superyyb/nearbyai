@@ -121,6 +121,8 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
     llm_needs_clarification = False
     prior_category = state.service_category
     prior_secondary = list(state.secondary_issues)
+    prior_impacts = list(state.observed_impacts)
+    prior_details = state.service_details.model_dump()
     extraction = None
     try:
         extraction = llm.extract(state, message, state.last_question_field)
@@ -274,6 +276,14 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             mitigation_text = tip[1]
             events.append(f"mitigation:{tip[0]}")
 
+    new_context = (
+        state.user_turns == 1
+        or state.service_category != prior_category
+        or state.observed_impacts != prior_impacts
+        or state.service_details.model_dump() != prior_details
+        or state.secondary_issues != prior_secondary
+    )
+
     # 7. wording (order: acknowledgement -> fixed tip -> next question; the tip must survive verbatim)
     reference = " ".join(prefixes + ([mitigation_text] if mitigation_text else []) + [templates.render(action, state, provider)])
     body, source = reference, "template"
@@ -288,8 +298,10 @@ def handle_turn(state: LeadState, message: str, llm, user_history: list[str]) ->
             "provider_coverage": state.selected_provider_coverage,
             "safety_guidance_already_shown": bool(safety_text),
             "damage_tip_verbatim": mitigation_text or None,
-            "user_situation": state.issue_summary,
-            "observed_impacts": state.observed_impacts,
+            # Acknowledge the situation only when it's new: the first reply, or a structured new fact this turn.
+            # (Comparing summary text would fire every turn, since the extractor rewrites the summary each time.)
+            "user_situation": state.issue_summary if new_context else None,
+            "observed_impacts": state.observed_impacts if new_context else [],
             "is_first_reply": state.user_turns == 1,
             "previous_assistant_message": state.last_agent_message,
         }

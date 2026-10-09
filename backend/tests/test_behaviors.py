@@ -436,3 +436,38 @@ def test_writer_that_alters_the_damage_tip_is_rejected():
     r = handle_turn(LeadState(conversation_id="x"), "toilet overflowing", LooseWriter(), [])
     assert mitigation.TIPS["toilet_overflow"] in r.message and r.wording_source == "template"
     assert any("damage tip dropped or altered" in e for e in r.events)
+
+
+# ---------- acknowledge new facts once, not every turn ----------
+
+def test_writer_gets_the_situation_only_when_there_is_something_new():
+    # Found by manual testing: every reply restated the situation ("Since the water started...", "Since your
+    # basement floor is still wet...", "Since water is still sitting...").
+    from app.domain import LeadState
+    from app.services.agent import handle_turn
+    from tests.helpers import ScriptedLLM
+
+    class RecordingWriter(ScriptedLLM):
+        contexts: list = []
+
+        def write(self, reference, context):
+            self.contexts.append(context)
+            return None  # fall back to the template; only the context matters here
+
+    turns = [
+        ("Water came into my basement after the storm", {"service_category": "water_damage_restoration",
+                                                        "issue_summary": "Storm water entered the basement"}),
+        ("95050", {"zip_code": "95050", "issue_summary": "Storm water entered the basement overnight"}),
+        ("not as fast now, but the floor is still wet", {"water_still_active": True,
+                                                        "observed_impacts": ["basement floor wet"]}),
+        ("asap", {"urgency": "emergency", "issue_summary": "Storm water in basement; floor wet; wants help asap"}),
+    ]
+    llm = RecordingWriter([t[1] for t in turns])
+    llm.contexts = []
+    state, history = LeadState(conversation_id="x"), []
+    for message, _ in turns:
+        handle_turn(state, message, llm, history)
+        history.append(message)
+    acknowledged = [c["user_situation"] is not None for c in llm.contexts]
+    # first reply: yes; ZIP only (summary reworded): no; new fact + impact: yes; timing only: no
+    assert acknowledged == [True, False, True, False]
