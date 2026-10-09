@@ -66,5 +66,12 @@
   {"id": "control_edit_why_address", "context": "matched", "message": "Why do you need my address?", "expect": {"edit_field": null, "question_topics_contains": "why_need_info"}},
   {"id": "control_thanks_not_unclear", "context": "lead_ready", "message": "Thanks so much!", "expect": {"requested_action": null, "edit_field": null}},
   {"id": "raw_short_phone", "context": "contact_question", "message": "yy, 669222192, 1450 Lafayette St", "expect": {"contact_value_contains": "669222192", "customer_name_contains": "yy", "street_address_contains": "Lafayette"}},
-  {"id": "raw_zip_plus4", "context": "start_location", "message": "It's 95050-1234", "expect": {"zip_code_contains": "95050"}}
+  {"id": "raw_zip_plus4", "context": "start_location", "message": "It's 95050-1234", "expect": {"zip_code_contains": "95050"}},
+  {"id": "time_afternoon_after_2pm", "context": "matched", "message": "I prefer this afternoon after 2pm", "expect": {"urgency": "same_day", "preferred_day": "today", "preferred_window_contains": "2"}},
+  {"id": "time_saturday_morning", "context": "matched", "message": "Saturday morning would be best for me", "expect": {"preferred_day": "saturday", "preferred_window_contains": "morning"}},
+  {"id": "time_tomorrow_between", "context": "matched", "message": "Tomorrow between 9 and 11 am works", "expect": {"preferred_day": "tomorrow", "preferred_window_contains": "9"}},
+  {"id": "time_weekend_period", "context": "matched", "message": "Sometime this weekend is fine", "expect": {"preferred_day": "other", "preferred_time_contains": "weekend"}},
+  {"id": "time_change_after_lead", "context": "lead_ready", "message": "Can they come after 4pm instead?", "expect": {"preferred_window_contains": "4", "requested_action": null}},
+  {"id": "control_call_after_5pm", "context": "contact_question", "message": "Sam, 408-555-0100. Please call after 5pm, I'm at work until then", "expect": {"contact_preferences_contains": "5", "preferred_window": null, "preferred_day": null}},
+  {"id": "control_today_no_window", "context": "matched", "message": "Today please", "expect": {"urgency": "same_day", "preferred_window": null, "preferred_day_in": ["today", null]}}
 ]
