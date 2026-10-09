@@ -471,3 +471,14 @@ def test_writer_gets_the_situation_only_when_there_is_something_new():
     acknowledged = [c["user_situation"] is not None for c in llm.contexts]
     # first reply: yes; ZIP only (summary reworded): no; new fact + impact: yes; timing only: no
     assert acknowledged == [True, False, True, False]
+
+
+def test_lead_states_an_inferred_source_as_suspected_not_diagnosed():
+    from app.services.lead_packet import build_packet
+    from app.services.provider_search import get_provider
+
+    state, _ = converse([("basement flooded after the storm", {
+        "service_category": "water_damage_restoration", "issue_summary": "Storm water in the basement",
+        "likely_source": "storm_exterior", "zip_code": "95050"})])
+    details = build_packet(state, get_provider("911-restoration-of-san-jose"), 90)["service"]["details"]
+    assert details["Suspected source"] == "Storm-related water intrusion (exact source not confirmed)"

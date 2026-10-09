@@ -12,7 +12,9 @@ DETAIL_LABELS = {
     "water_still_active": ("Water still entering", {True: "Yes", False: "No"}),
     "active_leak": ("Actively leaking", {True: "Yes", False: "No"}),
     "hazard_present": ("Sparks / burning smell / hot fixtures", {True: "Yes — safety guidance given", False: "No"}),
-    "likely_source": ("Likely source", {"storm_exterior": "Exterior / storm water", "plumbing": "Plumbing", "unknown": "Unknown"}),
+    # The source is inferred from the user's words ("after the storm"), not diagnosed, so the lead says so.
+    "likely_source": ("Suspected source", {"storm_exterior": "Storm-related water intrusion (exact source not confirmed)",
+                                           "plumbing": "Plumbing (not confirmed)", "unknown": "Unknown"}),
 }
 
 
