@@ -51,6 +51,14 @@ def context_state(name: str) -> tuple[LeadState, str | None]:
         return LeadState(conversation_id="probe", service_category=Category.ELECTRICAL, city="Sunnyvale",
                          pilot_area="sunnyvale", issue_summary="Kitchen outlets dead",
                          offered_provider_id="wooding-electric"), "provisional_offer"
+    if name == "after_light_hazard":
+        return LeadState(conversation_id="probe", service_category=Category.WATER_DAMAGE,
+                         issue_summary="Water dripping through a ceiling light that is still on",
+                         safety_flags=["water_near_electrical"]), "service_category"
+    if name == "electrical_question":
+        return LeadState(conversation_id="probe", service_category=Category.ELECTRICAL, category_confirmed=True,
+                         issue_summary="Kitchen lights flicker", zip_code="95050", pilot_area="santa_clara"), \
+            "electrical_symptoms"
     if name == "water_question":
         return LeadState(conversation_id="probe", service_category=Category.WATER_DAMAGE, zip_code="94089",
                          pilot_area="sunnyvale", issue_summary="Neighbor reports water pooling in basement",

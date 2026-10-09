@@ -73,5 +73,11 @@
   {"id": "time_weekend_period", "context": "matched", "message": "Sometime this weekend is fine", "expect": {"preferred_day": "other", "preferred_time_contains": "weekend"}},
   {"id": "time_change_after_lead", "context": "lead_ready", "message": "Can they come after 4pm instead?", "expect": {"preferred_window_contains": "4", "requested_action": null}},
   {"id": "control_call_after_5pm", "context": "contact_question", "message": "Sam, 408-555-0100. Please call after 5pm, I'm at work until then", "expect": {"contact_preferences_contains": "5", "preferred_window": null, "preferred_day": null}},
-  {"id": "control_today_no_window", "context": "matched", "message": "Today please", "expect": {"urgency": "same_day", "preferred_window": null, "preferred_day_in": ["today", null]}}
+  {"id": "control_today_no_window", "context": "matched", "message": "Today please", "expect": {"urgency": "same_day", "preferred_window": null, "preferred_day_in": ["today", null]}},
+  {"id": "obs_light_hazard_is_not_sparks", "context": "start", "message": "Water is dripping through the ceiling light, and the light is still on.", "expect": {"hazard_categories_any": ["electrical_water"], "sparks_present": null, "burning_smell_present": null, "hot_fixture_present": null}},
+  {"id": "obs_no_sparks_only", "context": "after_light_hazard", "message": "No, I don't see any sparks or plumbing", "expect": {"sparks_present": false, "burning_smell_present": null, "hot_fixture_present": null}},
+  {"id": "obs_electrical_plain_no", "context": "electrical_question", "message": "No, nothing like that", "expect": {"sparks_present": false, "burning_smell_present": false, "hot_fixture_present": false}},
+  {"id": "obs_electrical_partial", "context": "electrical_question", "message": "No sparks, but the outlet cover feels warm", "expect": {"sparks_present": false, "hot_fixture_present": true}},
+  {"id": "obs_hazard_with_asap", "context": "start", "message": "Water is coming through my ceiling light and I need someone ASAP", "expect": {"hazard_categories_any": ["electrical_water"], "urgency": "emergency"}},
+  {"id": "control_hazard_is_not_timing", "context": "start", "message": "There's water dripping out of the light fixture in my hallway", "expect": {"hazard_categories_any": ["electrical_water"], "urgency": null, "preferred_time": null}}
 ]
