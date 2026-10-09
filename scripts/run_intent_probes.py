@@ -43,6 +43,10 @@ def context_state(name: str) -> tuple[LeadState, str | None]:
     if name == "consent_question":
         return LeadState(**hvac_matched, urgency="same_day", customer_name="Sam",
                          contact_method="phone", contact_value="(408) 555-0100"), "consent_to_share"
+    if name == "lead_ready":
+        return LeadState(**hvac_matched, urgency="same_day", customer_name="Sam", contact_method="phone",
+                         contact_value="(408) 555-0100", street_address="10 Main St", consent_to_share=True,
+                         outcome="ready_to_dispatch"), None
     if name == "provisional_offer":
         return LeadState(conversation_id="probe", service_category=Category.ELECTRICAL, city="Sunnyvale",
                          pilot_area="sunnyvale", issue_summary="Kitchen outlets dead",

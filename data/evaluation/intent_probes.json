@@ -52,5 +52,17 @@
   {"id": "hazard_soft_heater_cord", "context": "start", "message": "my space heater's power line got all soft and smells like plastic", "expect": {"hazard_categories_contains": "overheating_burning"}},
   {"id": "hazard_detector_screaming", "context": "start", "message": "the detector in the hallway is screaming and the screen says 'CO'", "expect": {"hazard_categories_contains": "gas_co_fire"}},
   {"id": "hazard_aquarium_spill", "context": "start", "message": "our aquarium cracked and the water ran under the wall socket and the TV box", "expect": {"hazard_categories_contains": "electrical_water"}},
-  {"id": "control_no_hazard", "context": "start", "message": "the outlet isn't warm and nothing smells, it just stopped working", "expect": {"hazard_categories_nonempty": false}}
+  {"id": "control_no_hazard", "context": "start", "message": "the outlet isn't warm and nothing smells, it just stopped working", "expect": {"hazard_categories_nonempty": false}},
+  {"id": "edit_change_address", "context": "lead_ready", "message": "Can I change my address?", "expect": {"edit_field": "street_address", "edit_kind": "wants_change", "requested_action": null}},
+  {"id": "edit_wrong_phone", "context": "lead_ready", "message": "I just gave you wrong phone number", "expect": {"edit_field": "phone", "edit_kind": "current_value_wrong", "contact_value": null}},
+  {"id": "edit_not_my_phone", "context": "lead_ready", "message": "Wait, that's not my phone number.", "expect": {"edit_field": "phone", "edit_kind": "current_value_wrong"}},
+  {"id": "edit_different_zip", "context": "lead_ready", "message": "Can I use a different ZIP?", "expect": {"edit_field": "zip_code", "edit_kind": "wants_change"}},
+  {"id": "edit_change_time", "context": "lead_ready", "message": "I need to change the time.", "expect": {"edit_field": "timing", "edit_kind": "wants_change"}},
+  {"id": "edit_problem_different", "context": "lead_ready", "message": "Actually the problem is different.", "expect": {"edit_field": "issue", "edit_kind_in": ["wants_change", "current_value_wrong"]}},
+  {"id": "edit_name_misspelled", "context": "lead_ready", "message": "You spelled my name wrong", "expect": {"edit_field": "name", "edit_kind": "current_value_wrong"}},
+  {"id": "edit_with_new_value", "context": "lead_ready", "message": "Oops, use 408-555-0199 instead", "expect": {"edit_kind": null, "contact_value_contains": "555"}},
+  {"id": "control_edit_asks_our_number", "context": "lead_ready", "message": "What's your phone number?", "expect": {"edit_field": null}},
+  {"id": "control_edit_provider_question", "context": "lead_ready", "message": "Can I ask something about the provider?", "expect": {"edit_field": null}},
+  {"id": "control_edit_why_address", "context": "matched", "message": "Why do you need my address?", "expect": {"edit_field": null, "question_topics_contains": "why_need_info"}},
+  {"id": "control_thanks_not_unclear", "context": "lead_ready", "message": "Thanks so much!", "expect": {"requested_action": null, "edit_field": null}}
 ]
