@@ -7,6 +7,16 @@ invented provider facts.
 > **The LLM proposes; code decides.** Claude handles language: understanding, intent, and wording. Deterministic
 > code handles orchestration, provider eligibility, safety policy, consent, and whether a lead is dispatchable.
 
+## Demo
+
+[▶ **Watch 5 short demo scenarios**](https://drive.google.com/drive/folders/10EU0Zef24Ygf00hfWRUBuXT2xZo3Ah1R?usp=share_link)
+
+1. [Happy path](https://drive.google.com/drive/folders/1yvi5S5M6wwormUxTjaRZ8YW8kKfTlR52)
+2. [Provider rejection](https://drive.google.com/drive/folders/1YTXRdHHJJ4jNqPXUnLXv6RIk0NJ1FKDS)
+3. [Edit after lead completion](https://drive.google.com/drive/folders/1k1GeNMfuiFRp4dYTue4Hz35IexLukmBY)
+4. [Safety warning](https://drive.google.com/drive/folders/1Ztz-3bC-TD1HOvPoLZ9PsiadFiVCTHoD)
+5. [Contextual clarification](https://drive.google.com/drive/folders/17AW9DIQtAI7n5QhrmHHAcEYebW-HERUO)
+
 ## Results
 
 | Assignment goal | Result |
