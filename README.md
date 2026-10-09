@@ -40,7 +40,7 @@ cd backend && uv sync
 uv run uvicorn app.main:app --port 8000                    # open http://localhost:8000
 ```
 
-`uv run pytest -q` runs the 237 deterministic tests (no API calls). Evaluation commands are in
+`uv run pytest -q` runs the 285 deterministic tests (no API calls). Evaluation commands are in
 [Running the evaluation](#running-the-evaluation).
 
 ## How it works
@@ -80,8 +80,8 @@ message → regex safety screen → ONE structured extraction call (Claude) → 
 | Trades | Plumbing, water-damage restoration, roofing, HVAC, electrical. Other services → `unsupported_category`. Borderline policy: a leak from an appliance's water line is plumbing; an appliance that won't run is appliance repair (out of scope). |
 | Provider coverage | `verified` (the official site names the area) / `provisional` (nearby, area not named) / `unknown`. Verified-first; unknown is never matched. A provisional provider is used only after the user accepts an offer that says coverage is unconfirmed. |
 | Outcomes | `ready_to_dispatch`, `self_serve` (user declines sharing; gets the provider's number), `no_match`, `unsupported_category`, `safety_redirect`, `utility_redirect`, `abandoned`. Outcomes **reopen** if the user later changes something material. |
-| Blocking fields | Trade, issue summary, pilot location, one category-critical fact (asked once), timing, name, valid contact, **explicit consent**, eligible provider. A missing street address → `address_pending` (still dispatchable). |
-| Safety | Regex first line, unioned with the extractor's choice from 4 fixed hazard families. Gas/CO/fire → `safety_redirect`. Electrical + water, overheating, and sparking/buzzing → fixed warning first, then the lead continues. Safety copy is fixed in code and never rewritten by the LLM. |
+| Blocking fields | Trade, issue summary, pilot location, one category-critical fact (asked once), timing (if it's still not given after two asks, the lead says "not stated"), name, valid contact, **explicit consent**, eligible provider. A missing street address → `address_pending` (still dispatchable). A specific visit time is kept next to the urgency and fixed to a date ("Same-day service preferred — Thursday, Oct 8 after 2 PM"). |
+| Safety | Regex first line, unioned with the extractor's choice from 4 fixed hazard families. Gas/CO/fire → `safety_redirect`. Electrical + water, overheating, and sparking/buzzing → fixed warning first, then the lead continues. Safety copy is fixed in code and never rewritten by the LLM. The risk goes into the lead as a separate safety priority (and favors 24/7 providers); it is never written as the customer's timing. Observed facts ("sparks: no") are kept separately from the hazard, one fact at a time. |
 | Utility outages | Whole-home no water/no power → first ask "only your home, or nearby homes too?" Neighbors affected → `utility_redirect`. Only this home → plumber/electrician. |
 | User control | Reject a provider, ask for another, list options, choose or restore one by name. Questions about price, reviews, licensing, availability, privacy, and sponsorship get **code-built answers** from the provider record ("I don't have verified pricing…"). Requests to call, book, or guarantee are declined honestly. Consent can be revoked after a lead is prepared, which withdraws the lead. |
 | Changing answers | "Can I change my address?" holds the request and asks for the new value. A value the user calls wrong is cleared, so the lead can't go out with it. An invalid phone, email, or ZIP is asked for again, saying what's wrong; the other fields in the same message are kept. Only a service-area change re-matches the provider. |
@@ -148,7 +148,7 @@ improved from **71.1% to 97.8%** in the final version.
 
 ## Evaluation
 
-Five separate suites: 237 deterministic tests, 68 intent probes (incl. 9 negative controls), 20 simulated-user
+Five separate suites: 285 deterministic tests, 81 intent probes (incl. 12 negative controls), 20 simulated-user
 scenarios, a frozen set of 112 first-turn openings written by a different model than the agent, and a
 provider-perspective lead judge with paired degraded controls. Safety detection is reported in separate pools
 (semantic stress cases outside regex coverage: regex alone 0/6, regex + LLM 6/6). A turn takes about **5.4 s**.
@@ -165,7 +165,7 @@ From `backend/`:
 uv run python ../scripts/run_eval.py                                                 # offline scenario eval (rule-based backend)
 uv run python ../scripts/run_eval.py --backend anthropic --simulator claude --judge   # 20 scenarios + provider judge
 uv run python ../scripts/run_generalization.py --judge                                # 112 first-turn openings
-uv run python ../scripts/run_intent_probes.py                                         # 68 intent probes
+uv run python ../scripts/run_intent_probes.py                                         # 81 intent probes
 ```
 
 ## Privacy note

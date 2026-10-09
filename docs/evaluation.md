@@ -15,8 +15,8 @@ get reported as if it were general.
 
 | Suite | What it proves | Judged by |
 |---|---|---|
-| Deterministic tests (237 current; 184 on the evaluated commit) | Invariants, state transitions (orchestration via a scripted extractor), and the eval harness's own checks | code |
-| Intent probes (68 current, incl. 9 negative controls; 54 on the evaluated commit) | Varied wording maps to the right event; plain answers don't trigger events | code |
+| Deterministic tests (285 current; 184 on the evaluated commit) | Invariants, state transitions (orchestration via a scripted extractor), and the eval harness's own checks | code |
+| Intent probes (81 current, incl. 12 negative controls; 54 on the evaluated commit) | Varied wording maps to the right event; plain answers don't trigger events | code |
 | Simulated-user scenarios (20) | End-to-end conversations; structured (offline) or Claude persona simulator | code |
 | First-turn generalization (112, frozen) | Behavior on a frozen, diverse first-turn benchmark generated mostly by a different model | code + optional Opus judge |
 | Provider-perspective lead judge | Would a local business act on the lead? Paired degraded copies check that the judge discriminates | Opus |
@@ -28,11 +28,11 @@ frozen so versions stay comparable.
 Commands (run from `backend/`):
 
 ```bash
-uv run pytest -q                                                                     # 237 tests, no API calls
+uv run pytest -q                                                                     # 285 tests, no API calls
 uv run python ../scripts/run_eval.py                                                 # offline scenario eval (rule-based backend)
 uv run python ../scripts/run_eval.py --backend anthropic --simulator claude --judge   # 20 scenarios + provider judge
 uv run python ../scripts/run_generalization.py --judge                                # 112 first-turn openings
-uv run python ../scripts/run_intent_probes.py                                         # 68 intent probes
+uv run python ../scripts/run_intent_probes.py                                         # 81 intent probes
 ```
 
 ## End-to-end conversations
@@ -129,8 +129,7 @@ someday") from current hazards. The LLM gets these right, but the union inherits
 ([`intent_probes_claude_final.json`](../data/evaluation/results/intent_probes_claude_final.json)). The rule-based
 baseline scored 29/44 on the earlier 44-probe version
 ([`intent_probes_rules_baseline.json`](../data/evaluation/results/intent_probes_rules_baseline.json)). The set grew
-to 68 probes (9 negative controls) after the final run, with the field-edit and invalid-value fixes below; the
-current code passes 68/68.
+to 81 probes (12 negative controls) after the final run, with the fixes below; the current code passes 81/81.
 
 ## Latency
 
@@ -140,7 +139,7 @@ p95 5.4 s and 4.7 s).
 ## Changes after the final run
 
 The metrics above are for `ea4d1e2`. The fixes below came later from manual testing. Each was checked with
-deterministic tests, the intent probes where extraction changed (68/68 after the last change), and a short Claude
+deterministic tests, the intent probes where extraction changed (81/81 after the last change), and a short Claude
 smoke run (3–4 conversations, all passing), not a full re-run:
 
 - **Acknowledge new facts once.** Replies had restated the situation every turn ("Since the water started…",
@@ -168,6 +167,29 @@ smoke run (3–4 conversations, all passing), not a full re-run:
 - **Only a service-area change re-matches.** A new street address, or a ZIP in the same area, used to clear the
   provider and re-ask consent for the same provider. Eligibility depends on the pilot area, so only an area change
   invalidates the match.
+- **The specific visit time is kept and confirmed.** "I prefer this afternoon after 2pm" was extracted correctly, but
+  the lead only said "Same-day service preferred" (the urgency label replaced the time) and the reply didn't
+  confirm it. Extraction now reports the day and time window separately; code fixes the day to a date in the pilot
+  area's time zone when it is said, so the lead reads "Same-day service preferred — Thursday, Oct 8 after 2 PM". A
+  period such as "this weekend" stays in the user's words. The reply confirms a specific time once ("The provider
+  would still need to confirm that time"), and a rephrase that drops the time or that caveat falls back to the
+  template. "Call me after 5pm" stays a contact preference, not a visit time.
+- **A safety risk is no longer written as the customer's timing.** Water dripping through a ceiling light produced
+  "Timing: As soon as possible (customer reports urgent need)", although the user never gave a timing. Two causes:
+  code set `urgency = emergency` on the first safety warning, and the extractor also inferred urgency from how
+  dangerous the problem sounded. Now urgency is only what the user asks for, the timing question is still asked,
+  and the lead shows the risk on its own line ("Safety priority: Urgent — water near an electrical fixture…"). A
+  safety risk still favors 24/7 providers. The same rule was in the evaluated version: the `electrical_sparking_outlet`
+  scenario skipped the timing question and its lead claimed the customer reported urgency, which the scenario checks
+  and the judge didn't flag. Fixing it adds one turn to hazard conversations.
+- **Observed facts are specific and kept apart from the hazard.** The same lead said "Sparks / burning smell / hot
+  fixtures: Yes" after the user said "no sparks": one broad hazard yes/no was shown under a narrower label, and a
+  later "no" couldn't override it. It is now three facts (sparks, burning smell, hot fixture), each latest-wins on
+  its own, so "no sparks" changes only sparks and the water-electrical hazard stays. Leads show only the matched
+  trade's facts plus electrical observations, and internal flag names (`water_near_electrical`) no longer appear.
+- **An unanswered timing question no longer blocks the lead.** After two asks the funnel moved on, but the validator
+  still required timing, so a user who never gave one was asked for their contact details again and again. The
+  lead now says "Timing: Not stated by the customer".
 
 ## What the evaluation taught, and what I did not change
 
