@@ -64,5 +64,7 @@
   {"id": "control_edit_asks_our_number", "context": "lead_ready", "message": "What's your phone number?", "expect": {"edit_field": null}},
   {"id": "control_edit_provider_question", "context": "lead_ready", "message": "Can I ask something about the provider?", "expect": {"edit_field": null}},
   {"id": "control_edit_why_address", "context": "matched", "message": "Why do you need my address?", "expect": {"edit_field": null, "question_topics_contains": "why_need_info"}},
-  {"id": "control_thanks_not_unclear", "context": "lead_ready", "message": "Thanks so much!", "expect": {"requested_action": null, "edit_field": null}}
+  {"id": "control_thanks_not_unclear", "context": "lead_ready", "message": "Thanks so much!", "expect": {"requested_action": null, "edit_field": null}},
+  {"id": "raw_short_phone", "context": "contact_question", "message": "yy, 669222192, 1450 Lafayette St", "expect": {"contact_value_contains": "669222192", "customer_name_contains": "yy", "street_address_contains": "Lafayette"}},
+  {"id": "raw_zip_plus4", "context": "start_location", "message": "It's 95050-1234", "expect": {"zip_code_contains": "95050"}}
 ]
