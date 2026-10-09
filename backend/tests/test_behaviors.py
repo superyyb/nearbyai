@@ -482,3 +482,11 @@ def test_lead_states_an_inferred_source_as_suspected_not_diagnosed():
         "likely_source": "storm_exterior", "zip_code": "95050"})])
     details = build_packet(state, get_provider("911-restoration-of-san-jose"), 90)["service"]["details"]
     assert details["Suspected source"] == "Storm-related water intrusion (exact source not confirmed)"
+
+
+# ---------- wording found by manual testing ----------
+
+def test_location_question_asks_where_service_is_needed():
+    from tests.helpers import converse as talk
+    _, results = talk([("my toilet is leaking", {"service_category": "plumbing", "issue_summary": "Toilet leaking"})])
+    assert "What's the address where you need service?" in results[-1].message

@@ -69,7 +69,7 @@ def render(action: NextAction, state: LeadState, provider: Provider | None) -> s
     if t == "ask_location":
         if action.note == "san_jose_needs_zip":
             return "What's the ZIP code of the property in San Jose?"
-        return "What's the property address? Just the ZIP code is fine if that's easier."
+        return "What's the address where you need service? Just the ZIP code is fine if that's easier."
     if t == "out_of_area":
         return (
             f"Thanks. Right now I only have verified providers in {PILOT_SCOPE}, so I can't confidently match "
