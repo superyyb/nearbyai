@@ -89,6 +89,11 @@ licensing, and availability can't be invented. The writer guardrail also rejects
 | Timing / phone / job-address correction | Overwrite; a prepared lead is updated | `test_timing_correction_updates_state`, `test_changing_phone_after_lead_updates_it`, `test_job_address_correction_replaces_billing_address` |
 | Situation changed ("it started again") | Qualification fact updated | `test_water_started_again_updates_qualification` |
 | Non-correction mention | Doesn't overwrite | `test_non_correction_does_not_overwrite` |
+| "Can I change my address?" (no new value yet) | Hold the request, keep the old value, ask for the new one; the next value overrides | `test_wants_change_holds_the_request_and_asks_for_the_new_value`, `test_new_value_after_wants_change_updates_the_lead`, `test_never_mind_after_wants_change_restores_the_lead`, probes `edit_*` |
+| "I gave you the wrong phone number" | Clear the wrong value now (lead not dispatchable), ask for the correct one; consent stands for the same provider | `test_wrong_phone_clears_it_and_makes_the_lead_undispatchable`, `test_correct_phone_after_wrong_rebuilds_lead_without_reasking_consent`, `test_wrong_phone_then_no_number_asks_again_instead_of_giving_up` |
+| Wrong ZIP / a different problem | Re-match after the new ZIP; re-qualify for the new trade | `test_wrong_zip_clears_the_match_and_new_zip_rematches`, `test_changing_the_problem_rematches_for_the_new_trade` |
+| New street address or same-area ZIP | Provider and consent kept; only a service-area change re-matches | `test_new_street_address_in_the_same_area_keeps_provider_and_consent`, `test_zip_in_the_same_area_keeps_the_match` |
+| Unclear request | A clarifying question, never "I can't" (that is only for calls, bookings, guarantees) | `test_unclear_request_after_lead_gets_a_clarifying_question_only`, `test_only_truly_impossible_requests_say_cant`, probe `control_thanks_not_unclear` |
 
 ### Consent, refusals, unknowns
 
