@@ -1,36 +1,76 @@
 # NearbyAI — Home Service Lead Agent
 
-A conversational intake agent that turns a homeowner's problem ("Water started coming into my basement after the
-storm…") into a **provider-ready lead** for a **real, verified local business**. It aims for the fewest necessary
-questions and never invents provider facts.
+A conversational agent that turns a homeowner's problem ("Water started coming into my basement after the storm…")
+into a **provider-ready lead** for a **real, verified local business**, with the fewest necessary questions and no
+invented provider facts.
 
-> **LLM** for language understanding, intent, and wording. **Deterministic code** for orchestration, eligibility,
-> safety policy, consent, and dispatchability. The LLM proposes; code decides.
+> **The LLM proposes; code decides.** Claude handles language: understanding, intent, and wording. Deterministic
+> code handles orchestration, provider eligibility, safety policy, consent, and whether a lead is dispatchable.
 
-**Status:** the product and evaluation are complete. Final results are from one run on frozen commit `ea4d1e2`
-(2026-10-08). Deployment is not done yet.
+## Results
 
-## Run locally
+| Assignment goal | Result |
+|---|---|
+| Lead conversion | **16/16** lead-eligible scenarios → dispatchable lead¹ |
+| Lead quality / actionability | **4.19 / 5** from an LLM provider-perspective judge, vs **2.50 / 5** for paired degraded controls² |
+| Outcome correctness | **20/20** scenarios reached the expected outcome³ (the 4 non-lead cases correctly ended as unsupported service, declined sharing, gas-leak safety redirect, out of area) |
+| Conversation efficiency | median **5.5** user turns to a lead |
+| Provider grounding | **25** real local businesses with source and coverage evidence; **100%** of applicable provider-grounding, coverage-truthfulness, eligibility, and consent checks passed |
+| First-turn generalization | **112** frozen diverse openings: **0%** generic "pick a trade" fallback, **97.8%** labeled accuracy (rule-based baseline: 28.8%, 80.0%)⁴ |
+
+¹ Lead-eligible excludes unsupported service, safety redirect, out of area, and an explicit refusal to share
+contact information.
+² Claude Opus as judge; 16 generated leads and 6 degraded controls, each judged blind and alone. The gap comes from
+issue detail: degrading the issue description dropped scores by 2–3 points, removing timing alone did not.
+³ One evaluator assertion was too strict (an exact-phrase check). It was corrected and re-applied to the saved
+transcripts without rerunning any model; the original 19/20 report is kept.
+⁴ Generated once, mostly by a different model than the agent, and frozen. It was also used to compare versions during
+development, so it is a frozen benchmark, not a strictly held-out test.
+
+**Evaluated version:** the headline metrics come from one run of each major suite on frozen commit `ea4d1e2`
+(2026-10-08). Later fixes from manual testing were checked with deterministic tests, intent probes, and short Claude
+smoke runs, not a full benchmark re-run. Details, baselines, and raw reports:
+[docs/evaluation.md](docs/evaluation.md).
+
+## Try it
 
 ```bash
-cp .env.example .env            # add ANTHROPIC_API_KEY (optional)
-cd backend
-uv sync
-uv run uvicorn app.main:app --port 8000    # http://localhost:8000
-uv run pytest -q                           # 237 deterministic tests, no API calls
-uv run python ../scripts/run_eval.py       # offline scenario eval (rule-based backend)
+cp .env.example .env                                       # add ANTHROPIC_API_KEY; without it, an offline rule-based backend runs
+cd backend && uv sync
+uv run uvicorn app.main:app --port 8000                    # open http://localhost:8000
 ```
 
-Evaluation commands (Claude; costs are measured, list prices):
+`uv run pytest -q` runs the 237 deterministic tests (no API calls). Evaluation commands are in
+[Running the evaluation](#running-the-evaluation).
 
-```bash
-uv run python ../scripts/run_eval.py --backend anthropic --simulator claude --judge   # 20 scenarios + provider judge, ~$1.00
-uv run python ../scripts/run_generalization.py --judge                                # 112 first-turn openings, ~$1.31
-uv run python ../scripts/run_intent_probes.py                                         # 68 intent probes, ~$0.38
+## How it works
+
+```
+message → regex safety screen → ONE structured extraction call (Claude) → merge into LeadState
+        → safety policy → user's explicit intent (edits, provider feedback, questions) → funnel → provider search
+        → lead validator → reply: template → Claude rephrase → guardrails (template on any violation)
 ```
 
-With a key, the app uses Claude (`claude-sonnet-5-5`) for extraction, wording, and reranking. Without one, it runs on
-an offline rule-based backend. That backend is also the baseline in every comparison below.
+| Claude (`claude-sonnet-5-5`) proposes | Code decides |
+|---|---|
+| Job facts, corrections, and edits from free text | What to store, what a correction invalidates, whether each value is valid |
+| Conversation intent: provider rejection, questions, impossible requests | Which intent to act on first; answers built from the provider record |
+| A clarifying question for a vague problem | Whether that question is acceptable; otherwise a curated rule question |
+| Which of 4 hazard families applies | Fixed safety copy; redirect or warn-and-continue (unioned with a regex screen) |
+| A ranking of 2+ eligible providers | Eligibility: trade, coverage tier, phone present |
+| The wording of each reply | Guardrails: no ungrounded phone/URL, booking claims, invented price or rating, or endorsements |
+| — | Consent, `ready_to_dispatch`, and every outcome |
+
+## Why this design
+
+- **Conversion and lead quality depend on decisions that must not drift.** Sending a lead to an ineligible provider,
+  or without consent, is a real failure, so those decisions are code and are covered by deterministic tests.
+- **Homeowners describe problems in unpredictable ways.** Understanding, intent, and wording go to the LLM. When code
+  did that language work, it failed on real phrasings (see the [design correction](#a-design-correction-worth-calling-out)).
+- **A lead is only useful if the provider facts are true.** Every provider fact comes from a source-cited record, and
+  the writer can't add any: guardrails reject invented claims, and the template is used instead.
+
+---
 
 ## What it does
 
@@ -44,21 +84,33 @@ an offline rule-based backend. That backend is also the baseline in every compar
 | Safety | Regex first line, unioned with the extractor's choice from 4 fixed hazard families. Gas/CO/fire → `safety_redirect`. Electrical + water, overheating, and sparking/buzzing → fixed warning first, then the lead continues. Safety copy is fixed in code and never rewritten by the LLM. |
 | Utility outages | Whole-home no water/no power → first ask "only your home, or nearby homes too?" Neighbors affected → `utility_redirect`. Only this home → plumber/electrician. |
 | User control | Reject a provider, ask for another, list options, choose or restore one by name. Questions about price, reviews, licensing, availability, privacy, and sponsorship get **code-built answers** from the provider record ("I don't have verified pricing…"). Requests to call, book, or guarantee are declined honestly. Consent can be revoked after a lead is prepared, which withdraws the lead. |
+| Changing answers | "Can I change my address?" holds the request and asks for the new value. A value the user calls wrong is cleared, so the lead can't go out with it. An invalid phone, email, or ZIP is asked for again, saying what's wrong; the other fields in the same message are kept. Only a service-area change re-matches the provider. |
 | Damage tips | A two-row fixed table (overflowing toilet, active pipe leak), shown at most once, kept verbatim. No diagnosis or DIY advice. |
-| Wording | Acknowledges the user's concrete situation. Never says "booked", "dispatched", or "will arrive". A provisional provider is "located near you", never "serves your area". |
+| Wording | Acknowledges the user's concrete situation once. Never says "booked", "dispatched", or "will arrive". A provisional provider is "located near you", never "serves your area". No endorsements such as "good fit". |
 
-## Architecture
+Every behavior and its tests are listed in [docs/conversation_behaviors.md](docs/conversation_behaviors.md).
+
+## Provider data
+
+25 real businesses in [`data/providers.json`](data/providers.json), generated from the hand-verified matrix in
+`data/source/` by `scripts/import_providers.py`. The script normalizes the matrix but never adds facts. Every record
+has `source_url`, `coverage_evidence`, and `verified_at`. `emergency_service` is set only when the cited evidence says
+24/7. Every trade × area cell has ≥ 2 verified providers in the current data; a test enforces ≥ 2 eligible
+(verified or provisional) providers per cell.
+
+## Architecture in detail
 
 ```
 user message
   → regex safety screen (works even if the LLM fails)
   → ONE structured extraction call (Pydantic-validated, ≤3 attempts; failure keeps prior state):
-      job facts · corrections · provider feedback · question topics · impossible requests ·
+      job facts · corrections · field edits · provider feedback · question topics · impossible requests ·
       consent changes · hazard families · utility signal · a proposed clarifying question
-  → merge into LeadState (corrections invalidate stale facts, match, and consent)
+  → merge into LeadState (each value validated on its own; corrections invalidate stale facts, match, and consent)
   → safety policy (regex ∪ LLM hazard families → fixed copy; redirect or warn-and-continue)
-  → explicit user intent first: provider feedback, then questions and impossible requests (answered from the
-    record), then the funnel resumes the pending question. The funnel is the default path, not a script.
+  → explicit user intent first: field edits and invalid values, provider feedback, then questions and impossible
+    requests (answered from the record), then the funnel resumes the pending question. The funnel is the default
+    path, not a script.
   → funnel (next_action.decide): utility check → trade → clarification → location → qualification
       → match → timing → contact (+ optional address) → consent
       clarification = validated LLM question → curated rule question → generic menu (last resort)
@@ -67,17 +119,20 @@ user message
   → lead validator (only code sets ready_to_dispatch) + 0–100 completeness score (fields present; lead
       quality itself is measured by the provider-perspective judge)
   → wording: template → Claude rephrase → guardrails (ungrounded phone/URL, booking or availability claims,
-      invented price/rating/license, internal details, provisional-as-verified, dropped damage tip,
+      invented price/rating/license, endorsements, internal details, provisional-as-verified, dropped damage tip,
       targeted question turned into a menu) → template on any violation
 ```
 
 Key files: [`agent.py`](backend/app/services/agent.py) (per-turn orchestration),
 [`next_action.py`](backend/app/services/next_action.py) (funnel),
 [`llm.py`](backend/app/services/llm.py) (extraction schema, writer, guardrails),
+[`state_manager.py`](backend/app/services/state_manager.py) (merge and invalidation),
 [`safety.py`](backend/app/services/safety.py), [`clarification.py`](backend/app/services/clarification.py),
 [`provider_intents.py`](backend/app/services/provider_intents.py), [`answers.py`](backend/app/services/answers.py),
+[`edits.py`](backend/app/services/edits.py), [`validation.py`](backend/app/services/validation.py),
 [`lead_validator.py`](backend/app/services/lead_validator.py), [`domain.py`](backend/app/domain.py).
-Every behavior and its tests are listed in [docs/conversation_behaviors.md](docs/conversation_behaviors.md).
+
+Stack: FastAPI, Pydantic, SQLAlchemy + SQLite, a static single-page frontend, Python 3.13 with uv.
 
 ### A design correction worth calling out
 
@@ -88,167 +143,30 @@ doing the language work.
 
 The fix moved that work back to the LLM without giving it the business decisions. Extraction now also reports
 conversation intent and proposes the clarifying question. Code decides whether to act and validates what the LLM
-proposed.
-
-## Provider data
-
-25 real businesses in [`data/providers.json`](data/providers.json), generated from the hand-verified matrix in
-`data/source/` by `scripts/import_providers.py`. The script normalizes the matrix but never adds facts. Every record
-has `source_url`, `coverage_evidence`, and `verified_at`. `emergency_service` is set only when the cited evidence says
-24/7. Every trade × area cell has ≥ 2 verified providers in the current data; a test enforces ≥ 2 eligible
-(verified or provisional) providers per cell.
+proposed. On the frozen 112 openings, generic fallbacks went from 17.3% to 0% and labeled accuracy from 71.1% to
+84.4% (97.8% in the final version).
 
 ## Evaluation
 
-The suites are kept separate, so that a cheap check doesn't get mistaken for a broad one, and a small result doesn't
-get reported as if it were general.
+Five separate suites: 237 deterministic tests, 68 intent probes (incl. 9 negative controls), 20 simulated-user
+scenarios, a frozen set of 112 first-turn openings written by a different model than the agent, and a
+provider-perspective lead judge with paired degraded controls. Safety detection is reported in separate pools
+(semantic stress cases outside regex coverage: regex alone 0/6, regex + LLM 6/6). A turn takes about **5.4 s**.
 
-| Suite | What it proves | Judged by | Cost / run |
-|---|---|---|---|
-| Deterministic tests (237) | Invariants, state transitions (orchestration via a scripted extractor), and the eval harness's own checks | code | free |
-| Intent probes (68, incl. 9 negative controls) | Varied wording maps to the right event; plain answers don't trigger events | code | ~$0.38 |
-| Simulated-user scenarios (20) | End-to-end conversations; structured (offline) or Claude persona simulator | code | ~$0.87 for 20 |
-| First-turn generalization (112, frozen) | Behavior on inputs the code's author didn't write | code + optional Opus judge | ~$1.3 with judge |
-| Provider-perspective lead judge | Would a local business act on the lead? Paired degraded copies check that the judge discriminates | Opus | ~$0.13, runs with the scenarios |
+Full tables, baselines, the evaluator correction, bugs the evaluation found, and the changes made after the final
+run are in [docs/evaluation.md](docs/evaluation.md). Raw reports are in
+[`data/evaluation/results/`](data/evaluation/results/).
 
-**Testing cadence:** pytest on every change. For a fix, only the related Claude cases. For a shared component, a
-small smoke set. Full runs only at milestones. Real failures become regression tests; the generalization set stays
-frozen so versions stay comparable.
+### Running the evaluation
 
-### Final results (one run each on frozen commit `ea4d1e2`; total cost $2.59)
+From `backend/`:
 
-Reports are in [`data/evaluation/results/`](data/evaluation/results/) (see its README for each file;
-scratch output from runs goes to the git-ignored `reports/`).
-
-**End-to-end conversations** — 20 scenarios, Claude-simulated users
-([`final_scenarios_claude.md`](data/evaluation/results/final_scenarios_claude.md)):
-
-| Metric | Result |
-|---|---|
-| Scenarios reaching the expected outcome | **20/20** |
-| Contractor-eligible scenarios that produced a dispatchable lead | **16/16** |
-| The other 4 (pest control, declined sharing, gas leak, out of area) | correct non-lead outcome (`unsupported_category`, `self_serve`, `safety_redirect`, `no_match`) |
-| Scenario behavior checks passed | 20/20 after correcting one evaluator assertion (below) |
-| Median / mean user turns to a lead | 5.5 / 5.44 |
-| Provider grounding · coverage truthfulness · eligibility · consent correctness | 100% · 100% · 100% · 100% |
-| Extraction failures · rerank fallbacks · writer fallbacks to template | 0/95 · 0/19 · 1/94 |
-
-One case originally failed an exact-phrase check: the reply answered "are they any good? how much?" in one sentence
-("I don't have verified reviews, ratings, or pricing…"). The check now judges behavior (both questions recognized,
-both topics addressed, "unavailable" stated, no invented claim), with tests. It was re-applied to the saved
-transcripts **without rerunning any model**; the original 19/20 report is kept next to the rescored file.
-
-The one writer fallback was a guardrail false positive: a reply about a roof leak *and* a broken AC named three
-trades, which the "don't turn a targeted question into a menu" check flagged. The safe template was used instead.
-It is left as a known limitation so that the evaluated product version stays the submitted one.
-
-**Lead quality from the provider's side** — Opus judge, 16 generated leads plus 6 paired degraded copies, each judged
-blind and alone, on a provider-view rendering (no consent, coverage, or provenance fields):
-
-| Leads | n | Actionability (1–5) |
-|---|---|---|
-| Generated by the agent | 16 | **4.19** (thirteen 4s, three 5s) |
-| Paired degraded copies, all | 6 | 2.50 |
-| — vague issue description | 2 | 1.5 |
-| — vague issue + no timing | 2 | 2.0 |
-| — timing removed only | 2 | 4.0 (no change from the originals) |
-
-In this evaluation set the judge strongly separated **issue-detail** degradation (all 4 such pairs dropped, by 2–3
-points). Removing timing alone had no effect. `would_act` was 100% for generated leads and 83% for degraded ones:
-with a phone number present, the judge nearly always "would call", so the 1–5 score is the useful signal. The sample
-is small, and every generated lead scored 4–5, so this shows that actionable leads are distinguished from vague ones.
-It doesn't show fine-grained quality ranking. Manual calibration of the judge was not done.
-
-**First-turn generalization** — the frozen 112 openings, Claude:
-
-| Metric | Before the refactor | After the refactor | **Final** |
-|---|---|---|---|
-| Generic fallback rate (reply recites the trade menu) | 17.3% | 0% | **0%** |
-| Contextual clarification rate | 10% | 100% | **100%** |
-| Labeled accuracy (45 hand labels) | 71.1% | 84.4% | **97.8%** |
-| Opus judge mean (1–5, soft quality only) | 2.86 | 3.40 | **3.94** |
-| Replies judged ≤ 2 | 52 | 32 | **8** |
-| Hard violations / premature provider | 0 / 0 | 0 / 0 | 0 / 0 |
-
-The openings were generated once by **a different model than the agent** (Opus; the agent runs on Sonnet), with
-instructions not to target the supported trades. Two openings came from manual tests. Every pass/fail metric is
-decided by code. Offline rule-based baseline on the same set: 28.8% generic fallback, 80.0% labeled accuracy.
-
-**Safety detection** — pools reported separately:
-
-| Pool | Regex only | Regex + LLM |
-|---|---|---|
-| Labeled safety openings (14; several **were used to extend the regex**, so this is regression coverage) | 14/14 | 14/14 |
-| Held-out phrasings the regex cannot match (6) | 0/6 | **6/6** |
-| Negative controls with scary words that shouldn't trigger (9): false alarms | 2 | 2 (both from regex) |
-
-Known gap: the regex can't tell resolved or hypothetical statements ("the buzzing was fixed", "it might get hot
-someday") from current hazards. The LLM gets these right, but the union inherits the regex's two false alarms.
-
-**Intent probes:** 54/54 on the final code, including 5/5 negative controls (rule-based baseline: 29/44 on the
-earlier 44-probe version). **Offline scenario baseline:** 19/20 (fails a typo-heavy opening).
-
-**Cost and latency** (measured): about **$0.04 per conversation** for the agent itself (extraction, wording,
-rerank). Caching the fixed system prompts halved extraction cost. A turn takes about **5.4 s** on average
-(extraction 3.5 s + wording 1.9 s; p95 5.4 s and 4.7 s).
-
-### Changes after the final run
-
-The metrics above are for `ea4d1e2`. The fixes below came later from manual testing. Each was checked with
-deterministic tests, the intent probes where extraction changed (68/68 after the last change), and a short Claude
-smoke run (3–4 conversations, all passing), not a full re-run:
-
-- **Acknowledge new facts once.** Replies had restated the situation every turn ("Since the water started…",
-  "Since your basement floor is still wet…"). The writer now gets the situation only on the first reply or when a
-  turn adds a structured new fact (trade, impact, qualification fact, secondary issue). It also may not repeat the
-  previous reply's opening.
-- **Inferred source labeled as suspected.** The lead now says "Suspected source: storm-related water intrusion
-  (exact source not confirmed)" instead of "Likely source: exterior / storm water".
-- **No provider endorsements.** The writer occasionally added "looks like a good fit" (2 of 95 replies in the final
-  run). The dataset has no quality signals, so endorsements ("good fit", "reliable", "trusted") are now a guardrail
-  violation, and the reply falls back to the template.
-- **Plainer location question.** "What's the address where you need service?" replaces "What's the property address?".
-- **Edits announced before the new value.** After a lead was ready, "Can I change my address?" got "That's not
-  something I can do here", and "I just gave you wrong phone number" got "Your request is ready". Extraction now
-  reports a field edit and whether the old value is wrong. The agent holds the request and asks for the new value;
-  a value the user calls wrong is cleared, so the lead can't go out with it. The new value then runs through the
-  existing invalidation. Requests the model can't classify now get a clarifying question instead of "I can't".
-- **Invalid values are asked for, not dropped.** A 9-digit phone number was silently discarded twice; the contact
-  ask limit then sent the user to self-serve with "I won't share your details", although they never declined.
-  Extraction now copies phone, email and ZIP as typed, and code validates each field on its own. Valid fields in
-  the same message are saved. Only the invalid one is asked for again, saying what's wrong ("that's 9 digits — US
-  numbers have 10"), with a format example the second time and another way forward the third. Invalid attempts
-  don't count toward ask limits, and "I won't share your details" is used only after an explicit refusal.
-  ZIP+4 (95050-1234) is accepted.
-- **Only a service-area change re-matches.** A new street address, or a ZIP in the same area, used to clear the
-  provider and re-ask consent for the same provider. Eligibility depends on the pilot area, so only an area change
-  invalidates the match.
-
-### What the evaluation taught, and what I did not change
-
-The provider judge valued **specific issue context much more than preferred timing**. Exact street address was the
-most frequently requested missing item (14 of 16 leads). I kept both timing and address decisions unchanged, so as
-not to optimize the product toward the evaluator after seeing results. Both are future experiments: making timing
-optional to cut a turn, and collecting the address later in the funnel or after the provider accepts. The address
-signal is partly a simulation artifact: most scenario personas were written to withhold their street address.
-
-### Bugs the evaluation found
-
-Each became a regression test: a negation-blind safety screen ("no sparks" triggered a warning and marked the lead
-urgent); guessed qualification facts ("my neighbor says water is pooling" → "water still entering: yes"); a crash
-when the reranker returned every candidate; a second question in one message going unanswered; consequences
-mislabeled as separate issues; 6 missed hazards; an unprompted "I don't know what's wrong" read as "I don't know if
-the neighbors have power", which skipped the utility check; a lead score labeled "quality" that only measured
-completeness. Three failures came from manual testing, including the two architecture-level ones above. The
-evaluation harness had bugs too (an over-strict assertion, a metric that counted out-of-scope replies as menus), so
-its checks now have their own tests.
-
-### Continuous evaluation
-
-Conversations are logged (SQLite: `conversations`, `messages`, `leads`, `eval_candidates`). Conversations with
-corrections, provider rejections, no match, unsupported or utility outcomes, extraction failures, guardrail
-rejections, or too many turns are flagged as **eval candidates** for manual promotion. Nothing is added to the
-benchmarks automatically. (An export script is still to do.)
+```bash
+uv run python ../scripts/run_eval.py                                                 # offline scenario eval (rule-based backend)
+uv run python ../scripts/run_eval.py --backend anthropic --simulator claude --judge   # 20 scenarios + provider judge
+uv run python ../scripts/run_generalization.py --judge                                # 112 first-turn openings
+uv run python ../scripts/run_intent_probes.py                                         # 68 intent probes
+```
 
 ## Privacy note
 
@@ -261,13 +179,15 @@ per-IP rate limit.
 
 - **To do:** deployment; eval-candidate export script; masking phone numbers in conversation logs.
 - **Evaluation limits:** 20 scenarios (1 scenario = 5%); a small judge sample with no manual calibration; the
-  simulator is more cooperative than real users; the 112-opening set tests only the first turn, so mid-conversation
-  long tail is covered by deterministic tests and probes, not at scale.
-- **Safety:** regex false alarms on resolved or hypothetical statements (above). A proposed fix is on hold: let an
-  explicit LLM "not present" judgment veto regex-only warnings, but never gas/CO/fire.
+  simulator is more cooperative than real users; the 112-opening set tests only the first turn.
+- **Safety:** regex false alarms on resolved or hypothetical statements ("the buzzing was fixed"). A proposed fix is
+  on hold: let an explicit LLM "not present" judgment veto regex-only warnings, but never gas/CO/fire.
 - **Wording:** about 1% of replies fall back to the template when the menu guardrail misfires on multi-issue replies.
 - **Latency:** about 5 s per turn (two sequential model calls); streaming the reply or a faster extraction model
   would be the first steps.
+- **Untested product ideas:** the judge valued issue detail far more than timing, and street address was its most
+  requested missing item. Making timing optional, or collecting the address later, are experiments I didn't run, so
+  as not to tune the product to the evaluator after seeing results.
 - **Scope:** one provider per lead (no shared leads). Up to 3 options are listed. No provider comparisons, because the
   dataset has no quality signals. Consent covers name and contact for one provider, and the address can be withheld.
 - **Not built, by design:** RAG/pgvector (after hard filtering there are 2–5 candidates; at 1,000+ providers I'd add

@@ -25,15 +25,15 @@ The funnel is the default path, not a script. A turn spent on 3 or 4 does not co
 
 ## Test layers
 
-| Layer | What it proves | Cost | Where |
-|---|---|---|---|
-| Deterministic unit tests | Invariants and single transitions | free | `tests/test_core.py`, `tests/test_robustness.py` |
-| Scripted conversation tests | Orchestration given "the extractor understood X" | free | `tests/test_behaviors.py` (uses `ScriptedLLM`) |
-| Intent probes | Claude maps varied wording to the right event, and plain answers don't trigger events | ~$0.25 | `data/evaluation/intent_probes.json`, `scripts/run_intent_probes.py` |
-| Simulated-user eval | End-to-end conversations with personas | ~$0.05/conversation | `data/evaluation/core_cases.json`, `scripts/run_eval.py` |
-| First-turn generalization | 112 frozen openings written by a different model than the agent | ~$1.3 | `data/evaluation/generalization_openings.json`, `scripts/run_generalization.py` |
-| Provider-perspective judge | Lead actionability, with paired degraded copies | ~$0.13 | `backend/app/evaluation/provider_judge.py` (`run_eval.py --judge`) |
-| Eval-harness tests | The evaluator's own checks and the judge plumbing | free | `tests/test_evaluator.py`, `tests/test_provider_judge.py` |
+| Layer | What it proves | Where |
+|---|---|---|
+| Deterministic unit tests | Invariants and single transitions | `tests/test_core.py`, `tests/test_robustness.py` |
+| Scripted conversation tests | Orchestration given "the extractor understood X" | `tests/test_behaviors.py` (uses `ScriptedLLM`) |
+| Intent probes | Claude maps varied wording to the right event, and plain answers don't trigger events | `data/evaluation/intent_probes.json`, `scripts/run_intent_probes.py` |
+| Simulated-user eval | End-to-end conversations with personas | `data/evaluation/core_cases.json`, `scripts/run_eval.py` |
+| First-turn generalization | 112 frozen openings written by a different model than the agent | `data/evaluation/generalization_openings.json`, `scripts/run_generalization.py` |
+| Provider-perspective judge | Lead actionability, with paired degraded copies | `backend/app/evaluation/provider_judge.py` (`run_eval.py --judge`) |
+| Eval-harness tests | The evaluator's own checks and the judge plumbing | `tests/test_evaluator.py`, `tests/test_provider_judge.py` |
 
 New cases come from real failures, and each became a regression test:
 - **Manual tests:** provider rejection was ignored; "no water in my home" got the trade menu; an unprompted "I don't
