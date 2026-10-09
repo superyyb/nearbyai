@@ -38,7 +38,7 @@ SIMPLE_FIELDS = [
     "contact_preferences",
     "insurance_intent",
 ]
-LOCATION_FIELDS = {"street_address", "city", "zip_code"}
+AREA_FIELDS = {"city", "zip_code"}  # fields that decide the pilot area
 
 
 def normalize_contact(method: str | None, value: str | None) -> tuple[str | None, str | None]:
@@ -120,15 +120,15 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
         state.candidate_categories = list(dict.fromkeys(up.candidate_categories))
 
     # --- simple fields ---
-    location_changed = False
+    location_inputs_changed = False
     for field in SIMPLE_FIELDS:
         new = getattr(up, field)
         if new is None:
             continue
         old = getattr(state, field)
         if old is None or field in corrections or (field == "issue_summary"):
-            if old is not None and old != new and field in LOCATION_FIELDS:
-                location_changed = True
+            if old is not None and old != new and field in AREA_FIELDS:
+                location_inputs_changed = True
             setattr(state, field, new)
 
     # Utility outage: the signal sticks once seen; the scope is latest-wins ("actually it's only my house").
@@ -178,13 +178,15 @@ def merge(state: LeadState, result: ExtractionResult) -> list[str]:
             state.street_address = None
 
     # --- derived location ---
-    if up.zip_code or up.city or location_changed:
+    # Provider eligibility depends on the pilot area, so only an area change invalidates the match. A new street
+    # address, or a ZIP in the same area, keeps the provider and the consent given for it.
+    area_changed = False
+    if up.zip_code or up.city or location_inputs_changed:
         new_area = resolve_pilot_area(state.zip_code, state.city)
-        if new_area != state.pilot_area and state.selected_provider_id:
-            location_changed = True
+        area_changed = new_area != state.pilot_area
         state.pilot_area = new_area
-    if location_changed and state.selected_provider_id:
-        notes.append("location changed; provider match cleared")
+    if area_changed and state.selected_provider_id:
+        notes.append("service area changed; provider match cleared")
         _clear_match(state)
 
     return notes
