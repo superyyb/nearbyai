@@ -17,7 +17,7 @@ cp .env.example .env            # add ANTHROPIC_API_KEY (optional)
 cd backend
 uv sync
 uv run uvicorn app.main:app --port 8000    # http://localhost:8000
-uv run pytest -q                           # 214 deterministic tests, no API calls
+uv run pytest -q                           # 237 deterministic tests, no API calls
 uv run python ../scripts/run_eval.py       # offline scenario eval (rule-based backend)
 ```
 
@@ -26,7 +26,7 @@ Evaluation commands (Claude; costs are measured, list prices):
 ```bash
 uv run python ../scripts/run_eval.py --backend anthropic --simulator claude --judge   # 20 scenarios + provider judge, ~$1.00
 uv run python ../scripts/run_generalization.py --judge                                # 112 first-turn openings, ~$1.31
-uv run python ../scripts/run_intent_probes.py                                         # 66 intent probes, ~$0.38
+uv run python ../scripts/run_intent_probes.py                                         # 68 intent probes, ~$0.38
 ```
 
 With a key, the app uses Claude (`claude-sonnet-5-5`) for extraction, wording, and reranking. Without one, it runs on
@@ -105,8 +105,8 @@ get reported as if it were general.
 
 | Suite | What it proves | Judged by | Cost / run |
 |---|---|---|---|
-| Deterministic tests (214) | Invariants, state transitions (orchestration via a scripted extractor), and the eval harness's own checks | code | free |
-| Intent probes (66, incl. 9 negative controls) | Varied wording maps to the right event; plain answers don't trigger events | code | ~$0.38 |
+| Deterministic tests (237) | Invariants, state transitions (orchestration via a scripted extractor), and the eval harness's own checks | code | free |
+| Intent probes (68, incl. 9 negative controls) | Varied wording maps to the right event; plain answers don't trigger events | code | ~$0.38 |
 | Simulated-user scenarios (20) | End-to-end conversations; structured (offline) or Claude persona simulator | code | ~$0.87 for 20 |
 | First-turn generalization (112, frozen) | Behavior on inputs the code's author didn't write | code + optional Opus judge | ~$1.3 with judge |
 | Provider-perspective lead judge | Would a local business act on the lead? Paired degraded copies check that the judge discriminates | Opus | ~$0.13, runs with the scenarios |
@@ -195,7 +195,7 @@ rerank). Caching the fixed system prompts halved extraction cost. A turn takes a
 ### Changes after the final run
 
 The metrics above are for `ea4d1e2`. The fixes below came later from manual testing. Each was checked with
-deterministic tests, the intent probes where extraction changed (66/66 after the edit change), and a short Claude
+deterministic tests, the intent probes where extraction changed (68/68 after the last change), and a short Claude
 smoke run (3–4 conversations, all passing), not a full re-run:
 
 - **Acknowledge new facts once.** Replies had restated the situation every turn ("Since the water started…",
@@ -213,6 +213,13 @@ smoke run (3–4 conversations, all passing), not a full re-run:
   reports a field edit and whether the old value is wrong. The agent holds the request and asks for the new value;
   a value the user calls wrong is cleared, so the lead can't go out with it. The new value then runs through the
   existing invalidation. Requests the model can't classify now get a clarifying question instead of "I can't".
+- **Invalid values are asked for, not dropped.** A 9-digit phone number was silently discarded twice; the contact
+  ask limit then sent the user to self-serve with "I won't share your details", although they never declined.
+  Extraction now copies phone, email and ZIP as typed, and code validates each field on its own. Valid fields in
+  the same message are saved. Only the invalid one is asked for again, saying what's wrong ("that's 9 digits — US
+  numbers have 10"), with a format example the second time and another way forward the third. Invalid attempts
+  don't count toward ask limits, and "I won't share your details" is used only after an explicit refusal.
+  ZIP+4 (95050-1234) is accepted.
 - **Only a service-area change re-matches.** A new street address, or a ZIP in the same area, used to clear the
   provider and re-ask consent for the same provider. Eligibility depends on the pilot area, so only an area change
   invalidates the match.
